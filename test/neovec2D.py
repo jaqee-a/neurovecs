@@ -1,3 +1,4 @@
+from math import degrees
 from random import random
 import matplotlib.pyplot as plt
 import numpy as np
@@ -5,22 +6,23 @@ import numpy as np
 import sys
 sys.path.append('..')
 
-from src.neurovec2D import NeuroVector2D
+from src.neurovec3D import NeuroVector2D
 
+RES = 250
 
 
 if __name__ == '__main__':
-    vec1 = [random()*44 - 22, random()*44 - 22]    
-    vec2 = [random()*44 - 22, random()*44 - 22]
+    vec1 = np.array([random()*44 - 22, random()*44 - 22])    
+    vec2 = np.array([random()*44 - 22, random()*44 - 22])
     #vec1 = [20, 40]
     #vec2 = [-20, 40]
 
-    nvec1 = NeuroVector2D.fromVector(*vec1, 360)
-    nvec2 = NeuroVector2D.fromVector(*vec2, 360)
+    nvec1 = NeuroVector2D.fromVector(*vec1, RES)
+    nvec2 = NeuroVector2D.fromVector(*vec2, RES)
 
-    nvec3 = nvec1 + nvec2
+    nvec3 = nvec1 - nvec2
 
-    x  = np.linspace(0, 2*np.pi, nvec1.res)
+    x  = (np.arange(RES+1)*2*np.pi/RES+1)-np.pi
 
     y1 = nvec1.getVS()
     y2 = nvec2.getVS()
@@ -42,16 +44,24 @@ if __name__ == '__main__':
     vec3 = nvec3.toVec()
     
 
+    res = NeuroVector2D.fromVector(*(vec1 - vec2), RES)
+
+    print(nvec3.theta, degrees(nvec3.theta))
+    print(res.theta, degrees(res.theta))
+
     axis[0, 1].arrow(0, 0, *vec1, head_width=0, head_length=0, fc='lightblue', ec='black')
     axis[1, 1].arrow(0, 0, *vec2, head_width=0, head_length=0, fc='lightblue', ec='black')
 
 
     axis[2, 1].arrow(0, 0, *vec3, head_width=0, head_length=0, fc='lightblue', ec='black')
     axis[2, 1].arrow(0, 0, *vec1, head_width=0, head_length=0, fc='lightblue', ec='black')
-    axis[2, 1].arrow(*vec1, *vec2, head_width=0, head_length=0, fc='lightblue', ec='black')
+    axis[2, 1].arrow(*vec1, *(-vec2), head_width=0, head_length=0, fc='lightblue', ec='black')
 
-    minx = max(vec1[0], vec2[0], vec3[0]) + 10
-    miny = max(vec1[1], vec2[1], vec3[1]) + 10
+    xs = np.array([vec1[0], vec2[0], vec3[0]])
+    ys = np.array([vec1[1], vec2[1], vec3[1]])
+
+    minx = max(*xs, *(-xs)) + 10
+    miny = max(*ys, *(-ys)) + 10
 
     axis[0, 1].set_ylim([-miny, miny])
     axis[1, 1].set_ylim([-miny, miny])

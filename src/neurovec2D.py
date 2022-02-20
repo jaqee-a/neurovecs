@@ -16,7 +16,7 @@ class NeuroVector2D:
         max_  = np.argmax(vs)
         
         ro    = vs[max_] - bias
-        theta = max_*2*np.pi/vs.size
+        theta = (max_*2*np.pi/vs.size)-np.pi
 
         out   = NeuroVector2D(ro, theta, vs.size, False)
 
@@ -39,7 +39,8 @@ class NeuroVector2D:
         if calcVS: self.calculateVS()
 
     def calculateVS(self):
-        space = np.linspace(0, 2*np.pi, self.res)
+        #space = np.linspace(-np.pi, np.pi, self.res, endpoint=True)
+        space = (np.arange(self.res+1)*2*np.pi/self.res)-np.pi
         self.setVS(self.ro * np.cos(space - self.theta), None)
         
     def getVS(self):
@@ -54,6 +55,9 @@ class NeuroVector2D:
     def toVec(self):
         return self.ro * cos(self.theta), self.ro * sin(self.theta)
 
+    def getValues(self):
+        return [self.theta, self.ro]
+
     def __sub__(self, __o):
         assert self.__VS.size == __o.__VS.size, "SUB: Unmatched resolution"
         assert type(__o) == NeuroVector2D, "SUB: Wrong second-hand type"
@@ -65,9 +69,12 @@ class NeuroVector2D:
             
             Slide the array by N / 2, as N represents 2*pi, N / 2 represents pi.
         """
-        new_vs = np.roll(__o.__VS, __o.res // 2)
-
-        return NeuroVector2D.fromVS(self.__VS + new_vs, self.bias + __o.bias)
+        new_vs = np.roll(__o.__VS, -__o.res // 2)
+        
+        """ TODO
+            Check why this method has more error rate on the angle
+        """ 
+        return NeuroVector2D.fromVS(self.__VS - __o.__VS, self.bias - __o.bias)
 
 
     def __add__(self, __o):
