@@ -1,25 +1,22 @@
+
+
+
+
+from math import sqrt
 import numpy as np
 
-from math import atan2, sqrt
-
-from neurovec2D import NeuroVector2D
-
-def thro(x, y):
-    theta = atan2(y, x)
-    ro = sqrt(x*x+y*y)
-    return theta, ro
-
-vec = np.array([10, 20])
-vec2= np.array([5, 11])
-
-t,r=thro(*vec)
-t1,r1=thro(*vec2)
-
-nv = NeuroVector2D(r, t,   3600)
-nv2= NeuroVector2D(r1, t1, 3600)
-
-nv3 = nv2 - nv
+from neurovec3D import NeuroVector3D
 
 
-print(nv3.toVec())
-#print(nv3.toVec())
+v1 = np.array([1, 2, 3])
+v2 = np.array([5, 4, 6])
+v3 = v1 + v2
+
+nv1 = NeuroVector3D.fromCartesianVector(*v1, 3600)
+nv2 = NeuroVector3D.fromCartesianVector(*v2, 3600)
+
+
+nv3 = nv1 + nv2
+
+
+print(NeuroVector3D.extractCartesianParameters(nv3))

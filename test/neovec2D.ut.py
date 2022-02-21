@@ -19,7 +19,7 @@ DEFAULT_RESOLUTION = 3600
 if __name__ == '__main__':
     name, *args = sys.argv
     nums = int(args[0])
-    resolution = int(args[1] if len(args) > 1 else DEFAULT_RESOLUTION)
+    resolution = int(args[1]) if len(args) > 1 else DEFAULT_RESOLUTION
 
     # np.random.seed(5)
     # random.seed(5)
@@ -30,8 +30,8 @@ if __name__ == '__main__':
 
     shuffle(test_samples2)
 
-    test_neovecs         = np.array([*map(lambda x:NeuroVector2D.fromVector(*x,resolution), test_samples ),])
-    test_neovecs2        = np.array([*map(lambda x:NeuroVector2D.fromVector(*x,resolution), test_samples2),])
+    test_neovecs         = np.array([*map(lambda x:NeuroVector2D.fromCartesianVector(*x,resolution), test_samples ),])
+    test_neovecs2        = np.array([*map(lambda x:NeuroVector2D.fromCartesianVector(*x,resolution), test_samples2),])
 
     addition_samples     = test_samples + test_samples2
     substraction_samples = test_samples - test_samples2
@@ -41,9 +41,9 @@ if __name__ == '__main__':
     substraction_neovecs = test_neovecs - test_neovecs2
     multiplitaion_neovecs= test_neovecs * lambda_samples
 
-    addition_neovecs     = np.array([*map(lambda x:[x.theta, x.ro], addition_neovecs     ),])
-    substraction_neovecs = np.array([*map(lambda x:[x.theta, x.ro], substraction_neovecs ),])
-    multiplitaion_neovecs= np.array([*map(lambda x:[x.theta, x.ro], multiplitaion_neovecs),])
+    addition_neovecs     = np.array([*map(NeuroVector2D.extractPolarParameters, addition_neovecs     ),])
+    substraction_neovecs = np.array([*map(NeuroVector2D.extractPolarParameters, substraction_neovecs ),])
+    multiplitaion_neovecs= np.array([*map(NeuroVector2D.extractPolarParameters, multiplitaion_neovecs),])
 
     addition_samples     = np.array([*map(lambda x:[atan2(x[1], x[0]), sqrt(x[1]**2 + x[0]**2)], addition_samples     ),])
     substraction_samples = np.array([*map(lambda x:[atan2(x[1], x[0]), sqrt(x[1]**2 + x[0]**2)], substraction_samples ),])
