@@ -24,13 +24,14 @@
 
 
 from math import asin, cos, sin, sqrt
+from time import time
 import numpy as np
 
 
 class NeuroVector3D:
 
     __MS      : np.ndarray
-    bias      :float
+    bias      : float
     resolution: int
 
 
@@ -79,9 +80,9 @@ class NeuroVector3D:
 
         #ρ0(cosδ cosδ0 cos(θ − θ0) + sinδ sinδ0)
         self.__MS = ro * (cos(phi) * np.cos(phis) * np.cos(thetas - theta) + sin(phi) * np.sin(phis))
-        
-        min_val = self.__MS.min()
 
+        min_val = self.__MS.min()
+        
         if min_val < 0:
             self.bias = abs(min_val)
 
@@ -114,6 +115,9 @@ class NeuroVector3D:
 
         return x, y, z
 
+    def getMS(self):
+        return self.__MS
+        
     # TODO TEST!
     def __sub__(self, __o):
         assert self.__MS.shape == __o.__MS.shape, "SUB: Unmatched resolution"
