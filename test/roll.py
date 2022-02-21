@@ -17,6 +17,8 @@ if __name__ == '__main__':
     nvec1 = NeuroVector2D.fromVector(*vec1, RES)
     nvec2 = NeuroVector2D.fromVS((nvec1.ro + nvec1.bias) - nvec1.getVS(), nvec1.bias)
     nvec3 = nvec1 - nvec1
+
+    print(nvec3.theta)
     vec2 = nvec2.toVec()
 
     x  = (np.arange(RES+1)*2*np.pi/RES+1)-np.pi
