@@ -40,10 +40,8 @@ if __name__ == '__main__':
     random.seed(5)
 
     test_samples  = np.random.random((nums, 3))*100
-    test_samples2 = test_samples.copy()
+    test_samples2 = np.random.random((nums, 3))*100
     lambda_samples= np.random.random(nums)
-
-    shuffle(test_samples2)
 
     test_neovecs         = np.array([*map(lambda x:NeuroVector3D.fromCartesianVector(*x,resolution), test_samples ),])
     test_neovecs2        = np.array([*map(lambda x:NeuroVector3D.fromCartesianVector(*x,resolution), test_samples2),])
@@ -51,30 +49,39 @@ if __name__ == '__main__':
     addition_samples     = test_samples + test_samples2
     addition_neovecs     = test_neovecs + test_neovecs2
     addition_neovecs     = np.array([*map(NeuroVector3D.extractCartesianParameters, addition_neovecs     ),])
-    #addition_samples     = np.array([*map(lambda x:extract(*x), addition_samples     ),])
 
     substraction_samples = test_samples - test_samples2
     substraction_neovecs = test_neovecs - test_neovecs2
     substraction_neovecs = np.array([*map(NeuroVector3D.extractCartesianParameters, substraction_neovecs ),])
-    #substraction_samples = np.array([*map(lambda x:extract(*x), substraction_samples ),])
 
-    #multiplitaion_samples= (test_samples * np.dstack((lambda_samples, lambda_samples, lambda_samples)))[0]
-
-    #multiplitaion_neovecs= test_neovecs * lambda_samples
-
-    #multiplitaion_neovecs= np.array([*map(NeuroVector3D.extractPolarParameters, multiplitaion_neovecs),])
+    multiplitaion_samples= (test_samples * np.dstack((lambda_samples, lambda_samples, lambda_samples)))[0]
+    multiplitaion_neovecs= test_neovecs * lambda_samples
+    multiplitaion_neovecs= np.array([*map(NeuroVector3D.extractCartesianParameters, multiplitaion_neovecs),])
 
     #multiplitaion_samples= np.array([*map(lambda x:extract(*x), multiplitaion_samples),])
 
-    vnorm   = np.linalg.norm(substraction_samples, axis=1)
-    neonorm = np.linalg.norm(substraction_neovecs, axis=1)
-    v       = vnorm * neonorm
+    vnorm_sub   = np.linalg.norm(substraction_samples, axis=1)
+    neonorm_sub = np.linalg.norm(substraction_neovecs, axis=1)
+    v_sub       = vnorm_sub * neonorm_sub
 
-    dot = (substraction_samples * substraction_neovecs).sum(axis=1)
-    print(np.degrees(np.arccos(dot / v)))
-    exit()
+    dot_sub = (substraction_samples * substraction_neovecs).sum(axis=1)
+    angle_err_sub = np.degrees(np.arccos(dot_sub / v_sub)).sum() / nums
 
-    addition_error      = sum(np.abs(addition_neovecs      - addition_samples     )) / nums
+    vnorm_add   = np.linalg.norm(addition_samples, axis=1)
+    neonorm_add = np.linalg.norm(addition_neovecs, axis=1)
+    v_add       = vnorm_add * neonorm_add
+
+    dot_add = (addition_samples * addition_neovecs).sum(axis=1)
+    angle_err_add = np.degrees(np.arccos(dot_add / v_add)).sum() / nums
+
+    vnorm_mul   = np.linalg.norm(multiplitaion_samples, axis=1)
+    neonorm_mul = np.linalg.norm(multiplitaion_neovecs, axis=1)
+    v_mul       = vnorm_mul * neonorm_mul
+
+    dot_mul = (multiplitaion_samples * multiplitaion_neovecs).sum(axis=1)
+    angle_err_mul = np.degrees(np.arccos(dot_mul / v_mul)).sum() / nums
+
+    #addition_error      = sum(np.abs(addition_neovecs      - addition_samples     )) / nums
     #substraction_error  = sum(np.abs(substraction_neovecs  - substraction_samples )) / nums
     #multiplitaion_error = sum(np.abs(multiplitaion_neovecs - multiplitaion_samples)) / nums
 
@@ -90,7 +97,7 @@ if __name__ == '__main__':
 
     print(
         tabulate([
-            ["Addition"] + list(addition_error),
-            #["Substraction"] + list(substraction_error),
-            #["Multiplication"] + list(multiplitaion_error)
+            ["Addition"] + [angle_err_add],
+            ["Substraction"] + [angle_err_sub],
+            ["Multiplication"] + [angle_err_mul]
             ], headers=["Operation", "Theta error in deg°", "Phi error in deg°", "Length error"]))
