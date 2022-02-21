@@ -68,13 +68,16 @@ class NeuroVector2D:
             Inverting a Sine Wave function is same as offsetting the input by pi
             
             Slide the array by N / 2, as N represents 2*pi, N / 2 represents pi.
+            # new_vs = np.roll(__o.__VS, -__o.res // 2)
         """
-        new_vs = np.roll(__o.__VS, -__o.res // 2)
+
+        # Just inverting because the slide thing didn't work
+        new_vs = (__o.ro + __o.bias) - __o.__VS
         
         """ TODO
             Check why this method has more error rate on the angle
         """ 
-        return NeuroVector2D.fromVS(self.__VS - __o.__VS, self.bias - __o.bias)
+        return NeuroVector2D.fromVS(self.__VS + new_vs, self.bias + __o.bias)
 
 
     def __add__(self, __o):
