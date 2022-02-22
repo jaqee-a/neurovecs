@@ -35,10 +35,10 @@ class NeuroVector2D:
 
     @staticmethod
     def fromCartesianVector(x: float, y: float, resolution: int):
-        ro    = sqrt(x*x+y*y)
+        rho    = sqrt(x*x+y*y)
         theta = atan2(y, x)
 
-        return NeuroVector2D(ro=ro, theta=theta, resolution=resolution)
+        return NeuroVector2D(rho=rho, theta=theta, resolution=resolution)
 
     @staticmethod
     def fromSWV(swv: np.ndarray, bias: float):
@@ -48,24 +48,24 @@ class NeuroVector2D:
 
         return out
 
-    def __init__(self, ro: float = None, theta: float = None, resolution: int = None, swv: np.ndarray = None) -> None:
+    def __init__(self, rho: float = None, theta: float = None, resolution: int = None, swv: np.ndarray = None) -> None:
 
         if type(swv) == np.ndarray:
             self.resolution = swv.size
             self.__SWV = swv
         else:
-            assert ro != None and theta != None and resolution != None, "You must provide either 'SWV' or (ro, theta and resolution) in the constructor"
+            assert rho != None and theta != None and resolution != None, "You must provide either 'SWV' or (rho, theta and resolution) in the constructor"
             
             self.resolution = resolution
 
             self.__SWV = np.zeros(self.resolution)
 
             self.bias = 0
-            self.calculateSineWaveVector(ro, theta)
+            self.calculateSineWaveVector(rho, theta)
 
-    def calculateSineWaveVector(self, ro: float, theta: float):
+    def calculateSineWaveVector(self, rho: float, theta: float):
         space = np.linspace(-np.pi, np.pi, self.resolution, endpoint=True)
-        self.__SWV = ro * np.cos(space - theta)
+        self.__SWV = rho * np.cos(space - theta)
 
         min_val = self.__SWV.min()
 
@@ -78,17 +78,17 @@ class NeuroVector2D:
     def extractPolarParameters(self):
         argmax_ = np.argmax(self.__SWV)
 
-        ro      = self.__SWV[argmax_] - self.bias
-        #                                       #This basically means if ro == 0 theta is also 0
-        theta   = ((argmax_*np.pi*2/self.resolution)-np.pi) * (ro != 0)
+        rho     = self.__SWV[argmax_] - self.bias
+        #                                       #This basically means if rho == 0 theta is also 0
+        theta   = ((argmax_*np.pi*2/self.resolution)-np.pi) * (rho != 0)
 
-        return theta, ro
+        return theta, rho
 
     def extractCartesianParameters(self):
-        theta, ro = self.extractPolarParameters()
+        theta, rho = self.extractPolarParameters()
 
-        x = ro * cos(theta)
-        y = ro * sin(theta)
+        x = rho * cos(theta)
+        y = rho * sin(theta)
 
         return x, y
 
