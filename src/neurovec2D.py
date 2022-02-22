@@ -35,7 +35,7 @@ class NeuroVector2D:
 
     @staticmethod
     def fromCartesianVector(x: float, y: float, resolution: int):
-        rho    = sqrt(x*x+y*y)
+        rho   = sqrt(x*x+y*y)
         theta = atan2(y, x)
 
         return NeuroVector2D(rho=rho, theta=theta, resolution=resolution)
