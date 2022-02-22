@@ -13,24 +13,24 @@ RES = 250
 if __name__ == '__main__':
     vec1 = np.array([random()*44 - 22, random()*44 - 22])
 
-    nvec1 = NeuroVector2D.fromVector(*vec1, RES)
-    nvec2 = NeuroVector2D.fromVS((nvec1.ro + nvec1.bias) - nvec1.getVS(), nvec1.bias)
+    nvec1 = NeuroVector2D.fromCartesianVector(*vec1, RES)
+    theta, rho = NeuroVector2D.extractPolarParameters(nvec1)
+    nvec2 = NeuroVector2D.fromSWV((rho + nvec1.bias) - nvec1.getSWV(), nvec1.bias)
     nvec3 = nvec1 - nvec1
 
-    print(nvec3.theta)
-    vec2 = nvec2.toVec()
+    vec2 = nvec2.extractCartesianParameters()
 
-    x  = (np.arange(RES+1)*2*np.pi/RES+1)-np.pi
+    x = np.linspace(-np.pi, np.pi, RES, endpoint=True)
 
-    y1 = nvec1.getVS()
-    y2 = nvec2.getVS()
+    y1 = nvec1.getSWV()
+    y2 = nvec2.getSWV()
 
 
     fig, axis = plt.subplots(3, 2)
 
     axis[0, 0].plot(x, y1)
     axis[1, 0].plot(x, y2)
-    axis[2, 0].plot(x, nvec3.getVS())
+    axis[2, 0].plot(x, nvec3.getSWV())
     
     axis[0, 1].arrow(0, 0, *vec1, head_width=0, head_length=0, fc='lightblue', ec='black')
     axis[1, 1].arrow(0, 0, *vec2, head_width=0, head_length=0, fc='lightblue', ec='black')
