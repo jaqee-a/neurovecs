@@ -21,14 +21,13 @@ if __name__ == '__main__':
     nums = int(args[0])
     resolution = int(args[1]) if len(args) > 1 else DEFAULT_RESOLUTION
 
-    # np.random.seed(5)
-    # random.seed(5)
+    np.random.seed(5)
+    random.seed(5)
 
     test_samples  = np.random.random((nums, 2))*100
-    test_samples2 = test_samples.copy()
-    lambda_samples= np.random.random(nums)
+    test_samples2 = np.random.random((nums, 2))*100
 
-    shuffle(test_samples2)
+    lambda_samples= np.random.random(nums)
 
     test_neovecs         = np.array([*map(lambda x:NeuroVector2D.fromCartesianVector(*x,resolution), test_samples ),])
     test_neovecs2        = np.array([*map(lambda x:NeuroVector2D.fromCartesianVector(*x,resolution), test_samples2),])
@@ -64,6 +63,28 @@ if __name__ == '__main__':
     substraction_error [0] = np.degrees(substraction_error [0])
     multiplitaion_error[0] = np.degrees(multiplitaion_error[0])
 
+
+    vnorm_sub   = np.linalg.norm(substraction_samples, axis=1)
+    neonorm_sub = np.linalg.norm(substraction_neovecs, axis=1)
+    v_sub       = vnorm_sub * neonorm_sub
+
+    dot_sub = (substraction_samples * substraction_neovecs).sum(axis=1)
+    angle_err_sub = np.degrees(np.arccos(dot_sub / v_sub)).sum() / nums
+
+    vnorm_add   = np.linalg.norm(addition_samples, axis=1)
+    neonorm_add = np.linalg.norm(addition_neovecs, axis=1)
+    v_add       = vnorm_add * neonorm_add
+
+    dot_add = (addition_samples * addition_neovecs).sum(axis=1)
+    angle_err_add = np.degrees(np.arccos(dot_add / v_add)).sum() / nums
+
+    vnorm_mul   = np.linalg.norm(multiplitaion_samples, axis=1)
+    neonorm_mul = np.linalg.norm(multiplitaion_neovecs, axis=1)
+    v_mul       = vnorm_mul * neonorm_mul
+
+    dot_mul = (multiplitaion_samples * multiplitaion_neovecs).sum(axis=1)
+    angle_err_mul = np.degrees(np.arccos(dot_mul / v_mul)).sum() / nums
+
     """
     addition_neovecs     = np.array([*map(NeuroVector2D.toVec, addition_neovecs     ),])
     substraction_neovecs = np.array([*map(NeuroVector2D.toVec, substraction_neovecs ),])
@@ -76,6 +97,6 @@ if __name__ == '__main__':
     """
     print(
         tabulate([
-            ["Addition"] + list(addition_error),
-            ["Substraction"] + list(substraction_error),
-            ["Multiplication"] + list(multiplitaion_error)], headers=["Operation", "Angle error in deg°", "Length error"]))
+            ["Addition"] + list(addition_error) + [angle_err_add],
+            ["Substraction"] + list(substraction_error) + [angle_err_sub],
+            ["Multiplication"] + list(multiplitaion_error) + [angle_err_mul]], headers=["Operation", "Theta error in deg°", "Length error", "Angle error in deg°"]))

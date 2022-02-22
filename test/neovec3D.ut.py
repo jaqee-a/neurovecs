@@ -2,8 +2,7 @@ import random
 import numpy as np
 import sys
 
-from math import acos, asin, cos, degrees, sqrt
-from random import shuffle
+from math import asin, cos, sqrt
 from tabulate import tabulate
 
 

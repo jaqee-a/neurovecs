@@ -92,6 +92,9 @@ class NeuroVector2D:
 
         return x, y
 
+    def getSWV(self):
+        return self.__SWV
+
     def __sub__(self, __o):
         assert self.__SWV.size == __o.__SWV.size, "SUB: Unmatched resolution"
         assert type(__o) == NeuroVector2D,        "SUB: Wrong second-hand type"
@@ -108,8 +111,11 @@ class NeuroVector2D:
         
         """
 
-        # new_vs = np.roll(__o.__SWV, -__o.resolution // 2)
-        return NeuroVector2D.fromSWV(self.__SWV - __o.__SWV, self.bias - __o.bias)
+        # Inverse the sinewave
+        max_ = __o.__SWV.max()
+        new_vs = max_ - __o.__SWV
+
+        return NeuroVector2D.fromSWV(self.__SWV + new_vs, self.bias + __o.bias)
 
 
     def __add__(self, __o):

@@ -4,7 +4,7 @@ from matplotlib import cm
 from matplotlib.ticker import LinearLocator
 import numpy as np
 import sys
-import matplotlib.colors as colors
+
 sys.path.append('..')
 
 from src.neurovec3D import NeuroVector3D

@@ -134,9 +134,10 @@ class NeuroVector3D:
             Check why this method has more error rate on the angle
         
         """
+        max_ = __o.__MS.max()
+        new_vs = max_ - __o.__MS
 
-        # new_vs = np.roll(__o.__MS, -__o.resolution // 2)
-        return NeuroVector3D.fromMS(self.__MS - __o.__MS, self.bias - __o.bias)
+        return NeuroVector3D.fromMS(self.__MS + new_vs, self.bias + __o.bias)
 
 
     # TODO  TEST!
