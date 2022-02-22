@@ -119,7 +119,7 @@ class NeuroVector2D:
 
 
     def __add__(self, __o):
-        assert self.__SWV.size == __o.__SWV.size, "ADD:Unmatched resolution"
+        assert self.__SWV.size == __o.__SWV.size, "ADD: Unmatched resolution"
         assert type(__o) == NeuroVector2D,        "ADD: Wrong second-hand type"
 
         return NeuroVector2D.fromSWV(self.__SWV + __o.__SWV, self.bias + __o.bias)
