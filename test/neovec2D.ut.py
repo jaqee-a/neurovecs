@@ -13,19 +13,15 @@ sys.path.append('..')
 
 from src.neurovec2D import NeuroVector2D
 
-
-DEFAULT_RESOLUTION = 3600
+DEFAULT_RESOLUTION = 4
 
 if __name__ == '__main__':
     name, *args = sys.argv
     nums = int(args[0])
     resolution = int(args[1]) if len(args) > 1 else DEFAULT_RESOLUTION
 
-    np.random.seed(5)
-    random.seed(5)
-
-    test_samples  = np.random.random((nums, 2))*100
-    test_samples2 = np.random.random((nums, 2))*100
+    test_samples  = np.random.random((nums, 2))*100 - 50
+    test_samples2 = np.random.random((nums, 2))*100 - 50
 
     lambda_samples= np.random.random(nums)
 
@@ -97,6 +93,6 @@ if __name__ == '__main__':
     """
     print(
         tabulate([
-            ["Addition"] + list(addition_error) + [angle_err_add],
-            ["Substraction"] + list(substraction_error) + [angle_err_sub],
-            ["Multiplication"] + list(multiplitaion_error) + [angle_err_mul]], headers=["Operation", "Theta error in deg°", "Length error", "Angle error in deg°"]))
+            ["Addition"] + [angle_err_add],
+            ["Substraction"] + [angle_err_sub],
+            ["Multiplication"] + list(multiplitaion_error)[1:] + [angle_err_mul]], headers=["Operation", "Angle error in deg°"]))

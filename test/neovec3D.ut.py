@@ -55,16 +55,6 @@ if __name__ == '__main__':
 
     a=NeuroVector3D.fromCartesianVector(1, 2, 3, 5)
 
-    print(sample1)
-    print(a.extractCartesianParameters())
-    exit()
-    nsample1 = addition_neovecs[0]
-    print(sample1)
-    print(nsample1)
-
-
-    print(degrees(np.arccos(sample1.dot(nsample1) / (np.linalg.norm(sample1) * np.linalg.norm(nsample1)))))
-    exit()
     vnorm_sub   = np.linalg.norm(substraction_samples, axis=1)
     neonorm_sub = np.linalg.norm(substraction_neovecs, axis=1)
     v_sub       = vnorm_sub * neonorm_sub
@@ -102,7 +92,7 @@ if __name__ == '__main__':
 
     print(
         tabulate([
-            ["Addition"] + [angle_err_add],
-            ["Substraction"] + [angle_err_sub],
-            ["Multiplication"] + [angle_err_mul]
+            ["Addition"] + [np.abs(angle_err_add)],
+            ["Substraction"] + [np.abs(angle_err_sub)],
+            ["Multiplication"] + [np.abs(angle_err_mul)]
             ], headers=["Operation", "Theta error in deg°", "Phi error in deg°", "Length error"]))

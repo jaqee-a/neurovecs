@@ -12,14 +12,26 @@ sys.path.append('..')
 from src.neurovec2D import NeuroVector2D
 from src.neurovec3D import NeuroVector3D
 
+aa = np.array([1, 2, 3])
+
+a = NeuroVector3D.fromCartesianVector(*aa, 16)
+
+a = a * -2
+
+print(a.extractCartesianParameters())
+
+exit()
 np.random.seed(2)
 
 # av1 = np.random.random(3)
 # av2 = np.random.random(3)
 
-a = NeuroVector3D.fromCartesianVector(*np.array([0, 5, 0]), 60)
+a = NeuroVector3D.fromCartesianVector(*np.array([0, 5, 0]), 5)
 
-b = NeuroVector3D.fromCartesianVector(*np.array([0, 0, 0]), 60)
+print(a.extractPolarParameters())
+print(a.extractCartesianParameters())
+exit()
+b = NeuroVector3D.fromCartesianVector(*np.array([0, 0, 0]), 4)
 
 azimuth   = np.linspace(-np.pi, np.pi, 4, endpoint=False)
 
