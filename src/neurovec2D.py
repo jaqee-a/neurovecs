@@ -132,5 +132,14 @@ class NeuroVector2D:
         if type(__o) == NeuroVector2D:
             return NeuroVector2D.fromSWV(self.__SWV * __o.__SWV, self.bias * __o.bias)
 
-        return NeuroVector2D.fromSWV(self.__SWV * __o, abs(self.bias * __o))
+
+        # INVERT THE MATRIX
+        vm = self.__SWV.copy()
+        if __o < 0:
+            min__ = vm.min()
+            max__ = vm.max() - min__
+            vm = max__ - (vm - min__) + min__
+            __o   = abs(__o)
+
+        return NeuroVector2D.fromSWV(vm * __o, self.bias * __o)
 
