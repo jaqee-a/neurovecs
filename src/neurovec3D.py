@@ -23,7 +23,7 @@
 
 
 
-from math import asin, cos, sin, sqrt
+from math import asin, atan2, cos, sin, sqrt
 from time import time
 import numpy as np
 
@@ -38,9 +38,10 @@ class NeuroVector3D:
     # TODO TEST
     @staticmethod
     def fromCartesianVector(x: float, y: float, z: float, resolution: int):
-        rho    = sqrt(x*x+y*y+z*z)
-        phi   = asin(z / rho)
-        theta = asin(y / (rho * cos(phi)))
+        rho   = sqrt(x*x+y*y+z*z)
+        
+        theta = atan2(y, x)
+        phi   = np.pi / 2 - atan2(sqrt(x*x+y*y), z)
 
         return NeuroVector3D(rho=rho, theta=theta, phi=phi, resolution=resolution)
 
