@@ -2,7 +2,7 @@ import random
 import numpy as np
 import sys
 
-from math import asin, cos, sqrt
+from math import asin, cos, degrees, sqrt
 from tabulate import tabulate
 
 
@@ -13,19 +13,8 @@ sys.path.append('..')
 from src.neurovec3D import NeuroVector3D
 
 
-DEFAULT_RESOLUTION = 3600
+DEFAULT_RESOLUTION = 50
 
-def extract(x, y, z):
-    ro = sqrt(x*x+y*y+z*z)
-
-    if ro == 0:
-        return [0, 0, 0]
-
-    phi   = asin(z / ro)
-    theta = asin(y / (ro * cos(phi)))
-
-    return [theta, phi, ro]
-    
 if __name__ == '__main__':
     name, *args = sys.argv
     nums = int(args[0])
@@ -59,6 +48,23 @@ if __name__ == '__main__':
 
     #multiplitaion_samples= np.array([*map(lambda x:extract(*x), multiplitaion_samples),])
 
+    print(test_samples[0])
+    print(test_samples2[0])
+
+    sample1  = addition_samples[0]
+
+    a=NeuroVector3D.fromCartesianVector(1, 2, 3, 5)
+
+    print(sample1)
+    print(a.extractCartesianParameters())
+    exit()
+    nsample1 = addition_neovecs[0]
+    print(sample1)
+    print(nsample1)
+
+
+    print(degrees(np.arccos(sample1.dot(nsample1) / (np.linalg.norm(sample1) * np.linalg.norm(nsample1)))))
+    exit()
     vnorm_sub   = np.linalg.norm(substraction_samples, axis=1)
     neonorm_sub = np.linalg.norm(substraction_neovecs, axis=1)
     v_sub       = vnorm_sub * neonorm_sub

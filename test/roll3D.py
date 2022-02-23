@@ -29,8 +29,8 @@ nv1= NeuroVector3D.fromCartesianVector(*v1, N)
 ms = NeuroVector3D.getMS(nv1)
 
 # Make data.
-X = np.linspace(-np.pi, np.pi, N, endpoint=True)
 Y = np.linspace(-np.pi, np.pi, N, endpoint=True)
+X = np.linspace(-np.pi/2, np.pi/2, N, endpoint=True)
 # X, Y = np.meshgrid(X, Y)
 
 Z = ms

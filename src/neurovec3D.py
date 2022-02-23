@@ -22,8 +22,10 @@
 
 
 
+# PHI  == ELEVATION
+# THETA== AZIMUTH
 
-from math import asin, atan2, cos, sin, sqrt
+from math import acos, asin, atan2, cos, sin, sqrt
 from time import time
 import numpy as np
 
@@ -35,14 +37,18 @@ class NeuroVector3D:
     resolution: int
 
 
-    # TODO TEST
     @staticmethod
     def fromCartesianVector(x: float, y: float, z: float, resolution: int):
         rho   = sqrt(x*x+y*y+z*z)
-        
-        theta = atan2(y, x)
-        phi   = np.pi / 2 - atan2(sqrt(x*x+y*y), z)
 
+        phi   = 0
+        theta = 0
+
+        if rho != 0:        
+            theta = atan2(y, x)
+            phi   = np.pi / 2 - atan2(sqrt(x*x+y*y), z)
+
+        print(phi, theta)
         return NeuroVector3D(rho=rho, theta=theta, phi=phi, resolution=resolution)
 
     # TODO TEST!
@@ -54,7 +60,6 @@ class NeuroVector3D:
 
         return out
 
-    # TODO TEST!
     def __init__(self, rho: float = None, theta: float = None, phi: float = None, resolution: int = None, ms: np.ndarray = None) -> None:
 
         if type(ms) == np.ndarray:
@@ -70,17 +75,26 @@ class NeuroVector3D:
             self.bias = 0
             self.calculateSineWaveVector(rho, theta, phi)
 
-    # TODO TEST!
     def calculateSineWaveVector(self, rho: float, theta: float, phi: float):
 
-        space  = np.linspace(-np.pi, np.pi, self.resolution, endpoint=True)
+        elevation = np.linspace(-np.pi/2, np.pi/2, self.resolution, endpoint=True)
+        azimuth   = np.linspace(-np.pi, np.pi, self.resolution, endpoint=False)
+
         ones   = np.ones((self.resolution, self.resolution))
 
-        thetas = space*ones
-        phis   = thetas.T
+        phis   = (elevation * ones).T
+        thetas =    azimuth * ones
 
         #ρ0(cosδ cosδ0 cos(θ − θ0) + sinδ sinδ0)
         self.__MS = rho * (cos(phi) * np.cos(phis) * np.cos(thetas - theta) + sin(phi) * np.sin(phis))
+
+        print(phis)
+        print()
+        print(thetas)
+        print()
+        print(self.__MS)
+        print()
+        print(phi,theta)
 
         min_val = self.__MS.min()
         
@@ -96,19 +110,17 @@ class NeuroVector3D:
         max_element = self.__MS.max()
 
         xs, ys = np.where(self.__MS == max_element)
-        x, y = ys[0], xs[0]
+        x, y = xs[0], ys[0]
 
         rho     = max_element - self.bias
         #                                       #This basically means if ro == 0 theta is also 0
-        theta   = ((x*np.pi*2/self.resolution)-np.pi) * (rho != 0)
-        phi     = ((y*np.pi*2/self.resolution)-np.pi) * (rho != 0)
+        theta = (-np.pi     + ((y*np.pi*2/(self.resolution))))   * (rho != 0)
+        phi   = (-np.pi / 2 + ((x*np.pi  /(self.resolution-1)))) * (rho != 0)
 
         return theta, phi, rho
 
-    # TODO TEST!
     def extractCartesianParameters(self):
         theta, phi, rho = self.extractPolarParameters()
-
 
         x = rho * cos(phi) * cos(theta)
         y = rho * cos(phi) * sin(theta)

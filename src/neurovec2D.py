@@ -64,7 +64,8 @@ class NeuroVector2D:
             self.calculateSineWaveVector(rho, theta)
 
     def calculateSineWaveVector(self, rho: float, theta: float):
-        space = np.linspace(-np.pi, np.pi, self.resolution, endpoint=True)
+        space = np.linspace(-np.pi, np.pi, self.resolution, endpoint=False)
+
         self.__SWV = rho * np.cos(space - theta)
 
         min_val = self.__SWV.min()
