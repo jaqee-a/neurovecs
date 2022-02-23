@@ -88,6 +88,7 @@ class NeuroVector3D:
         #ρ0(cosδ cosδ0 cos(θ − θ0) + sinδ sinδ0)
         self.__MS = rho * (cos(phi) * np.cos(phis) * np.cos(thetas - theta) + sin(phi) * np.sin(phis))
 
+        """
         print(phis)
         print()
         print(thetas)
@@ -95,7 +96,7 @@ class NeuroVector3D:
         print(self.__MS)
         print()
         print(phi,theta)
-
+        """
         min_val = self.__MS.min()
         
         if min_val < 0:
@@ -168,5 +169,15 @@ class NeuroVector3D:
         if type(__o) == NeuroVector3D:
             return NeuroVector3D.fromMS(self.__MS * __o.__MS, self.bias * __o.bias)
 
-        return NeuroVector3D.fromMS(self.__MS * __o, abs(self.bias * __o))
+
+        # INVERT THE VECTOR
+        vm = self.__MS.copy()
+
+        if __o < 0:
+            min__ = vm.min()
+            max__ = vm.max() - min__
+            vm = max__ - (vm - min__) + min__
+            __o   = abs(__o)
+
+        return NeuroVector3D.fromMS(vm * __o, self.bias * __o)
 
