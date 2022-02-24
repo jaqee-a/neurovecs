@@ -1,0 +1,98 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from pygame import Vector3
+from neurovec3D import NeuroVector3D
+import matplotlib as mpl
+from mpl_toolkits.mplot3d import Axes3D
+
+
+
+
+class pointFixe:
+
+    
+    def __init__(self, res, type):
+        
+        self.type = type
+        if type == 'r': #rectiligne
+            self.proie = Vector3(20, 0, 0)
+            
+        elif type == 'h': #helicoidale
+            self.z = np.linspace(2*np.pi, -2*np.pi, 2000)
+            self.x = np.cos(self.z)
+            self.y = np.sin(self.z)
+            self.proie = Vector3(self.x[0],self.y[0],self.z[0])
+        elif type == 'a':#aleatoire
+            self.x = np.random.random(10000)
+            self.y = [np.random.uniform(0,10) for i in range(1000)]
+            self.z = np.random.random(10000)
+            self.proie = Vector3(200, 0, 0)
+        
+        self.res = res
+        self.pred = Vector3(0, 0, 0)
+
+        self.n_proie = NeuroVector3D.fromCartesianVector(self.proie.x, self.proie.y, self.proie.z, self.res)
+        self.n_pred  = NeuroVector3D.fromCartesianVector(self.pred.x, self.pred.y, self.pred.z, self.res)
+
+        self._lambda = 0
+     
+        self.a_pred = [self.pred]
+        self.a_proie = [self.proie]
+
+        self.t = 1
+
+    def update(self):
+        
+        if self.type == 'r':
+            self.proie = self.proie + Vector3(0, 0.1, 0.1)
+        elif self.type == 'h' :
+            self.proie = Vector3(self.x[self.t], self.y[self.t], self.z[self.t])
+        elif self.type == 'a' :
+            self.proie = self.proie + Vector3(self.x[self.t], self.y[self.t], self.z[self.t])
+        
+        ref = (self.pred - self.p0) * (self._lambda - 1)
+        rp = (self.proie - self.pred) * self._lambda
+
+        dt = ref + rp
+        
+        self.pred = self.pred + dt
+        self._lambda += 0.0054 * (1 - self._lambda)
+
+        self.a_pred.append(self.pred)
+        self.a_proie.append(self.proie)
+
+        self.t += 1
+
+        
+
+    def draw(self, g1, g2, p):
+
+        mpl.rcParams['legend.fontsize'] = 10
+        fig = plt.figure(figsize=(8,8))
+        ax = fig.add_subplot(111, projection='3d')
+
+        ax.scatter(p[0], p[1], p[2], label = 'point fixe ')
+        ax.scatter(g1[0][0], g1[1][0], g1[2][0])
+    
+        ax.plot(g1[0], g1[1], g1[2], label='proie')
+        ax.plot(g2[0], g2[1], g2[2], label='predateur ')
+       
+        ax.legend()
+
+        plt.show()
+
+c = pointFixe(10, 'a')
+
+#while (c.pred-c.proie).length() > 0.1:
+for i in range(500):
+    c.update()
+
+x = [i[0] for i in c.a_proie]
+y = [i[1] for i in c.a_proie]
+z = [i[2] for i in c.a_proie]
+
+x1 = [i[0] for i in c.a_pred]
+y1 = [i[1] for i in c.a_pred]
+z1 = [i[2] for i in c.a_pred]
+
+c.draw([x,y,z], [x1,y1,z1], c.p0)
