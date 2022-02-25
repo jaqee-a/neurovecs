@@ -11,14 +11,21 @@ from mpl_toolkits.mplot3d import Axes3D
 class pointFixe:
 
     
-    def __init__(self, res):
+    def __init__(self, res, type):
         
-        
+        self.type = type
+        if self.type == 'r': #rectiligne
+            self.proie = Vector3(20, 0, 0)
+            
+        elif self.type == 'h': #helicoidale
+            self.z = np.linspace(2*np.pi, -2*np.pi, 2000)
+            self.x = np.cos(self.z)
+            self.y = np.sin(self.z)
+            self.proie = Vector3(self.x[0],self.y[0],self.z[0])
             
         self.res = res
         self.p0 = Vector3(0, 0, 0)
         self.pred = Vector3(0, 0, 0)
-        self.proie = Vector3(20, 0, 0)
 
         self.n_p0 = NeuroVector3D.fromCartesianVector(0,0,0,self.res)
 
@@ -44,7 +51,11 @@ class pointFixe:
         dt_c = Vector3(dt.extractCartesianParameters())
         
         self.pred = self.pred + dt_c
-        self.proie = self.proie + Vector3(0, 0.1, 0.1)
+        
+        if self.type == 'r':
+            self.proie = self.proie + Vector3(0, 0.1, 0.1)
+        elif self.type == 'h' :
+            self.proie = Vector3(self.x[self.t], self.y[self.t], self.z[self.t])
 
         self._lambda += 0.0054 * (1 - self._lambda)
 
@@ -73,7 +84,7 @@ class pointFixe:
 
         plt.show()
 
-c = pointFixe(10)
+c = pointFixe(10, 'h')
 
 #while (c.pred-c.proie).length() > 0.1:
 for i in range(1000):
