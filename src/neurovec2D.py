@@ -1,28 +1,3 @@
-"""
-    TODO WHAT CAN I DO ?
-
-    -   Create a cartesian vector, polar vector from the sine wave
-    -   Create a sine wave, polar vector from the cartesian vector
-
-
-        |------------------------------------------------------------|
-        |------------------------------------------------------------|
-        |------------------------------------------------------------|
-        |------------------------------------------------------------|
-        |------------------------------------------------------------|
-        |------------------------------------------------------------|
-        |------------------------------------------------------------|
-        |------------------------------------------------------------|
-        |------------------------------------------------------------|
-        |------------------------------------------------------------|
-        |------------------------------------------------------------|
-        |------------------------------------------------------------|
-        |------------------------------------------------------------|
-"""
-
-
-
-
 from math import atan2, cos, sin, sqrt
 import numpy as np
 
@@ -104,19 +79,10 @@ class NeuroVector2D:
         """
             By subtraction we can invert the second-hand Sine Wave function and doing the addition
             Inverting a Sine Wave function is same as offsetting the input by pi
-            
-            Slide the array by N / 2, as N represents 2*pi, N / 2 represents pi.
-        
-        TODO
-            Check why this method has more error rate on the angle
         
         """
 
-        # Inverse the sinewave
-        max_ = __o.__SWV.max()
-        new_vs = max_ - __o.__SWV
-
-        return NeuroVector2D.fromSWV(self.__SWV + new_vs, self.bias + __o.bias)
+        return self + (~__o)
 
 
     def __add__(self, __o):
@@ -126,11 +92,21 @@ class NeuroVector2D:
         return NeuroVector2D.fromSWV(self.__SWV + __o.__SWV, self.bias + __o.bias)
 
 
+    def __invert__(self):
+        vm    = self.__SWV.copy()
+        min__ = vm.min()
+        max__ = vm.max() - min__
+        vm    = max__ - (vm - min__) + min__
+
+        return NeuroVector2D.fromSWV(vm, self.bias)
+
     def __mul__(self, __o):
         assert type(__o) == int or type(__o) == float or type(__o) == NeuroVector2D, "MUL:Wrong second-hand type"
 
         if type(__o) == NeuroVector2D:
-            return NeuroVector2D.fromSWV(self.__SWV * __o.__SWV, self.bias * __o.bias)
+            argmax_ = np.argmax(self.__SWV)
+
+            return (self.__SWV[argmax_] - self.bias) * (__o.__SWV[argmax_] - __o.bias)
 
 
         # INVERT THE MATRIX
