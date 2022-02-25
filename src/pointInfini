@@ -33,16 +33,17 @@ class pointFixe:
         self.a_proie = [self.proie]
 
         self.ref = self.proie - self.pred
+        self.n_ref = NeuroVector3D.fromCartesianVector(self.ref.x, self.ref.y, self.ref.z, self.res)
 
         self.t = 1
 
     def update(self):
 
-        ref = self.ref * self._lambda
-        rp = self.proie - self.pred
+        n_pred = NeuroVector3D.fromCartesianVector(self.pred.x, self.pred.y, self.pred.z, self.res)
+        n_proie = NeuroVector3D.fromCartesianVector(self.proie.x, self.proie.y, self.proie.z, self.res)
 
-        n_ref = NeuroVector3D.fromCartesianVector(ref.x, ref.y, ref.z, self.res)
-        n_rp = NeuroVector3D.fromCartesianVector(rp.x, rp.y, rp.z, self.res)
+        n_ref = self.n_ref * self._lambda
+        n_rp = n_proie - n_pred
 
         dt = Vector3((n_rp - n_ref).extractCartesianParameters())
         
