@@ -20,6 +20,8 @@ class pointFixe:
         self.pred = Vector3(0, 0, 0)
         self.proie = Vector3(20, 0, 0)
 
+        self.n_p0 = NeuroVector3D.fromCartesianVector(0,0,0,self.res)
+
         self._lambda = 0
      
         self.a_pred = [self.pred]
@@ -29,17 +31,20 @@ class pointFixe:
 
     def update(self):
 
-        ref = (self.pred - self.p0) * (self._lambda - 1)
-        rp = (self.proie - self.pred) * self._lambda
+        n_pred = NeuroVector3D.fromCartesianVector(self.pred.x, self.pred.y, self.pred.z, self.res)
+        n_proie = NeuroVector3D.fromCartesianVector(self.proie.x, self.proie.y, self.proie.z, self.res)
 
-        n_ref = NeuroVector3D.fromCartesianVector(ref.x, ref.y, ref.z, self.res)
+        n_ref = (n_pred - self.n_p0) * (self._lambda - 1)
+        n_rp = (n_proie - n_pred) * self._lambda
+
+        """n_ref = NeuroVector3D.fromCartesianVector(ref.x, ref.y, ref.z, self.res)
         n_rp  = NeuroVector3D.fromCartesianVector(rp.x, rp.y, rp.z, self.res)
-
+"""
         dt = n_ref + n_rp
         dt_c = Vector3(dt.extractCartesianParameters())
         
         self.pred = self.pred + dt_c
-        self.proie = self.proie + Vector3(0, 1, 1)
+        self.proie = self.proie + Vector3(0, 0.1, 0.1)
 
         self._lambda += 0.0054 * (1 - self._lambda)
 
@@ -68,7 +73,7 @@ class pointFixe:
 
         plt.show()
 
-c = pointFixe(4)
+c = pointFixe(10)
 
 #while (c.pred-c.proie).length() > 0.1:
 for i in range(1000):
