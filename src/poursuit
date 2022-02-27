@@ -1,0 +1,98 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from pygame import Vector3
+import matplotlib as mpl
+from mpl_toolkits.mplot3d import Axes3D
+
+
+
+
+class pointFixe:
+
+    
+
+    
+    def __init__(self):
+        
+       
+        self.proie = Vector3(100, 0, 0)
+        self.p0 = Vector3(0, 0, 0)
+        self.pred = Vector3(0, 0, 0)
+
+        self._lambda = 0
+     
+        self.a_pred = [self.pred]
+        self.a_proie = [self.proie]
+
+        self.t = 1
+        self.a_a = []
+        self.e = 0
+        self.v1 = []
+
+    def update(self):
+        
+        
+        ref = (self.pred - self.p0) * (self._lambda - 1)
+        rp = (self.proie - self.pred) * self._lambda
+
+        dt = ref + rp
+        self.v1.append(dt.length())
+        
+        self.pred = self.pred + dt
+        #if self.t > 2:
+
+        if self.t>2 :
+           a = (self.proie-self.pred).angle_to(self.proie - self.p0)
+           self.a_a.append(np.cos(np.radians(a)))
+           self.e += a
+
+        self.proie = self.proie + Vector3(-1, 1, 1)
+     
+        self.a_pred.append(self.pred)
+        self.a_proie.append(self.proie)
+
+        self._lambda += 0.0009 * (1 - self._lambda)
+
+        self.t += 1
+
+        
+
+    def draw(self, g1, g2, p):
+
+        mpl.rcParams['legend.fontsize'] = 10
+        fig = plt.figure(figsize=(8,8))
+        ax = fig.add_subplot(111, projection='3d')
+
+        ax.scatter(p[0], p[1], p[2], label = 'point fixe ')
+        ax.scatter(g1[0][0], g1[1][0], g1[2][0])
+    
+        ax.plot(g1[0], g1[1], g1[2], label='proie')
+        ax.plot(g2[0], g2[1], g2[2], label='predateur ')
+
+        ax.legend()
+
+        plt.show()
+
+c = pointFixe()
+cte = 0
+#while (c.pred-c.proie).length() > 1:
+for i in range(1000):
+    c.update()
+    cte += 1
+
+x = [i[0] for i in c.a_proie]
+y = [i[1] for i in c.a_proie]
+z = [i[2] for i in c.a_proie]
+
+x1 = [i[0] for i in c.a_pred]
+y1 = [i[1] for i in c.a_pred]
+z1 = [i[2] for i in c.a_pred]
+
+c.draw([x,y,z], [x1,y1,z1], c.p0)
+
+plt.plot(c.v1)
+plt.show()
+print(c.e/cte)
+print(cte)
+print((c.proie-c.pred).length())
+
