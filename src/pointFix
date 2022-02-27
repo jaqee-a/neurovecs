@@ -4,7 +4,7 @@ from pygame import Vector3
 from neurovec3D import NeuroVector3D
 import matplotlib as mpl
 from mpl_toolkits.mplot3d import Axes3D
-
+from math import acos
 
 
 
@@ -15,12 +15,13 @@ class pointFixe:
         
         self.type = type
         if self.type == 'r': #rectiligne
-            self.proie = Vector3(2000, 0, 0)
+            self.proie = Vector3(15, 0, -50)
             
         elif self.type == 'h': #helicoidale
-            self.z = np.linspace(2*np.pi, -2*np.pi, 2000)
+            self.z = np.linspace(-2*np.pi, 2*np.pi, 10000)
             self.x = np.cos(self.z)
             self.y = np.sin(self.z)
+            self.proie = Vector3(self.x[0], self.y[0], self.z[0])
     
             
         self.res = res
@@ -42,19 +43,14 @@ class pointFixe:
 
     def update(self):
 
-        if self.t>2 :
-           a = (self.proie-self.pred).angle_to(self.pred - self.p0)
-           self.a_a.append(np.cos(np.radians(a)))
-           self.erreur += a
-
-        n_pred = NeuroVector3D.fromCartesianVector(self.pred.x, self.pred.y, self.pred.z, self.res)
+        """n_pred = NeuroVector3D.fromCartesianVector(self.pred.x, self.pred.y, self.pred.z, self.res)
         n_proie = NeuroVector3D.fromCartesianVector(self.proie.x, self.proie.y, self.proie.z, self.res)
-        
-        n_ref = (n_pred - self.n_p0) * (self._lambda - 1)
-        n_rp = (n_proie - n_pred) * self._lambda
+        """
+        ref = (self.pred - self.p0)
+        rp =  (self.proie - self.pred)
 
-        """n_ref = NeuroVector3D.fromCartesianVector(ref.x, ref.y, ref.z, self.res)
-        n_rp  = NeuroVector3D.fromCartesianVector(rp.x, rp.y, rp.z, self.res)"""
+        n_ref = NeuroVector3D.fromCartesianVector(ref.x, ref.y, ref.z, self.res) * (self._lambda - 1)
+        n_rp  = NeuroVector3D.fromCartesianVector(rp.x, rp.y, rp.z, self.res) * self._lambda
         
         dt = n_ref + n_rp
 
@@ -64,12 +60,22 @@ class pointFixe:
 
         self.pred = self.pred + dt_c
 
+        if self.t>1 and self.t % 4 == 0:
+            # a = (self.proie-self.pred).angle_to(self.pred - self.p0)
+            refp = self.pred - self.p0
+            rp   = self.proie- self.pred
+            cosa = refp.dot(rp) / (refp.length() * rp.length())
+            a    = acos(cosa if cosa <= 1 else 1)
+
+            self.a_a.append(cosa)
+            self.erreur += np.degrees(a)
         
+        dist = (self.pred - self.proie).length()
+
         if self.type == 'r':
-            self.proie = self.proie + Vector3(-1, 1, 1)
-        elif self.type == 'h' :
+            self.proie = self.proie + Vector3(0, .01, .01)
+        elif self.type == 'h':
             self.proie = Vector3(self.x[self.t], self.y[self.t], self.z[self.t])
-     
 
         self._lambda += 0.0054 * (1 - self._lambda)
 
@@ -77,6 +83,8 @@ class pointFixe:
         self.a_proie.append(self.proie)
 
         self.t += 1
+
+        return dist
         
 
     def draw(self, g1, g2, p):
@@ -95,12 +103,11 @@ class pointFixe:
 
         plt.show()
 
-c = pointFixe(10, 'r')
+c = pointFixe(4, 'r')
 
-#while (c.pred-c.proie).length() > 1:
-for i in range(1000):
-    c.update()
-    
+for i in range(int(1e5)):
+    if c.update() < .1:
+        break
 
 x = [i[0] for i in c.a_proie]
 y = [i[1] for i in c.a_proie]
@@ -112,7 +119,9 @@ z1 = [i[2] for i in c.a_pred]
 
 c.draw([x,y,z], [x1,y1,z1], c.p0)
 
+print("erreur :", c.erreur/len(c.a_a))
 
-plt.plot(c.v2)
+print(c.t)
+
+plt.plot(c.a_a)
 plt.show()
-print("erreur :", c.erreur/c.t)
