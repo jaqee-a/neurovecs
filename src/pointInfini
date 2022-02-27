@@ -15,7 +15,7 @@ class pointFixe:
         
         self.type = type
         if type == 'r': #rectiligne
-            self.proie = Vector3(20, 0, 0)
+            self.proie = Vector3(150, 0, 0)
             
         elif type == 'h': #helicoidale
             self.z = np.linspace(2*np.pi, -2*np.pi, 2000)
@@ -36,22 +36,32 @@ class pointFixe:
         self.n_ref = NeuroVector3D.fromCartesianVector(self.ref.x, self.ref.y, self.ref.z, self.res)
 
         self.t = 1
+        self.a_a = []
+        self.e = 0
+        self.v = []
 
     def update(self):
 
-        n_pred = NeuroVector3D.fromCartesianVector(self.pred.x, self.pred.y, self.pred.z, self.res)
-        n_proie = NeuroVector3D.fromCartesianVector(self.proie.x, self.proie.y, self.proie.z, self.res)
+        rp = self.proie - self.pred
 
-        n_ref = self.n_ref * self._lambda
-        n_rp = n_proie - n_pred
+        n_ref = NeuroVector3D.fromCartesianVector(self.ref.x, self.ref.y, self.ref.z, self.res) * self._lambda
+        n_rp  = NeuroVector3D.fromCartesianVector(rp.x, rp.y, rp.z, self.res)
 
         dt = Vector3((n_rp - n_ref).extractCartesianParameters())
+        self.v.append(dt.length())
         
         self.pred = self.pred + dt
         self._lambda -= 0.0054 * self._lambda
 
+        if self.t > 2 :
+           a = (self.proie-self.pred).angle_to(self.ref)
+           self.a_a.append(np.cos(np.radians(a)))
+           self.e += a
+        
+        dist = (self.pred-self.proie).length()
+
         if self.type == 'r':
-            self.proie = self.proie + Vector3(0, 0.1, 0.1)
+            self.proie = self.proie + Vector3(0, 0.01, 0.01)
         elif self.type == 'h' :
             self.proie = Vector3(self.x[self.t], self.y[self.t], self.z[self.t])
 
@@ -60,7 +70,7 @@ class pointFixe:
        
         self.t += 1
 
-        
+        return dist
 
     def draw(self, g1, g2):
 
@@ -78,11 +88,11 @@ class pointFixe:
 
         plt.show()
 
-c = pointFixe(10, 'h')
+c = pointFixe(4, 'h')
 
-#while (c.pred-c.proie).length() > 0.01:
-for i in range(1000):
-    c.update()
+for i in range(int(1e5)):
+    if c.update() < .01:
+        break
 
 x = [i[0] for i in c.a_proie]
 y = [i[1] for i in c.a_proie]
@@ -93,3 +103,5 @@ y1 = [i[1] for i in c.a_pred]
 z1 = [i[2] for i in c.a_pred]
 
 c.draw([x,y,z], [x1,y1,z1])
+
+print("erreur :", c.e/len(c.a_a))
