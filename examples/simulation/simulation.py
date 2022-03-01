@@ -11,7 +11,7 @@ class Simulation:
         self.resolution = resolution
         self.type  = type_
         
-        self.mv_vec = glm.normalize(glm.vec3(np.random.random() ,np.random.random(),np.random.random())) * 10 * core.time.Time.FIXED_DELTA_TIME
+        self.mv_vec = glm.normalize(glm.vec3(np.random.random() ,np.random.random(),np.random.random())) * 5 * core.time.Time.FIXED_DELTA_TIME
 
         if self.type == 'r' :
             self.prey  = glm.vec3(np.random.random()*40,np.random.random()*40,np.random.random()*40)

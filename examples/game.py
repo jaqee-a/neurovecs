@@ -161,27 +161,33 @@ class Game:
 
 
         if self.cursor: return
+
+        # ll = [*imgui.get_io().keys_down,]
+        # if 1 in ll:
+        #     print(ll.index)
+        
+        speed = 5 + (imgui.is_key_down(340) * 25)
         objs = activeScene.m_Registry.getAllOfTypes(core.components.camera.Camera, core.components.transform.Transform)
         # move this code to core
         for entity in objs:
             tr: core.components.transform.Transform = objs[entity][core.components.transform.Transform]
             if glfw.get_key(window, glfw.KEY_D):
-                tr.setPosition(*(tr.m_Position + tr.right * core.time.Time.FIXED_DELTA_TIME * 5))
+                tr.setPosition(*(tr.m_Position + tr.right * core.time.Time.FIXED_DELTA_TIME * speed))
 
             if glfw.get_key(window, glfw.KEY_A):
-                tr.setPosition(*(tr.m_Position - tr.right * core.time.Time.FIXED_DELTA_TIME * 5))
+                tr.setPosition(*(tr.m_Position - tr.right * core.time.Time.FIXED_DELTA_TIME * speed))
 
             if glfw.get_key(window, glfw.KEY_S):
-                tr.setPosition(*(tr.m_Position - tr.front * core.time.Time.FIXED_DELTA_TIME * 5))
+                tr.setPosition(*(tr.m_Position - tr.front * core.time.Time.FIXED_DELTA_TIME * speed))
 
             if glfw.get_key(window, glfw.KEY_W):
-                tr.setPosition(*(tr.m_Position + tr.front * core.time.Time.FIXED_DELTA_TIME * 5))
+                tr.setPosition(*(tr.m_Position + tr.front * core.time.Time.FIXED_DELTA_TIME * speed))
 
             if glfw.get_key(window, glfw.KEY_LEFT_CONTROL):
-                tr.setPosition(*(tr.m_Position + glm.vec3(0, -core.time.Time.FIXED_DELTA_TIME * 5, 0)))
+                tr.setPosition(*(tr.m_Position + glm.vec3(0, -core.time.Time.FIXED_DELTA_TIME * speed, 0)))
 
             if glfw.get_key(window, glfw.KEY_SPACE):
-                tr.setPosition(*(tr.m_Position + glm.vec3(0, core.time.Time.FIXED_DELTA_TIME * 5, 0)))
+                tr.setPosition(*(tr.m_Position + glm.vec3(0, core.time.Time.FIXED_DELTA_TIME * speed, 0)))
             break
 
     def onMouseMove(self, w, xpos, ypos):
