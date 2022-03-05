@@ -1,32 +1,7 @@
-"""
-    TODO WHAT CAN I DO ?
-
-    -   Create a cartesian vector, polar vector from the sine wave
-    -   Create a sine wave, polar vector from the cartesian vector
-
-
-        |------------------------------------------------------------|
-        |------------------------------------------------------------|
-        |------------------------------------------------------------|
-        |------------------------------------------------------------|
-        |------------------------------------------------------------|
-        |------------------------------------------------------------|
-        |------------------------------------------------------------|
-        |------------------------------------------------------------|
-        |------------------------------------------------------------|
-        |------------------------------------------------------------|
-        |------------------------------------------------------------|
-        |------------------------------------------------------------|
-        |------------------------------------------------------------|
-"""
-
-
-
 # PHI  == ELEVATION
 # THETA== AZIMUTH
 
-from math import acos, asin, atan2, cos, sin, sqrt
-from time import time
+from math import atan2, cos, sin, sqrt
 import numpy as np
 
 
@@ -88,15 +63,6 @@ class NeuroVector3D:
         #ρ0(cosδ cosδ0 cos(θ − θ0) + sinδ sinδ0)
         self.__MS = rho * (cos(phi) * np.cos(phis) * np.cos(thetas - theta) + sin(phi) * np.sin(phis))
 
-        """
-        print(phis)
-        print()
-        print(thetas)
-        print()
-        print(self.__MS)
-        print()
-        print(phi,theta)
-        """
         min_val = self.__MS.min()
         
         if min_val < 0:
@@ -132,7 +98,6 @@ class NeuroVector3D:
     def getMS(self):
         return self.__MS
         
-    # TODO TEST!
     def __sub__(self, __o):
         assert self.__MS.shape == __o.__MS.shape, "SUB: Unmatched resolution"
         assert type(__o) == NeuroVector3D,        "SUB: Wrong second-hand type"
@@ -141,18 +106,18 @@ class NeuroVector3D:
         """
             By subtraction we can invert the second-hand Sine Wave function and doing the addition
             Inverting a Sine Wave function is same as offsetting the input by pi
-            
-            Slide the array by N / 2, as N represents 2*pi, N / 2 represents pi.
-        
-        TODO
-            Check why this method has more error rate on the angle
-        
         """
-        max_ = __o.__MS.max()
-        new_vs = max_ - __o.__MS
 
-        return NeuroVector3D.fromMS(self.__MS + new_vs, self.bias + __o.bias)
+        return self + (~__o)
 
+
+    def __invert__(self):
+        vm    = self.__MS.copy()
+        min__ = vm.min()
+        max__ = vm.max() - min__
+        vm    = max__ - (vm - min__) + min__
+
+        return NeuroVector3D.fromMS(vm, self.bias)
 
     # TODO  TEST!
     def __add__(self, __o):
@@ -167,7 +132,10 @@ class NeuroVector3D:
         assert type(__o) == int or type(__o) == float or type(__o) == NeuroVector3D, "MUL: Wrong second-hand type"
 
         if type(__o) == NeuroVector3D:
-            return NeuroVector3D.fromMS(self.__MS * __o.__MS, self.bias * __o.bias)
+            xs, ys = np.where(self.__MS == self.__MS.max())
+            x, y = xs[0], ys[0]
+
+            return (self.__MS[x, y] - self.bias) * (__o.__MS[x, y] - __o.bias)
 
 
         # INVERT THE VECTOR
@@ -176,7 +144,7 @@ class NeuroVector3D:
         if __o < 0:
             min__ = vm.min()
             max__ = vm.max() - min__
-            vm = max__ - (vm - min__) + min__
+            vm    = max__    - ( vm - min__ ) + min__
             __o   = abs(__o)
 
         return NeuroVector3D.fromMS(vm * __o, self.bias * __o)
