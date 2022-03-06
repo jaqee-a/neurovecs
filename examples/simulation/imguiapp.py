@@ -21,6 +21,9 @@ class ImGuiApp:
     def startSimulationFunc(self):
         pass
 
+    def takeScreenshotFunction(self):
+        pass
+
     def render(self):
         imgui.begin("Control Panel", True)
         #if imgui.tree_node("Trajectoire", imgui.TREE_NODE_DEFAULT_OPEN):
@@ -61,5 +64,9 @@ class ImGuiApp:
 
         if imgui.button("Start new simulation"):
             self.startSimulationFunc()
+
+
+        if imgui.button("Take screen shot"):
+            self.takeScreenshotFunction()
 
         imgui.end()

@@ -9,7 +9,9 @@ from simulation.fixedpoint import FixedPoint
 from simulation.infinitpoint import InfinitPoint
 from simulation.imguiapp import ImGuiApp
 
+from PIL import Image
 from typing import List
+from OpenGL.GL import *
 
 from utils.objparser import ObjParser
 
@@ -72,6 +74,17 @@ class Game:
     def initApp(self):
         self.imGuiApp = ImGuiApp()
         self.imGuiApp.startSimulationFunc = self.startSimulation
+        self.imGuiApp.takeScreenshotFunction = self.takeScreenshot
+
+    def takeScreenshot(self):
+        glPixelStorei(GL_PACK_ALIGNMENT, 4)
+        glReadBuffer(GL_FRONT)
+        
+        size = glfw.get_framebuffer_size(self.m_Application.m_Window)
+        image = glReadPixels(0, 0, *size, GL_RGBA, GL_UNSIGNED_BYTE)
+        src = Image.frombuffer('RGBA', size, image).transpose(Image.FLIP_TOP_BOTTOM)
+        src.save('test.png')
+            
 
 
     def clearScene(self):
@@ -117,10 +130,10 @@ class Game:
             # Line drawing stuff!!
             if self.simulation.iteration > 1 and self.simulation.iteration % 60 == 0:
                 self.lines.append(line(self.m_Application.m_ActiveScene, self.c_lastpos, self.simulation.prey))
-                self.lines.append(line(self.m_Application.m_ActiveScene, self.p_lastpos, self.simulation.pred, [1, 0, 0]))
+                self.lines.append(line(self.m_Application.m_ActiveScene, self.p_lastpos, self.simulation.pred, [1, 0, 0, .3]))
                 self.lines.append(cube(self.m_Application.m_ActiveScene, self.simulation.pred, .1))
 
-                self.lines.append(line(self.m_Application.m_ActiveScene, self.simulation.point, self.simulation.prey, [1, 0, 1]))
+                self.lines.append(line(self.m_Application.m_ActiveScene, self.simulation.point, self.simulation.prey, [1, 0, 1, 1]))
 
                 self.c_lastpos = glm.vec3(*self.simulation.prey)
                 self.p_lastpos = glm.vec3(*self.simulation.pred)
@@ -132,7 +145,7 @@ class Game:
             if self.simulation.iteration > 1 and self.simulation.iteration % 60 == 0:
                 self.lines.append(line(self.m_Application.m_ActiveScene, self.c_lastpos, self.simulation.prey))
                 self.lines.append(line(self.m_Application.m_ActiveScene, self.p_lastpos, self.simulation.pred))
-                self.lines.append(line(self.m_Application.m_ActiveScene, self.simulation.prey, self.simulation.pred, [1, 0, 0]))
+                self.lines.append(line(self.m_Application.m_ActiveScene, self.simulation.prey, self.simulation.pred, [1, 0, 0, .3]))
 
 
                 self.c_lastpos = glm.vec3(*self.simulation.prey)
