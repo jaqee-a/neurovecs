@@ -8,6 +8,7 @@ sys.path.append('src')
 from simulation.simulation import Simulation
 from simulation.fixedpoint import FixedPoint
 from simulation.infinitpoint import InfinitPoint
+from simulation.pursue import Pursue
 from simulation.imguiapp import ImGuiApp
 
 from PIL import Image
@@ -29,7 +30,7 @@ import glm
 class Game:
 
     movementMode   = { 0: 'r', 1: 'h', 2: 'a' }
-    camouflageMode = { 0: 'f', 1: 'i' }
+    camouflageMode = { 0: 'f', 1: 'i', 2: 'p' }
     lockCamera: bool = False
 
     m_Application: core.application.Application
@@ -102,10 +103,12 @@ class Game:
         mode = self.movementMode[self.imGuiApp.selectedMovementMode]
         
         if self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'f' :
-           self.simulation = FixedPoint(self.imGuiApp.RESOLUTION, mode)
+            self.simulation = FixedPoint(self.imGuiApp.RESOLUTION, mode)
         elif self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'i' :
-           self.simulation = InfinitPoint(self.imGuiApp.RESOLUTION, mode)
-           
+            self.simulation = InfinitPoint(self.imGuiApp.RESOLUTION, mode)
+        elif self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'p' :
+            self.simulation = Pursue(self.imGuiApp.RESOLUTION, mode)
+            
         self.onStartNew()
 
     def onStartNew(self):
