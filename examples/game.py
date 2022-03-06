@@ -78,6 +78,8 @@ class Game:
         self.imGuiApp.takeScreenshotFunction = self.takeScreenshot
 
     def takeScreenshot(self):
+
+        glfw.set_window_size(self.m_Application.m_Window, 4096, 2160)
         glPixelStorei(GL_PACK_ALIGNMENT, 4)
         glReadBuffer(GL_FRONT)
         
