@@ -15,8 +15,8 @@ class poursuite:
         self.res = res
        
         self.dr = Vector3(100, 0, 0)
-        self.dr_cible = Vector3(0, 0.1, 0.1)
-        self.v = Vector3(0,1,1)
+        self.dr_cible = Vector3(0, 0, 0)
+        self.v = Vector3(0,10,10)
         self.dist = 50
 
         self.t = [self.dr]
@@ -29,8 +29,8 @@ class poursuite:
         ref = self.dr_cible - self.dr
         n_ref = NeuroVector3D.fromCartesianVector(ref.x, ref.y, ref.z, self.res)
         
-        n_dt = (1-self.dist/n_ref.extractPolarParameters()[0])* n_ref
-        dt = n_dt.extractCartesianParameters()
+        n_dt =  n_ref*float((1-self.dist/n_ref.extractPolarParameters()[2]))
+        dt = Vector3(n_dt.extractCartesianParameters())
 
         self.dr = self.dr + dt
         
@@ -45,7 +45,7 @@ class poursuite:
         self.t_c.append(self.dr_cible)
                        
 
-    def draw(self, g1):
+    def draw(self, g1, g2):
 
         mpl.rcParams['legend.fontsize'] = 10
         fig = plt.figure(figsize=(8,8))
@@ -53,7 +53,8 @@ class poursuite:
 
         ax.scatter(g1[0][0], g1[1][0], g1[2][0])
     
-        ax.plot(g1[0], g1[1], g1[2], label='proie')
+        ax.plot(g1[0], g1[1], g1[2], label='dr')
+        ax.plot(g2[0], g2[1], g2[2], label='dr_cible')
         
 
         ax.legend()
@@ -62,7 +63,7 @@ class poursuite:
 
 c = poursuite(10)
 
-for _ in range(1000):
+for _ in range(100):
    c.update()
 
 x = [i[0] for i in c.t]
