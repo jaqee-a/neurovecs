@@ -1,5 +1,6 @@
 
 import sys
+import time
 
 sys.path.append('py-engine')
 sys.path.append('src')
@@ -83,7 +84,7 @@ class Game:
         size = glfw.get_framebuffer_size(self.m_Application.m_Window)
         image = glReadPixels(0, 0, *size, GL_RGBA, GL_UNSIGNED_BYTE)
         src = Image.frombuffer('RGBA', size, image).transpose(Image.FLIP_TOP_BOTTOM)
-        src.save('test.png')
+        src.save(f'screenshots/{time.time()}.png')
             
 
 
