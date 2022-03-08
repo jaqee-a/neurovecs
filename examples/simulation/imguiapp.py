@@ -45,9 +45,9 @@ class ImGuiApp:
         if imgui.button("None"):
             self.lookAtTarget = None
         """
-        _, self.selectedCamouflageMode = imgui.combo("Camouflage Mode", self.selectedCamouflageMode, ['Fixed Point', 'Infinit Point', 'Poursuit'])
-        _, self.selectedMovementMode = imgui.combo("Movement Mode", self.selectedMovementMode, ['Rectiligne', 'Hélicoïdale', 'Aléatoire'])
-        _, self.RESOLUTION           = imgui.input_int("Resolution N", self.RESOLUTION)
+        _, self.selectedCamouflageMode = imgui.combo("Camouflage Mode", self.selectedCamouflageMode, ['Fixed Point', 'Infinit Point', 'Persue', 'Road Persue'])
+        _, self.selectedMovementMode   = imgui.combo("Movement Mode", self.selectedMovementMode, ['Rectiligne', 'Hélicoïdale', 'Aléatoire'])
+        _, self.RESOLUTION             = imgui.input_int("Resolution N", self.RESOLUTION)
 
         if self.RESOLUTION > 50:  self.RESOLUTION = 50
         elif self.RESOLUTION < 1: self.RESOLUTION = 1

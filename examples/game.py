@@ -8,6 +8,7 @@ sys.path.append('src')
 from simulation.simulation import Simulation
 from simulation.fixedpoint import FixedPoint
 from simulation.infinitpoint import InfinitPoint
+from simulation.roadpersue import RoadPursue
 from simulation.pursue import Pursue
 from simulation.imguiapp import ImGuiApp
 
@@ -30,7 +31,7 @@ import glm
 class Game:
 
     movementMode   = { 0: 'r', 1: 'h', 2: 'a' }
-    camouflageMode = { 0: 'f', 1: 'i', 2: 'p' }
+    camouflageMode = { 0: 'f', 1: 'i', 2: 'p', 3: 'rp' }
     lockCamera: bool = False
 
     m_Application: core.application.Application
@@ -108,6 +109,8 @@ class Game:
             self.simulation = InfinitPoint(self.imGuiApp.RESOLUTION, mode)
         elif self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'p' :
             self.simulation = Pursue(self.imGuiApp.RESOLUTION, mode)
+        elif self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'rp' :
+            self.simulation = RoadPursue(self.imGuiApp.RESOLUTION, mode)
             
         self.onStartNew()
 
@@ -150,7 +153,7 @@ class Game:
 
             if self.simulation.iteration > 1 and self.simulation.iteration % 60 == 0:
                 self.lines.append(line(self.m_Application.m_ActiveScene, self.c_lastpos, self.simulation.prey))
-                self.lines.append(line(self.m_Application.m_ActiveScene, self.p_lastpos, self.simulation.pred))
+                self.lines.append(line(self.m_Application.m_ActiveScene, self.p_lastpos, self.simulation.pred, [0, 0, 1, .1]))
                 self.lines.append(line(self.m_Application.m_ActiveScene, self.simulation.prey, self.simulation.pred, [1, 0, 0, .3]))
 
 
