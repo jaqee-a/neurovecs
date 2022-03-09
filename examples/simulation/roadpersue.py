@@ -19,13 +19,19 @@ class RoadPursue(Simulation):
 
     def getReferenceVectors(self):
         rp  = self.prey - self.pred
-        dh  = glm.vec3(0, self.H-self.pred.y, 0)
+
+        up  = glm.vec3(0, 1, 0) * self.H
+
+        h   = self.prey + up
+        dh  = glm.vec3(0, h.y - self.pred.y, 0)
+
+        d   = self.pred + dh - h
 
         d2  = sqrt(self.D**2 - self.H ** 2)
-        d   = (self.pred + dh) - (self.prey + glm.vec3(0, self.H, 0))
-        d1  = d * ((glm.length(d) - d2) / glm.length(d))
+        
+        # d1  = d * ((glm.length(d) - d2) / glm.length(d))
 
-        return dh - d1
+        return dh, d, d2, rp#dh - d1, rp
     
     def simulationOver(self):
         return self.iteration > 50000
@@ -39,32 +45,31 @@ class RoadPursue(Simulation):
         self.updatePreyPosition()
 
         # Get the needed reference vectors
-        rp   = self.getReferenceVectors()
-        n_rp = NeuroVector3D.fromCartesianVector(*rp , self.resolution)
-        """
-        # Create Neuron Vectors
-        n_rp  = NeuroVector3D.fromCartesianVector(*rp , self.resolution)
+        dh, d, d2, _ = self.getReferenceVectors()
 
-        dist  = NeuroVector3D.extractPolarParameters(n_rp)[2]
+        n_dh    = NeuroVector3D.fromCartesianVector(*dh , self.resolution)
+        n_d     = NeuroVector3D.fromCartesianVector(*d, self.resolution)
+        _, _, r = NeuroVector3D.extractPolarParameters(n_d)
 
-        dt    = n_rp * float((dist - self.D) / dist)
+        n_d1    = n_d * float((r - d2) / r)
 
-        # Turn the neuron vector into a cartesian vector 
-        """
-        dt_cart = glm.vec3(*NeuroVector3D.extractCartesianParameters(n_rp))
+        dt      = n_dh - n_d1
+
+        dt_cart = glm.vec3(*NeuroVector3D.extractCartesianParameters(dt))
+
         self.pred += dt_cart
 
         # Calculate the error and speed
         if self.iteration > 1:
             self.errors.append(self.getError())
-            print(glm.length(dt_cart))
             self.speed .append(glm.length(dt_cart))
 
         return True
 
 
     def getError(self):
-        rp  = self.getReferenceVectors()
-        dis = abs(self.D - glm.length(rp))
+        *_,rp = self.getReferenceVectors()
+        print(glm.length(rp))
+        dis  = abs(self.D - glm.length(rp))
 
         return dis
