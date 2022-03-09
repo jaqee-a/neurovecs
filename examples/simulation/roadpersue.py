@@ -69,7 +69,6 @@ class RoadPursue(Simulation):
 
     def getError(self):
         *_,rp = self.getReferenceVectors()
-        print(glm.length(rp))
         dis  = abs(self.D - glm.length(rp))
 
         return dis
