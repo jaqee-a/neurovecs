@@ -15,7 +15,7 @@ height, width = 600, 800
 user_tr = 10
 non_con_user = 100
 dist = 70
-
+d1 = []
 
 screen = pygame.display.set_mode((width, height))
 
@@ -26,13 +26,12 @@ for _ in range(user_n):
 
 drone = []
 for _ in range(drone_n):
-    d = pygame.Vector3(random.random() * width* 0.5 + 200, random.random() * height* 0.5 + 200, 20)
+    d = pygame.Vector3(50, 50, 20)
     drone.append(d)
 
-iter = 0
-t = 0
-d1 = pygame.Vector3(0,0,0)
+dm = pygame.Vector3(0,0,0)
 stable = False
+iter = 0
 
 running = True
 while running:
@@ -45,8 +44,6 @@ while running:
     if non_con_user > 10 and stable == False :
 
         non_con_user = 100
-        stable = True
-        first = True
     
         for p in pop :
             p[1] = 0
@@ -84,34 +81,26 @@ while running:
             
             F = F1 + F2
             dt = F.normalize()
-            #print(dt)
             
-            if t < 2 and first :
-                d1 += dt
-                t += 1
-                stable = False
-                
-            elif first :
-                t = 1
-                print(d1.length())
-                if d1.length() > 0.1:
-                    stable = False
-                
-                d1 = dt
-
             d += dt
-            first = False
-            
+            #d1.append(dt)
+        
+        if iter % 20 == 0 :
+
+            if (dm - drone[0]).length() < 1 :
+                stable = True
+            dm.x, dm.y, dm.z = drone[0].x, drone[0].y, drone[0].z
+
         iter += 1
         
     elif stable == True :
         
         stable = False
-
-
+        #print(drone_n)
         drone_n += 1
         d = pygame.Vector3(50 , 50 , 20)
         drone.insert(0, d)
+        #drone.append(d)
 
     for i, d in enumerate(drone):
         
@@ -136,8 +125,9 @@ while running:
         else:
            pygame.draw.circle(screen, (0, 255, 0), [p[0].x, p[0].y], 2)
     
+    
 
-    """for p in pop :
-        p[0] = p[0] + pygame.Vector3(0.01, 0.01, 0)"""
+    for p in pop :
+        p[0] = p[0] + pygame.Vector3(0.01, 0.01, 0)
     pygame.display.update()
     
