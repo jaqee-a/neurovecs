@@ -1,10 +1,9 @@
-import enum
 import random
 from tkinter import W
 from math import sqrt
 import pygame
 import numpy as np
-import time
+
 
 from scipy import rand
 
