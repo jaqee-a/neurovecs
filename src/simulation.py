@@ -98,10 +98,10 @@ while running:
 
             if (dm - drone[0]).length() < 1 :
                 stable = True
-            """elif drone[0].x < 0 or drone[0].y < 0:
+            elif drone[0].x < -500 or drone[0].y < -500 :
                 drone.pop(0)
                 drone_n -= 1
-                non_con = non_con_user"""
+                non_con = non_con_user
 
             dm.x, dm.y, dm.z = drone[0].x, drone[0].y, drone[0].z
     
