@@ -22,7 +22,7 @@ non_con = 0
 screen = pygame.display.set_mode((width, height))
 
 #obstacle
-obs = [pygame.Vector3(400, 350, 0), [100, 100]]
+obs = [[pygame.Vector3(400, 350, 0), [100, 100]], [pygame.Vector3(200, 100, 0), [50, 50]]]
 
 pop = []
 for _ in range(user_n):
@@ -61,32 +61,31 @@ while running:
     for d in drone:
 
         F1 = pygame.Vector3(0, 0, 0)
-        F3 = pygame.Vector3(0, 0, 0)
+        
         for p in pop:
-            #print(p[0])
             if not p[1] :
                 v = p[0].u - d
                 v.z = 0
                 F1 += v.normalize() * 1 / (v.length() * (user_n/drone_n))
-                #F3 += v.normalize() * -1 / (v.length() * (user_n/drone_n)**2)
-            
-            #F1 = F1 / drone_n   
-            #F3 = F3 / drone_n
-            #F1 = F1.normalize()
-            
+               
 
         F2 = pygame.Vector3(0, 0, 0)
+
         for dr in drone:
             if d != dr : 
                 v = d - dr
                 v.z = 0
                 F2 += v.normalize() * 1 / (v.length()**2)
             
-            #F2 = F2.normalize()
+            
         
-        v = d - obs[0]
-        v.z = 0
-        F3 = v.normalize() * 1 / (v.length()*2)
+        F3 = pygame.Vector3(0, 0, 0)
+
+        for ob in obs :
+            v = d - ob[0]
+            v.z = 0
+            F3 += v.normalize() * 1 / (v.length()*2)
+
         F = F1 + F2 + F3
         dt = F.normalize()
             
@@ -99,10 +98,10 @@ while running:
 
             if (dm - drone[0]).length() < 1 :
                 stable = True
-            elif drone[0].x < 0 or drone[0].y < 0:
+            """elif drone[0].x < 0 or drone[0].y < 0:
                 drone.pop(0)
                 drone_n -= 1
-                non_con = non_con_user
+                non_con = non_con_user"""
 
             dm.x, dm.y, dm.z = drone[0].x, drone[0].y, drone[0].z
     
@@ -146,7 +145,9 @@ while running:
         p[0].randomWalk(iter)
 
     iter += 1
-    pygame.draw.rect(screen, (255,255,255), pop[0][0].obs)
+
+    for ob in pop[0][0].obs :
+        pygame.draw.rect(screen, (255,255,255), ob)
 
     pygame.display.update()
     
