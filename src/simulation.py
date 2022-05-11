@@ -78,14 +78,14 @@ while running:
             if d != dr : 
                 v = d - dr
                 v.z = 0
-                F2 += v.normalize() * 1 / (v.length()*4)
+                F2 += v.normalize() * 1 / (v.length()**2)
             
             #F2 = F2.normalize()
             
         F = F1 + F2
         dt = F.normalize()
             
-        d += dt
+        d += dt*2
         #d1.append(dt)
         
     if non_con_user > 10 and stable == False :
