@@ -17,14 +17,16 @@ height, width = 600, 800
 user_tr = 10
 non_con_user = 100
 dist = 70
-dx, dy = 0.01, 0.01
 non_con = 0
 
 screen = pygame.display.set_mode((width, height))
 
+#obstacle
+obs = [pygame.Vector3(400, 350, 0), [100, 100]]
+
 pop = []
 for _ in range(user_n):
-    p = user(0.001, height, width)
+    p = user(0.001, height, width, obs)
     pop.append([p, 0])
 
 drone = []
@@ -81,8 +83,11 @@ while running:
                 F2 += v.normalize() * 1 / (v.length()**2)
             
             #F2 = F2.normalize()
-            
-        F = F1 + F2
+        
+        v = d - obs[0]
+        v.z = 0
+        F3 = v.normalize() * 1 / (v.length()*2)
+        F = F1 + F2 + F3
         dt = F.normalize()
             
         d += dt*2
@@ -141,5 +146,7 @@ while running:
         p[0].randomWalk(iter)
 
     iter += 1
+    pygame.draw.rect(screen, (255,255,255), pop[0][0].obs)
+
     pygame.display.update()
     
