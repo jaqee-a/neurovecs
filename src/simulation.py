@@ -3,6 +3,7 @@ from tkinter import W
 from math import sqrt
 import pygame
 import numpy as np
+from User import user
 
 
 from scipy import rand
@@ -19,13 +20,11 @@ dist = 70
 dx, dy = 0.01, 0.01
 non_con = 0
 
-dp = [(np.random.random(), np.random.random()) for i in range(100)]
-
 screen = pygame.display.set_mode((width, height))
 
 pop = []
 for _ in range(user_n):
-    p = pygame.Vector3(random.random() * width* 0.5 + 200, random.random() * height* 0.5 + 200, 0)
+    p = user(0.001, height, width)
     pop.append([p, 0])
 
 drone = []
@@ -52,7 +51,7 @@ while running:
     for p in pop :
             p[1] = 0
             for i, d in enumerate(drone):
-                di = d.distance_to(p[0])
+                di = d.distance_to(p[0].u)
                 if not p[1] and di < dist :
                     p[1] = 1
                     non_con_user -= 1
@@ -64,7 +63,7 @@ while running:
         for p in pop:
             #print(p[0])
             if not p[1] :
-                v = p[0] - d
+                v = p[0].u - d
                 v.z = 0
                 F1 += v.normalize() * 1 / (v.length() * (user_n/drone_n))
                 #F3 += v.normalize() * -1 / (v.length() * (user_n/drone_n)**2)
@@ -79,7 +78,7 @@ while running:
             if d != dr : 
                 v = d - dr
                 v.z = 0
-                F2 += v.normalize() * 1 / (v.length()**2)
+                F2 += v.normalize() * 1 / (v.length()*4)
             
             #F2 = F2.normalize()
             
@@ -131,25 +130,16 @@ while running:
         
     for p in pop :
         if p[1] == 0:
-           pygame.draw.circle(screen, (255, 0, 0), [p[0].x, p[0].y], 2)
+           pygame.draw.circle(screen, (255, 0, 0), [p[0].u.x, p[0].u.y], 2)
         else:
-           pygame.draw.circle(screen, (0, 255, 0), [p[0].x, p[0].y], 2)
+           pygame.draw.circle(screen, (0, 255, 0), [p[0].u.x, p[0].u.y], 2)
     
     
     i = 0
     for p in pop :
 
-        p[0] = p[0] + pygame.Vector3(dp[i][0]*.01, dp[i][1]*.01, 0)
-        
-        i+=1
-        
-        """if p[0].x > 780 or p[0].x < 20 :
-            dx *= -1
-            break
-        elif p[0].y > 580 or p[0].y < 20 :
-            dy *= -1
-            break
-        """
+        p[0].randomWalk(iter)
+
     iter += 1
     pygame.display.update()
     
