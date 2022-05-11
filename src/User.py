@@ -5,41 +5,33 @@ import pygame
 import numpy as np
 
 
-height, width = 600, 800
-screen = pygame.display.set_mode((width, height))
-iter = 0
+class user :
 
-pygame.init()
+    def __init__(self, h, w) -> None:
+        
+        self.height, self.width = h, w
+        self.u = pygame.Vector3(random.random() * self.width* 0.5 + 200, random.random() * self.height* 0.5 + 200, 0)
+        self.v = 0.01
+        self.theta = 0
+        self.beta = 0
+        self.delta_theta = 0.3
+        self.delta_t = 100
 
-v = 0.01
-theta = 0
-beta = 0
-delta_theta = 0.3
-delta_t = 100
 
-u = pygame.Vector3(300, 400, 0)
-
-running = True
-while running:
-    #screen.fill((0,0,0))
- 
-    for event in pygame.event.get() :
-        if event.type == pygame.QUIT:
-            running = False
+    def randomWalk(self) :
     
-    if iter % delta_t == 0 or u.x < 0 or u.y < 0 or u.x > width or u.y > height :
-        a = random.randint(0, 360)
-        theta = a * np.pi / 180
+        if iter % self.delta_t == 0 or self.u.x < 0 or self.u.x > self.width or self.u.y < 0 or self.u.y > self.height :
+           a = random.randint(0, 360)
+           theta = a * np.pi / 180
 
-    beta = random.uniform(0,1)
-    delta_theta = 0.3 - 0.6 * beta
+        beta = random.uniform(0,1)
+        delta_theta = 0.3 - 0.6 * beta
 
-    theta += delta_theta
+        theta += delta_theta
 
-    u.x += v * np.cos(theta) * delta_t
-    u.y += v * np.sin(theta) * delta_t
+        self.u.x += self.v * np.cos(theta) * self.delta_t
+        self.u.y += self.v * np.sin(theta) * self.delta_t
 
-    pygame.draw.circle(screen, (255, 255, 255), [u.x, u.y], 2)
+        return self.u
 
-    iter += 1
-    pygame.display.update()
+   
