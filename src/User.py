@@ -1,6 +1,7 @@
 import random
 from tkinter import W
 from math import sqrt
+from turtle import isvisible
 import pygame
 import numpy as np
 
@@ -16,16 +17,25 @@ class user :
         self.beta = 0
         self.delta_theta = 0.3
         self.delta_t = 100
-        self.obs = pygame.Rect(obs[0].x-50, obs[0].y-50, obs[1][0], obs[1][1])
+        self.obs = []
+        for ob in obs :
+            self.obs.append(pygame.Rect(ob[0].x-50, ob[0].y-50, ob[1][0], ob[1][1]))
         
-        while self.obs.collidepoint(self.u.x, self.u.y) == True :
-            self.u = pygame.Vector3(random.random() * self.width* 0.5 + 200, random.random() * self.height* 0.5 + 200, 0)
+        while self.isValid() == False :
+              self.u = pygame.Vector3(random.random() * self.width* 0.5 + 200, random.random() * self.height* 0.5 + 200, 0)
         
+
+    def isValid(self):
+
+        for ob in self.obs :
+            if ob.collidepoint(self.u.x, self.u.y) :
+                return False
+        return True
     
     def randomWalk(self, iter) :
     
         if iter % self.delta_t == 0 or self.u.x < 0 or self.u.x > self.width or self.u.y < 0 or self.u.y > self.height \
-           or self.obs.collidepoint(self.u.x, self.u.y) == True:
+           or self.isValid() == False :
            a = random.randint(0, 360)
            self.theta = a * np.pi / 180
 
