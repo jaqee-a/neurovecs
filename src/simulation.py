@@ -65,7 +65,6 @@ while running:
         for p in pop:
             if not p[1] :
                 v = p[0].u - d
-                v.z = 0
                 F1 += v.normalize() * 1 / (v.length() * (user_n/drone_n))
                
 
@@ -74,8 +73,7 @@ while running:
         for dr in drone:
             if d != dr : 
                 v = d - dr
-                v.z = 0
-                F2 += v.normalize() * 1 / (v.length()**2)
+                F2 += v.normalize() * 1 / (v.length()*7)
             
             
         
@@ -83,14 +81,14 @@ while running:
 
         for ob in obs :
             v = d - ob[0]
-            v.z = 0
             F3 += v.normalize() * 1 / (v.length()*2)
 
-        F = F1 + F2 + F3
+        F4 = pygame.Vector3(0, 0, 1) * (1 / d.z**2)
+        
+        F = F1 + F2 + F3 + F4
         dt = F.normalize()
             
-        d += dt*2
-        #d1.append(dt)
+        d += dt
         
     if non_con_user > 10 and stable == False :
 
@@ -98,10 +96,7 @@ while running:
 
             if (dm - drone[0]).length() < 1 :
                 stable = True
-            elif drone[0].x < -500 or drone[0].y < -500 :
-                drone.pop(0)
-                drone_n -= 1
-                non_con = non_con_user
+            
 
             dm.x, dm.y, dm.z = drone[0].x, drone[0].y, drone[0].z
     
@@ -119,11 +114,14 @@ while running:
         
         try:
            r = sqrt(dist**2 - d.z**2)
-           #print(i, ":", d.z)
+           print(i, ":", d.z)
         except:
             print(i, ":", d.z)
-            non_con_user = 0
-            break
+            if d.z > 300 :
+               drone.pop(0)
+               drone_n -= 1
+               non_con = non_con_user
+            print(drone_n)
 
         
         pygame.draw.circle(screen, (0, 0 , 50), [d.x, d.y], r)
