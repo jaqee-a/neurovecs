@@ -95,6 +95,10 @@ class NeuroVector3D:
 
         return x, y, z
 
+    def length(self):
+
+        return self.__MS.max() - self.bias
+
     def getMS(self):
         return self.__MS
         
@@ -149,3 +153,11 @@ class NeuroVector3D:
 
         return NeuroVector3D.fromMS(vm * __o, self.bias * __o)
 
+    def __normalize__(self):
+
+        vm    = self.__MS.copy()
+        max__ = vm.max() - self.bias
+        vm    = vm.__mul__(1 / max__)
+
+        return NeuroVector3D.fromMS(vm, self.bias / max__)
+    
