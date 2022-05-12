@@ -57,7 +57,8 @@ while running:
                 if not p[1] and di < dist :
                     p[1] = 1
                     non_con_user -= 1
-    
+
+    stable = True
     for d in drone:
 
         F1 = pygame.Vector3(0, 0, 0)
@@ -86,42 +87,33 @@ while running:
         F4 = pygame.Vector3(0, 0, 1) * (1 / d.z**2)
         
         F = F1 + F2 + F3 + F4
-        dt = F.normalize()
-            
-        d += dt
+        if F.length() > 0.001 :
+            stable = False
+            dt = F.normalize()
         
-    if non_con_user > 10 and stable == False :
-
-        if iter % 20 == 0 :
-
-            if (dm - drone[0]).length() < 1 :
-                stable = True
-            
-
-            dm.x, dm.y, dm.z = drone[0].x, drone[0].y, drone[0].z
+            d += dt
     
-
-    elif stable == True and non_con_user > non_con + 5:
+    if stable == True and non_con_user > non_con + 5:
         
         stable = False
         drone_n += 1
         d = pygame.Vector3(50 , 50 , 20)
         drone.insert(0, d)
     
-    print(drone_n)
+    #print(drone_n)
     
     for i, d in enumerate(drone):
         
         try:
            r = sqrt(dist**2 - d.z**2)
-           print(i, ":", d.z)
+           #print(i, ":", d.z)
         except:
-            print(i, ":", d.z)
+            #print(i, ":", d.z)
             if d.z > 300 :
                drone.pop(0)
                drone_n -= 1
                non_con = non_con_user
-            print(drone_n)
+            #print(drone_n)
 
         
         pygame.draw.circle(screen, (0, 0 , 50), [d.x, d.y], r)
