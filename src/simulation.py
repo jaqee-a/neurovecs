@@ -16,14 +16,15 @@ drone_n = 1
 height, width = 600, 800
 user_tr = 10
 non_con_user = 100
-dist = 70
+#dist = 70
 non_con = 0
 theta = 20.34
 
 screen = pygame.display.set_mode((width, height))
 
 #obstacle
-obs = [[pygame.Vector3(400, 350, 0), [100, 100]], [pygame.Vector3(200, 100, 0), [50, 50]]]
+obs = []
+#[pygame.Vector3(400, 350, 0), [100, 100]]
 
 pop = []
 for _ in range(user_n):
@@ -32,12 +33,36 @@ for _ in range(user_n):
 
 drone = []
 for _ in range(drone_n):
-    d = pygame.Vector3(50, 50, 20)
+    d = pygame.Vector3(50, 50, 100)
     drone.append(d)
 
 dm = pygame.Vector3(0,0,0)
 stable = False
 iter = 0
+"""
+T = 2 # db
+sig = 1 / 10**6 # Watts
+u = 9.61
+b = 0.16
+nlos = 1
+nNlos = 20
+fc = 2.5  # GHz
+c = 299792458 # m/s
+a = 2 
+
+def SNR(h, d) :
+
+    r1 = np.sqrt(d**2 - h**2)
+    
+    plos2 = 1 / (1 + u * np.exp( -1 * b * (np.arctan(h / r1) - u)))
+
+    plos = 1 / (1 + u * np.exp( -1 * b * (180/np.pi * np.arctan(h / d) - u)))
+
+    #print(plos, plos2)
+
+    p = plos * nlos * (4*np.pi*fc*d / c)**a + (1 - plos) * nNlos * (4*np.pi*fc*d / c)**a
+
+    print(p/sig**2)"""
 
 running = True
 while running:
@@ -98,7 +123,7 @@ while running:
         
         stable = False
         drone_n += 1
-        d = pygame.Vector3(50 , 50 , 20)
+        d = pygame.Vector3(50 , 50 , 100)
         drone.insert(0, d)
     
     #print(drone_n)
