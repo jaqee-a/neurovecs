@@ -6,8 +6,6 @@ import numpy as np
 from User import user
 
 
-from scipy import rand
-
 pygame.init()
 
 user_n = 100
