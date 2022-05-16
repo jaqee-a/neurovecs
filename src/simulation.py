@@ -17,7 +17,7 @@ drone_n = 1
 height, width = 600, 800
 user_tr = 10
 non_con_user = 100
-dist = 70
+#dist = 70
 non_con = 0
 
 theta = 20.34
@@ -26,6 +26,7 @@ screen = pygame.display.set_mode((width, height))
 
 #obstacle
 obs = []
+#[pygame.Vector3(400, 350, 0), [100, 100]]
 
 pop = []
 for _ in range(user_n):
@@ -89,7 +90,7 @@ while running:
             F3 += v.normalize() * 1 / (v.length()*2)
 
         # Repulsion force with the ground
-        F4 = pygame.Vector3(0, 0, 1) * (1 / (d.n_users + 1)**2)
+        F4 = pygame.Vector3(0, 0, 1) * (1 / d.p.z**2)
         
         F = F1 + F2 + F3 + F4
         if F.length() > 0.001 :
@@ -98,7 +99,7 @@ while running:
         
             d.p += dt
     
-    if stable == True and non_con_user > 10 and drone_n < 4 :
+    if stable == True and non_con_user > 10  :
         
         stable = False
         drone_n += 1
