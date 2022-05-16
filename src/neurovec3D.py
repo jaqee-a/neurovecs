@@ -66,7 +66,7 @@ class NeuroVector3D:
         min_val = self.__MS.min()
         
         if min_val < 0:
-            self.bias = abs(min_val)
+            self.bias = abs(min_val) + 50
 
             self.__MS += self.bias
 

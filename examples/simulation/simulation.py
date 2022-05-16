@@ -31,6 +31,7 @@ class Simulation:
 
         self.errors = []
         self.speed  = []
+        self.other  = []
 
         self.iteration = -1
 

@@ -1,4 +1,3 @@
-from math import acos, degrees
 import glm
 from neurovec3D import NeuroVector3D
 

@@ -10,6 +10,7 @@ class ImGuiApp:
 
     speed : List[float] = []
     errors: List[float] = []
+    other_plots: List[List[float]] = []
     RESOLUTION: int     = 4
 
     prey_trajectory: bool = True
@@ -45,19 +46,27 @@ class ImGuiApp:
         if imgui.button("None"):
             self.lookAtTarget = None
         """
-        _, self.selectedCamouflageMode = imgui.combo("Camouflage Mode", self.selectedCamouflageMode, ['Fixed Point', 'Infinit Point', 'Persue', 'Road Persue'])
-        _, self.selectedMovementMode   = imgui.combo("Movement Mode", self.selectedMovementMode, ['Rectiligne', 'Hélicoïdale', 'Aléatoire'])
+        _, self.selectedCamouflageMode = imgui.combo("Camouflage Mode", self.selectedCamouflageMode, ['Fixed Point', 'Infinit Point', 'Persue', 'Road Persue', 'Checkpoints'])
+        if self.selectedCamouflageMode != 4:
+            _, self.selectedMovementMode   = imgui.combo("Movement Mode", self.selectedMovementMode, ['Rectiligne', 'Hélicoïdale', 'Aléatoire'])
         _, self.RESOLUTION             = imgui.input_int("Resolution N", self.RESOLUTION)
 
         if self.RESOLUTION > 50:  self.RESOLUTION = 50
         elif self.RESOLUTION < 1: self.RESOLUTION = 1
 
-        if len(self.errors):
-            imgui.plot_lines("a°", np.array(self.errors, dtype=np.float32), overlay_text=f'avg: {sum(self.errors)/len(self.errors)}', graph_size=(0, 80))
-            imgui.plot_lines("Speed", np.array(self.speed, dtype=np.float32), graph_size=(0, 80))
+        if self.selectedCamouflageMode != 4:
+            if len(self.errors):
+                imgui.plot_lines("a°", np.array(self.errors, dtype=np.float32), overlay_text=f'avg: {sum(self.errors)/len(self.errors)}', graph_size=(0, 80))
+                imgui.plot_lines("Speed", np.array(self.speed, dtype=np.float32), graph_size=(0, 80))
+            else:
+                imgui.plot_lines("a°", np.array([0], dtype=np.float32), overlay_text="avg: 0", graph_size=(0, 80))
+                imgui.plot_lines("Speed", np.array([0], dtype=np.float32), graph_size=(0, 80))
         else:
-            imgui.plot_lines("a°", np.array([0], dtype=np.float32), overlay_text="avg: 0", graph_size=(0, 80))
-            imgui.plot_lines("Speed", np.array([0], dtype=np.float32), graph_size=(0, 80))
+            for plot in self.other_plots:
+                if len(plot):
+                    imgui.plot_lines("PLT", np.array(plot, dtype=np.float32), scale_min=0, scale_max=500, graph_size=(0, 80))
+                else:
+                    imgui.plot_lines("PLT", np.array([0], dtype=np.float32), graph_size=(0, 80))
 
         # _, core.time.Time.GAME_SPEED = imgui.drag_float("Simulation Speed", core.time.Time.GAME_SPEED, 0.01, 0.0, 1.0)
 

@@ -2,12 +2,15 @@
 import sys
 import time
 
+import numpy as np
+
 sys.path.append('py-engine')
 sys.path.append('src')
 
 from simulation.simulation import Simulation
 from simulation.fixedpoint import FixedPoint
 from simulation.infinitpoint import InfinitPoint
+from simulation.checkpoints import Checkpoint
 from simulation.roadpersue import RoadPursue
 from simulation.pursue import Pursue
 from simulation.imguiapp import ImGuiApp
@@ -31,7 +34,7 @@ import glm
 class Game:
 
     movementMode   = { 0: 'r', 1: 'h', 2: 'a' }
-    camouflageMode = { 0: 'f', 1: 'i', 2: 'p', 3: 'rp' }
+    camouflageMode = { 0: 'f', 1: 'i', 2: 'p', 3: 'rp', 4: 'cp' }
     lockCamera: bool = False
 
     m_Application: core.application.Application
@@ -70,6 +73,8 @@ class Game:
         # Loading the drone objects
         self.preyTransform = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj').getComponent(core.components.transform.Transform)
         self.predTransform = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj').getComponent(core.components.transform.Transform)
+
+        self.staticObjects = []
 
         self.initApp()
 
@@ -111,12 +116,24 @@ class Game:
             self.simulation = Pursue(self.imGuiApp.RESOLUTION, mode)
         elif self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'rp' :
             self.simulation = RoadPursue(self.imGuiApp.RESOLUTION, mode)
+        elif self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'cp':
+            self.simulation = Checkpoint(self.imGuiApp.RESOLUTION, mode)
             
         self.onStartNew()
 
     def onStartNew(self):
         self.predTransform.m_Position = self.simulation.pred
-        self.preyTransform.m_Position = self.simulation.prey
+        
+        if self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'cp':
+            self.imGuiApp.other_plots = [[] for _ in range(len(self.simulation.prey))]
+            self.preyTransform.m_Enabled  = False
+
+            for cp in self.simulation.prey:
+                self.lines.append(cube(self.m_Application.m_ActiveScene, cp, .2))
+        else:
+            self.preyTransform.m_Position = self.simulation.prey
+
+
 
 
     def update(self):
@@ -146,6 +163,12 @@ class Game:
 
                 self.c_lastpos = glm.vec3(*self.simulation.prey)
                 self.p_lastpos = glm.vec3(*self.simulation.pred)
+        elif self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'cp':
+            rps = self.simulation.getReferenceVectors()
+
+            for i in range(len(rps)):
+                self.imGuiApp.other_plots = self.simulation.other
+                
         else:
             if self.simulation.iteration == 1:
                 self.c_lastpos = glm.vec3(*self.simulation.prey)
