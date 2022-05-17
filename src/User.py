@@ -34,10 +34,14 @@ class user :
     
     def randomWalk(self, iter) :
     
-        if iter % self.delta_t == 0 or self.u.x < 0 or self.u.x > self.width or self.u.y < 0 or self.u.y > self.height \
-           or self.isValid() == False :
+        if iter % self.delta_t == 0 :
            a = random.randint(0, 360)
            self.theta = a * np.pi / 180
+
+        elif self.u.x < 0 or self.u.x > self.width or self.u.y < 0 or self.u.y > self.height \
+           or self.isValid() == False :
+
+           self.theta += np.pi
 
         self.beta = random.uniform(0,1)
         self.delta_theta = 0.3 - 0.6 * self.beta
