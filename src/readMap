@@ -1,1 +1,5 @@
-from map import
+
+f = open("map", 'r')
+
+for line in f:
+    print(line)
