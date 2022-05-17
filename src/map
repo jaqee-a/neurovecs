@@ -1,23 +1,22 @@
-obs = [
-  'XXXXXXXXXXXXXXXXBXXXXXXXXXXXXX',
-  'X         X         X        X', 
-  'X XXXXXXX X         X   X   XX', 
-  'X XXXXX X X    XXXXXXXXXXXX XX', 
-  'X X       X             XX  X',
-  'X XXXXXXXXXXXXXXXXXXX   XXXX X',
-  'X     X                 X    X',
-  'X XXX X                 XXXXXX',
-  'X   X X                 X    X',
-  'X XXX X                 X XXXX',
-  'X X   X                 X  X',
-  'X XXXXX                 X X  X',
-  'X     X                 X   XX',
-  'X XXXXX                 XXXXXX', 
-  'X   X X                 X    X',
-  'X XXX X                 XXXXXX',
-  'X X   X                 X    X',
-  'X XXXXX X X XXXXX XXX X X XXXX', 
-  'X       X X         X X      X', 
-  'X X X XXX XXXXX X X XXX XXXXXX', 
-  'X X X     X     X X          X',  
-  'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX']
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+X         X    B    X        X
+X XXXXXXX X         X   X   XX
+X XXXXX X X    XXXXXXXXXXXX XX
+X X       X             XX  XX
+X XXXXXXXXXXXXXXXXXX    XXXX X
+X     X                 X    X
+X XXX X                 XXXXXX
+X   X X                 X    X
+X XXX X                 X XXXX
+X X   X                 X  XXX
+X XXXXX        U        X X  X
+X     X                 X   XX
+X XXXXX                 XXXXXX
+X   X X                 X    X
+X XXX X                 XXXXXX
+X X   X                 X    X
+X XXXXX X X XXXXX XXX X X XXXX
+X       X X         X X      X
+X X X XXX XXXXX X X XXX XXXXXX
+X X X     X     X X          X 
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
