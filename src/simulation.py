@@ -17,7 +17,7 @@ drone_n = 1
 height, width = 600, 800
 user_tr = 10
 non_con_user = 100
-#dist = 70
+dist = 70
 non_con = 0
 
 theta = 20.34
@@ -57,6 +57,7 @@ while running:
             for i, d in enumerate(drone_l):
                 di = d.p.distance_to(p[0].u)
                 if not p[1] and di < d.distance() :
+                    print(d.SNR(di))
                     p[1] = 1
                     non_con_user -= 1
                     d.n_users += 1
@@ -110,7 +111,7 @@ while running:
     
     for i, d in enumerate(drone_l):
 
-        print(d.p.z)
+        #print(d.p.z)
         
         pygame.draw.circle(screen, (0, 0 , 50), [d.p.x, d.p.y], d.r())
         if d.p.z > 0 :
