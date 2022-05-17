@@ -106,9 +106,9 @@ while running:
     for i, d in enumerate(drone):
         
         try:
-           #r = sqrt(dist**2 - d.z**2)
+           r = sqrt(dist**2 - d.z**2)
            #print(i, ":", d.z)
-           r = d.z / np.tan(np.radians(theta))
+           #r = d.z / np.tan(np.radians(theta))
         except:
             #print(i, ":", d.z)
             if d.z > 300 :
