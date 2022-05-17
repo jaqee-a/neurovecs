@@ -23,7 +23,7 @@ theta = 20.34
 screen = pygame.display.set_mode((width, height))
 
 #obstacle
-obs = [[pygame.Vector3(400, 350, 0), [100, 100]], [pygame.Vector3(200, 100, 0), [50, 50]]]
+obs = [[pygame.Vector3(200, 350, 0), [100, 100]],[pygame.Vector3(300, 350, 0), [100, 100]], [pygame.Vector3(250, 100, 0), [50, 50]],[pygame.Vector3(250, 150, 0), [50, 50]],[pygame.Vector3(400, 350, 0), [100, 100]],[pygame.Vector3(400, 250, 0), [100, 100]],[pygame.Vector3(400, 150, 0), [100, 100]]]
 
 pop = []
 for _ in range(user_n):
@@ -32,16 +32,23 @@ for _ in range(user_n):
 
 drone = []
 for _ in range(drone_n):
-    d = pygame.Vector3(50, 50, 20)
+    d = pygame.Vector3(200, 200, 20)
     drone.append(d)
 
 dm = pygame.Vector3(0,0,0)
 stable = False
 iter = 0
 
+font = pygame.font.SysFont("Arial", 18)
+def update():
+	
+	text = font.render(str(int(100 - non_con_user))+"%", 1, pygame.Color("coral"))
+	return text
+
 running = True
 while running:
     screen.fill((0,0,0))
+    screen.blit(update(), (590,0))
  
     for event in pygame.event.get() :
         if event.type == pygame.QUIT:
@@ -83,7 +90,7 @@ while running:
 
         for ob in obs :
             v = d - ob[0]
-            F3 += v.normalize() * 1 / (v.length()*2)
+            F3 += v.normalize() * 1 / (v.length()*6)
 
         F4 = pygame.Vector3(0, 0, 1) * (1 / d.z**2)
         
@@ -140,6 +147,6 @@ while running:
 
     for ob in pop[0][0].obs :
         pygame.draw.rect(screen, (255,255,255), ob)
-
+    
     pygame.display.update()
     
