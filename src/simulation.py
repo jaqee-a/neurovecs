@@ -1,19 +1,18 @@
+from pickletools import read_string1
 import random
 from tkinter import W
 from math import sqrt
 import pygame
 import numpy as np
 from User import user
-
-
-from scipy import rand
+from readMap import draw, read
 
 pygame.init()
 
 user_n = 100
 drone_n = 1
 
-height, width = 600, 800
+height, width = 700, 960
 user_tr = 10
 non_con_user = 100
 dist = 70
@@ -21,9 +20,10 @@ non_con = 0
 theta = 20.34
 
 screen = pygame.display.set_mode((width, height))
+wall = pygame.image.load("wall.png").convert_alpha()
 
 #obstacle
-obs = [[pygame.Vector3(200, 350, 0), [100, 100]],[pygame.Vector3(300, 350, 0), [100, 100]], [pygame.Vector3(250, 100, 0), [50, 50]],[pygame.Vector3(250, 150, 0), [50, 50]],[pygame.Vector3(400, 350, 0), [100, 100]],[pygame.Vector3(400, 250, 0), [100, 100]],[pygame.Vector3(400, 150, 0), [100, 100]]]
+obs = read()
 
 pop = []
 for _ in range(user_n):
@@ -32,7 +32,7 @@ for _ in range(user_n):
 
 drone = []
 for _ in range(drone_n):
-    d = pygame.Vector3(200, 200, 20)
+    d = pygame.Vector3(460, 50, 20)
     drone.append(d)
 
 dm = pygame.Vector3(0,0,0)
@@ -40,15 +40,25 @@ stable = False
 iter = 0
 
 font = pygame.font.SysFont("Arial", 18)
-def update():
-	
-	text = font.render(str(int(100 - non_con_user))+"%", 1, pygame.Color("coral"))
-	return text
+
+def connected():
+	return font.render(str(int(100 - non_con_user))+"%", 1, pygame.Color("coral"))
+
+def deployed():
+    return font.render(str(int(drone_n)), 1, pygame.Color("coral"))
+    
+
+txt = connected()
 
 running = True
 while running:
     screen.fill((0,0,0))
-    screen.blit(update(), (590,0))
+    draw(screen, wall, obs)
+
+    if iter % 10 == 0 :
+        txt = connected()
+    screen.blit(txt, (590,0))
+    screen.blit(deployed(), (700,0))
  
     for event in pygame.event.get() :
         if event.type == pygame.QUIT:
@@ -65,6 +75,7 @@ while running:
                 if not p[1] and di < dist :
                     p[1] = 1
                     non_con_user -= 1
+                    
 
     stable = True
     for d in drone:
@@ -90,7 +101,8 @@ while running:
 
         for ob in obs :
             v = d - ob[0]
-            F3 += v.normalize() * 1 / (v.length()*6)
+            F3 += v.normalize() * 1 / (v.length()*3)
+        
 
         F4 = pygame.Vector3(0, 0, 1) * (1 / d.z**2)
         
@@ -99,13 +111,13 @@ while running:
             stable = False
             dt = F.normalize()
         
-            d += dt
+            d += dt*2
     
-    if stable == True and non_con_user > non_con + 5:
+    if stable == True and non_con_user > 10:
         
         stable = False
         drone_n += 1
-        d = pygame.Vector3(50 , 50 , 20)
+        d = pygame.Vector3(460, 50 , 20)
         drone.insert(0, d)
     
     #print(drone_n)
@@ -145,8 +157,9 @@ while running:
 
     iter += 1
 
-    for ob in pop[0][0].obs :
+    """for ob in pop[0][0].obs :
         pygame.draw.rect(screen, (255,255,255), ob)
+    """
     
     pygame.display.update()
     
