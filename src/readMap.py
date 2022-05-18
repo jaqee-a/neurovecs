@@ -9,7 +9,8 @@ def read() :
         row = []
         for c in line :
             if c == 'X' :
-                obs.append([pygame.Vector3(i, j, 0), [32, 32]])
+                for n in range(10) :
+                    obs.append([pygame.Vector3(i, j, n*10), [32, 32]])
             i += 32
         i = 0
         j += 32
