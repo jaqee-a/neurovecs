@@ -11,7 +11,7 @@ class user :
     def __init__(self, velocity, height, width, obs) -> None:
         
         self.height, self.width = height, width
-        self.u = pygame.Vector3(random.random() * self.width* 0.5 + 200, random.random() * self.height* 0.5 + 200, 0)
+        self.u = pygame.Vector3(random.random() * 704 * 0.5 + 256, random.random() * 320 * 0.5 + 320, 0)
         self.v = velocity
         self.theta = 0
         self.beta = 0
@@ -19,10 +19,11 @@ class user :
         self.delta_t = 100
         self.obs = []
         for ob in obs :
-            self.obs.append(pygame.Rect(ob[0].x-ob[1][0], ob[0].y-ob[1][1], ob[1][0], ob[1][1]))
+            if ob[0].z == 0 :
+               self.obs.append(pygame.Rect(ob[0].x-ob[1][0], ob[0].y-ob[1][1], ob[1][0], ob[1][1]))
         
         while self.isValid() == False :
-              self.u = pygame.Vector3(random.random() * self.width* 0.5 + 200, random.random() * self.height* 0.5 + 200, 0)
+              self.u = pygame.Vector3(random.random() * 704 * 0.5 + 32, random.random() * 320 * 0.5 + 320, 0)
         
 
     def isValid(self):
@@ -38,7 +39,7 @@ class user :
            a = random.randint(0, 360)
            self.theta = a * np.pi / 180
 
-        elif self.u.x < 0 or self.u.x > self.width or self.u.y < 0 or self.u.y > self.height \
+        elif self.u.x < 224 or self.u.x > 768 or self.u.y < 224 or self.u.y > 544 \
            or self.isValid() == False :
 
            self.theta += np.pi
