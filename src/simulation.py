@@ -131,6 +131,7 @@ while running:
         
         stable = False
         b, i = inService(drone)
+        print(b,i)
         if non_con_user > 10 and b == True :
            
            d = Drone()
