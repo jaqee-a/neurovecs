@@ -19,7 +19,7 @@ class user :
         self.delta_t = 100
         self.obs = []
         for ob in obs :
-            self.obs.append(pygame.Rect(ob[0].x-50, ob[0].y-50, ob[1][0], ob[1][1]))
+            self.obs.append(pygame.Rect(ob[0].x-ob[1][0], ob[0].y-ob[1][1], ob[1][0], ob[1][1]))
         
         while self.isValid() == False :
               self.u = pygame.Vector3(random.random() * self.width* 0.5 + 200, random.random() * self.height* 0.5 + 200, 0)
