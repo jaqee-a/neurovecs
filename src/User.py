@@ -16,7 +16,7 @@ class user :
         self.theta = 0
         self.beta = 0
         self.delta_theta = 0.3
-        self.delta_t = 100
+        self.delta_t = 200
         self.obs = []
         for ob in obs :
             if ob[0].z == 0 :
