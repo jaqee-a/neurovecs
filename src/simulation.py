@@ -23,7 +23,7 @@ non_con = 0
 theta = 20.34
 
 screen = pygame.display.set_mode((width, height))
-wall = pygame.image.load("wall.png").convert_alpha()
+wall = pygame.image.load("src\wall.png").convert_alpha()
 
 #obstacle
 obs = read()
@@ -87,6 +87,7 @@ while running:
                     p[1] = 1
                     non_con_user -= 1
                     d.n_users += 1
+                    p[0].SNR(d)
                     break
                     
 
