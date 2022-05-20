@@ -114,7 +114,7 @@ while running:
 
         for ob in obs :
             v = d.p - ob[0]
-            F3 += v.normalize() * 1 / (v.length()**2)
+            F3 += v.normalize() * 0.6 / (v.length()**2)
         
 
         F4 = pygame.Vector3(0, 0, 1) * (1 / d.p.z**2)
@@ -131,7 +131,7 @@ while running:
         
         stable = False
         b, i = inService(drone)
-        print(b,i)
+        
         if non_con_user > 10 and b == True :
            
            d = Drone()
