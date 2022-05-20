@@ -6,12 +6,12 @@ dist = 70
 
 class Drone :
 
-    def __init__ (self, theta) :
+    def __init__ (self) :
 
         self.p = pygame.Vector3(800, 60, 20)
-        self.theta = theta
+        self.theta = 0
         self.n_users = 0
-        self.pt = 30
+        self.pt = 30 #dBm
 
     def r(self) :
         
