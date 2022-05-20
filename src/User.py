@@ -20,7 +20,7 @@ class user :
         self.obs = []
         for ob in obs :
             if ob[0].z == 0 :
-               self.obs.append(pygame.Rect(ob[0].x-ob[1][0], ob[0].y-ob[1][1], ob[1][0], ob[1][1]))
+               self.obs.append(pygame.Rect(ob[0].x-int(ob[1][0]/2), ob[0].y-int(ob[1][1]/2), ob[1][0], ob[1][1]))
         
         while self.isValid() == False :
               self.u = pygame.Vector3(random.random() * 704 * 0.5 + 32, random.random() * 320 * 0.5 + 320, 0)
@@ -29,8 +29,9 @@ class user :
     def isValid(self):
 
         for ob in self.obs :
-            if ob.collidepoint(self.u.x, self.u.y) :
+            if ob.collidepoint(self.u.x, self.u.y) == True :
                 return False
+                
         return True
     
     def randomWalk(self, iter) :
@@ -39,9 +40,7 @@ class user :
            a = random.randint(0, 360)
            self.theta = a * np.pi / 180
 
-        elif self.u.x < 224 or self.u.x > 768 or self.u.y < 224 or self.u.y > 544 \
-           or self.isValid() == False :
-
+        elif self.isValid() == False :
            self.theta += np.pi
 
         self.beta = random.uniform(0,1)
