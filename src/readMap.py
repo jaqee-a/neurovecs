@@ -6,7 +6,6 @@ def read() :
     f = open("map", 'r')
     
     for line in f :
-        row = []
         for c in line :
             if c == 'X' :
                 for n in range(10) :
