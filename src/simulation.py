@@ -19,6 +19,7 @@ user_tr = 10
 non_con_user = 100
 dist = 70
 non_con = 0
+
 theta = 20.34
 
 screen = pygame.display.set_mode((width, height))
@@ -37,7 +38,6 @@ for _ in range(drone_n):
     d = Drone()
     drone.append(d)
 
-dm = pygame.Vector3(0,0,0)
 stable = False
 iter = 0
 
@@ -93,6 +93,7 @@ while running:
     stable = True
     for i, d in enumerate(drone) :
 
+        # Attraction force with the users
         F1 = pygame.Vector3(0, 0, 0)
         
         for p in pop:
@@ -100,7 +101,7 @@ while running:
                 v = p[0].u - d.p
                 F1 += v.normalize() * 1 / (v.length() * (user_n/drone_n))
                
-
+        # Repulsion force with other drones
         F2 = pygame.Vector3(0, 0, 0)
 
         for dr in drone:
@@ -109,7 +110,7 @@ while running:
                 F2 += v.normalize() * 1 / (v.length()*7)
             
             
-        
+        # Repulsion force with the obstacles
         F3 = pygame.Vector3(0, 0, 0)
 
         for ob in obs :
@@ -164,6 +165,7 @@ while running:
                non_con = non_con_user"""
             #print(drone_n)
 
+        #print(d.p.z)
         
         pygame.draw.circle(screen, (0, 0 , 50), [d.p.x, d.p.y], r)
         if d.p.z > 0 :
