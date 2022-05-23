@@ -11,7 +11,10 @@ class Drone :
         self.p = pygame.Vector3(800, 60, 20)
         self.theta = 0
         self.n_users = 0
-        self.pt = 30 #dBm
+        self.pt = 5 #Watt
+        self.band = 100 * 10**6 #Hz
+        self.con = []
+        self.theta = 42.44
 
     def r(self) :
         
@@ -19,6 +22,13 @@ class Drone :
 
     def distance(self) :
 
-        return min(dist, np.sqrt(self.r()**2 + self.p.z**2))
+        return np.sqrt(self.r()**2 + self.p.z**2)
 
-    
+    def SNR(self) :
+
+        avr = 0
+        
+        for p in self.con :
+            avr += p.SNR(self)
+        
+        return avr / len(self.con)
