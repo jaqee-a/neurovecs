@@ -3,7 +3,7 @@ import pygame
 def read() :
     obs = []
     i, j = 0, 0
-    f = open("src\map", 'r')
+    f = open("src\map2", 'r')
     
     for line in f :
         for c in line :
