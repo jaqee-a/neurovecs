@@ -3,6 +3,7 @@ from tkinter import W
 from math import log2, sqrt
 from turtle import isvisible
 from cv2 import log
+from matplotlib.style import use
 import pygame
 import numpy as np
 
@@ -12,13 +13,14 @@ class user :
     def __init__(self, velocity, height, width, obs) -> None:
         
         self.height, self.width = height, width
-        a = random.choice([0,1])
+        """a = random.choice([0,1])
         if a == 0 :
            self.u = pygame.Vector3(random.random() * 300 * 0.5 + 100, random.random() * 320 * 0.5 + 320, 0)
         else :
-           self.u = pygame.Vector3(random.random() * 300 * 0.5 + 450, random.random() * 320 * 0.5 + 320, 0) 
+           self.u = pygame.Vector3(random.random() * 300 * 0.5 + 450, random.random() * 320 * 0.5 + 320, 0)"""
         self.v = velocity
-        
+        self.u = pygame.Vector3(random.randint(50, 650), random.randint(50, 650), 0)
+        self.isConnected = 0
         self.theta = 0
         self.beta = 0
         self.delta_theta = 0.3
@@ -29,7 +31,8 @@ class user :
                self.obs.append(pygame.Rect(ob[0].x-int(ob[1][0]/2), ob[0].y-int(ob[1][1]/2), ob[1][0], ob[1][1]))
         
         while self.isValid() == False :
-              self.u = pygame.Vector3(random.random() * 704 * 0.5 + 32, random.random() * 320 * 0.5 + 320, 0)
+              self.u = pygame.Vector3(random.randint(50, 650), random.randint(50, 650), 0)
+              #self.u = pygame.Vector3(random.random() * 700 * 0.5, random.random() * 700 * 0.5, 0)
         
 
     def isValid(self):
@@ -46,7 +49,7 @@ class user :
            a = random.randint(0, 360)
            self.theta = a * np.pi / 180
 
-        elif self.isValid() == False :
+        elif self.isValid() == False or self.u.x < 50 or self.u.x > 750 or self.u.y < 50 or self.u.y > 750:
            self.theta += np.pi
 
         self.beta = random.uniform(0,1)
@@ -60,30 +63,38 @@ class user :
         
 
     def SNR(self, d) :
-
+        
+        #Pt = 5 Watt
         T = 2 # db
-        sig = 1 / (10**6) # Watts
+        sig = 10**-6 # Watts
         u = 9.61
         b = 0.16
         nlos = 1 #dB
         nNlos = 20 #dB
         fc = 2.5 * 10**9 # Hz
         c = 299792458 # m/s
-        a = 2 
+
+        pt = 10 * np.log10(d.pt) + 30 #dBm
         
-        dist = d.p.distance_to(self.u)
-        r1 = np.sqrt(dist**2 - d.p.z**2)
+        dist = d.p.distance_to(self.u)  #m
+        r1 = np.sqrt(dist**2 - (d.p.z)**2)
+        band = d.band / (d.n_users + 1)
     
         plos = 1 / (1 + u * np.exp( -1 * b * (np.degrees(np.arctan(d.p.z / r1)) - u)))
 
         pNlos = 1 - plos
 
-        lOS = 20*np.log10(4*np.pi*fc*dist / c) + nlos
-        nLOS = 20*np.log10(4*np.pi*fc*dist / c) + nNlos
+        lOS = 20*np.log10(4*np.pi*fc*dist / c) + nlos #dB
+        nLOS = 20*np.log10(4*np.pi*fc*dist / c) + nNlos #dB
 
-        l = lOS * plos + nLOS * pNlos
-
-        pr = d.pt - l
+        l = lOS * plos + nLOS * pNlos #dB
         
-        print(pr / sig)
+        pr = (pt - l) #dB
 
+        pr = 10 ** (pr/10) #Watt
+
+        snr = pr / sig
+
+        r = band * np.log2(1 + snr) * 10**-6  #Mbps
+        
+        return snr
