@@ -14,24 +14,23 @@ pygame.init()
 user_n = 100
 drone_n = 1
 
-height, width = 700, 960
+height, width = 700, 700
 user_tr = 10
 non_con_user = 100
-dist = 70
+dist = 120
 non_con = 0
-
-theta = 20.34
 
 screen = pygame.display.set_mode((width, height))
 wall = pygame.image.load("src\wall.png").convert_alpha()
 
 #obstacle
 obs = read()
+obs = []
 
 pop = []
 for _ in range(user_n):
     p = user(0.001, height, width, obs)
-    pop.append([p, 0])
+    pop.append(p)
 
 drone = []
 for _ in range(drone_n):
@@ -66,8 +65,8 @@ while running:
 
     if iter % 10 == 0 :
         txt = connected()
-    screen.blit(txt, (590,40))
-    screen.blit(deployed(), (700,40))
+    screen.blit(txt, (300,10))
+    screen.blit(deployed(), (350,10))
  
     for event in pygame.event.get() :
         if event.type == pygame.QUIT:
@@ -78,19 +77,24 @@ while running:
 
     for d in drone :
         d.n_users = 0
+        d.con.clear()
     
     for p in pop :
-            p[1] = 0
+            p.isConnected = 0
             for i, d in enumerate(drone):
-                di = d.p.distance_to(p[0].u)
-                if not p[1] and di < dist :
-                    p[1] = 1
+                di = d.p.distance_to(p.u)
+                if not p.isConnected and p.SNR(d) > 2 :
+                    p.isConnected = 1
                     non_con_user -= 1
                     d.n_users += 1
-                    p[0].SNR(d)
+                    d.con.append(p)
                     break
-                    
-
+    
+    for d in drone :
+        if d.n_users > 0 :
+            #print(d.p.z)
+            print(d.SNR())   
+    
     stable = True
     for i, d in enumerate(drone) :
 
@@ -98,8 +102,8 @@ while running:
         F1 = pygame.Vector3(0, 0, 0)
         
         for p in pop:
-            if not p[1] :
-                v = p[0].u - d.p
+            if not p.isConnected :
+                v = p.u - d.p
                 F1 += v.normalize() * 1 / (v.length() * (user_n/drone_n))
                
         # Repulsion force with other drones
@@ -129,7 +133,7 @@ while running:
         
         d.p += dt*2
     
-    if stable == True : 
+    if stable == True :           
         
         stable = False
         b, i = inService(drone)
@@ -137,8 +141,8 @@ while running:
         if non_con_user > 10 and b == True :
            
            d = Drone()
-           drone.insert(0, d)
-           drone_n += 1
+           """drone.insert(0, d)
+           drone_n += 1"""
 
         elif b == False :
             
@@ -168,23 +172,23 @@ while running:
 
         #print(d.p.z)
         
-        pygame.draw.circle(screen, (0, 0 , 50), [d.p.x, d.p.y], r)
+        pygame.draw.circle(screen, (0, 0 , 50), [d.p.x, d.p.y], d.r())
         if d.p.z > 0 :
            pygame.draw.circle(screen, (0, 0 ,255), [d.p.x, d.p.y], 5)
         else :
             pygame.draw.circle(screen, (255, 255, 255), [d.p.x, d.p.y], 5)
         
     for p in pop :
-        if p[1] == 0:
-           pygame.draw.circle(screen, (255, 0, 0), [p[0].u.x, p[0].u.y], 2)
+        if p.isConnected == 0:
+           pygame.draw.circle(screen, (255, 0, 0), [p.u.x, p.u.y], 2)
         else:
-           pygame.draw.circle(screen, (0, 255, 0), [p[0].u.x, p[0].u.y], 2)
+           pygame.draw.circle(screen, (0, 255, 0), [p.u.x, p.u.y], 2)
     
     
     i = 0
     for p in pop :
 
-        p[0].randomWalk(iter)
+        p.randomWalk(iter)
 
     iter += 1
     pygame.display.update()
