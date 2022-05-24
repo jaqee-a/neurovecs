@@ -76,8 +76,8 @@ class user :
 
         pt = 10 * np.log10(d.pt) + 30 #dBm
         
-        dist = d.p.distance_to(self.u)  #m
-        r1 = np.sqrt(dist**2 - (d.p.z)**2)
+        dist = d.p.distance_to(self.u) #m
+        r1 = np.sqrt(dist**2 - d.p.z**2)
         band = d.band / (d.n_users + 1)
     
         plos = 1 / (1 + u * np.exp( -1 * b * (np.degrees(np.arctan(d.p.z / r1)) - u)))
