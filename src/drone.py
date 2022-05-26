@@ -2,8 +2,6 @@ from turtle import distance
 import pygame
 import numpy as np
 
-dist = 70
-
 class Drone :
 
     def __init__ (self) :
@@ -18,7 +16,7 @@ class Drone :
 
     def r(self) :
         
-        return self.p.z / np.tan(np.radians(self.theta))
+        return (self.p.z/6) / np.tan(np.radians(self.theta))
 
     def distance(self) :
 
