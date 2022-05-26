@@ -10,7 +10,7 @@ import numpy as np
 
 class user :
 
-    def __init__(self, velocity, height, width, obs) -> None:
+    def __init__(self, height, width, obs) -> None:
         
         self.height, self.width = height, width
         """a = random.choice([0,1])
@@ -18,7 +18,7 @@ class user :
            self.u = pygame.Vector3(random.random() * 300 * 0.5 + 100, random.random() * 320 * 0.5 + 320, 0)
         else :
            self.u = pygame.Vector3(random.random() * 300 * 0.5 + 450, random.random() * 320 * 0.5 + 320, 0)"""
-        self.v = velocity
+        self.v = random.uniform(1.25, 1.5) * 6
         self.u = pygame.Vector3(random.randint(50, 650), random.randint(50, 650), 0)
         self.isConnected = 0
         self.theta = 0
@@ -43,7 +43,10 @@ class user :
                 
         return True
     
-    def randomWalk(self, iter) :
+    def randomWalk(self, iter, time) :
+        
+        
+        v = self.v * time / 1000
     
         if iter % self.delta_t == 0 :
            a = random.randint(0, 360)
@@ -57,8 +60,8 @@ class user :
 
         self.theta += self.delta_theta
 
-        self.u.x += self.v * np.cos(self.theta) * self.delta_t
-        self.u.y += self.v * np.sin(self.theta) * self.delta_t
+        self.u.x += v * np.cos(self.theta) 
+        self.u.y += v * np.sin(self.theta) 
 
         
 
@@ -76,11 +79,12 @@ class user :
 
         pt = 10 * np.log10(d.pt) + 30 #dBm
         
-        dist = d.p.distance_to(self.u) #m
-        r1 = np.sqrt(dist**2 - d.p.z**2)
+        dist = d.p.distance_to(self.u) / 6 #m
+        h = d.p.z / 6 #m
+        r = np.sqrt(dist**2 - h**2)
         band = d.band / (d.n_users + 1)
     
-        plos = 1 / (1 + u * np.exp( -1 * b * (np.degrees(np.arctan(d.p.z / r1)) - u)))
+        plos = 1 / (1 + u * np.exp( -1 * b * (np.degrees(np.arctan(h / r)) - u)))
 
         pNlos = 1 - plos
 
