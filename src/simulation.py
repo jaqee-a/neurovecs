@@ -9,6 +9,7 @@ from User import user
 from drone import Drone
 from readMap import draw, read
 
+
 pygame.init()
 
 user_n = 100
@@ -22,6 +23,7 @@ non_con = 0
 
 screen = pygame.display.set_mode((width, height))
 wall = pygame.image.load("src\wall.png").convert_alpha()
+clock = pygame.time.Clock()
 
 #obstacle
 obs = read()
@@ -29,7 +31,7 @@ obs = []
 
 pop = []
 for _ in range(user_n):
-    p = user(0.001, height, width, obs)
+    p = user(height, width, obs)
     pop.append(p)
 
 drone = []
@@ -82,18 +84,23 @@ while running:
     for p in pop :
             p.isConnected = 0
             for i, d in enumerate(drone):
-                di = d.p.distance_to(p.u)
-                if not p.isConnected and p.SNR(d) > 2 :
+                if not p.isConnected and p.SNR(d) > 5 :
                     p.isConnected = 1
                     non_con_user -= 1
                     d.n_users += 1
                     d.con.append(p)
                     break
     
+    dr = 0 
     for d in drone :
         if d.n_users > 0 :
-            #print(d.p.z)
-            print(d.SNR())   
+            f = font.render(str(int(d.p.z)), 1, pygame.Color("coral"))
+            screen.blit(f, (30,10))
+            dr += d.SNR()
+    
+    dat = font.render(str(int(dr / drone_n)), 1, pygame.Color("coral"))
+    screen.blit(dat, (80,10))
+    
     
     stable = True
     for i, d in enumerate(drone) :
@@ -104,13 +111,15 @@ while running:
         for p in pop:
             if not p.isConnected :
                 v = p.u - d.p
-                F1 += v.normalize() * 1 / (v.length() * (user_n/drone_n))
+                F1 += v
+        
+        F1 = F1.normalize() * 1 / len(pop)
                
         # Repulsion force with other drones
         F2 = pygame.Vector3(0, 0, 0)
 
         for dr in drone:
-            if d.p != dr.p : 
+            if d.p != dr.p :  
                 v = d.p - dr.p
                 F2 += v.normalize() * 1 / (v.length()*7)
             
@@ -122,7 +131,7 @@ while running:
             v = d.p - ob[0]
             F3 += v.normalize() * 0.6 / (v.length()**2)
         
-
+        # Repulsion force with the ground
         F4 = pygame.Vector3(0, 0, 1) * (1 / d.p.z**2)
         
         F = F1 + F2 + F3 + F4
@@ -151,26 +160,7 @@ while running:
             drone_n -= 1
             print("deleted")
             
-
-    
-    #print(drone_n)
-    
-    for i, d in enumerate(drone):
-        
-        try:
-           r = sqrt(dist**2 - d.p.z**2)
-           #print(i, ":", d.p.z)
-           #r = d.z / np.tan(np.radians(theta))
-        except:
-            #print(i, ":", d.z)
-            a=0
-            """if d.p.z > 300 :
-               drone.pop(0)
-               drone_n -= 1
-               non_con = non_con_user"""
-            #print(drone_n)
-
-        #print(d.p.z)
+    for i, d in enumerate(drone) :
         
         pygame.draw.circle(screen, (0, 0 , 50), [d.p.x, d.p.y], d.r())
         if d.p.z > 0 :
@@ -179,6 +169,7 @@ while running:
             pygame.draw.circle(screen, (255, 255, 255), [d.p.x, d.p.y], 5)
         
     for p in pop :
+        
         if p.isConnected == 0:
            pygame.draw.circle(screen, (255, 0, 0), [p.u.x, p.u.y], 2)
         else:
@@ -186,10 +177,13 @@ while running:
     
     
     i = 0
+    
     for p in pop :
 
-        p.randomWalk(iter)
+        p.randomWalk(iter, clock.get_time())
 
     iter += 1
+    
+    clock.tick(60)
     pygame.display.update()
     
