@@ -84,7 +84,7 @@ while running:
     for p in pop :
             p.isConnected = 0
             for i, d in enumerate(drone):
-                if not p.isConnected and p.SNR(d) > 5 :
+                if not p.isConnected and p.SNR(d) > 10 :
                     p.isConnected = 1
                     non_con_user -= 1
                     d.n_users += 1
@@ -111,9 +111,10 @@ while running:
         for p in pop:
             if not p.isConnected :
                 v = p.u - d.p
-                F1 += v
+                F1 += v.normalize() * 1 / (v.length() * (user_n/drone_n))
+                #F1 += v
         
-        F1 = F1.normalize() * 1 / len(pop)
+        #F1 = F1.normalize() * 1 / (user_n / drone_n)
                
         # Repulsion force with other drones
         F2 = pygame.Vector3(0, 0, 0)
@@ -121,7 +122,7 @@ while running:
         for dr in drone:
             if d.p != dr.p :  
                 v = d.p - dr.p
-                F2 += v.normalize() * 1 / (v.length()*7)
+                F2 += v.normalize() * 1 / (v.length()*8)
             
             
         # Repulsion force with the obstacles
@@ -136,7 +137,7 @@ while running:
         
         F = F1 + F2 + F3 + F4
         #print(i, ":" , F.length())
-        if d.n_users < 5 :
+        if F.length() > 0.0001  :
             stable = False
         dt = F.normalize()
         
@@ -150,19 +151,19 @@ while running:
         if non_con_user > 10 and b == True :
            
            d = Drone()
-           """drone.insert(0, d)
-           drone_n += 1"""
+           drone.insert(0, d)
+           drone_n += 1
 
-        elif b == False :
+        """elif b == False :
             
             #print(drone[i].n_users)
             drone.pop(i)
             drone_n -= 1
-            print("deleted")
+            print("deleted")"""
             
     for i, d in enumerate(drone) :
         
-        pygame.draw.circle(screen, (0, 0 , 50), [d.p.x, d.p.y], d.r())
+        pygame.draw.circle(screen, (0, 0 , 50), [d.p.x, d.p.y], d.r()*6)
         if d.p.z > 0 :
            pygame.draw.circle(screen, (0, 0 ,255), [d.p.x, d.p.y], 5)
         else :
