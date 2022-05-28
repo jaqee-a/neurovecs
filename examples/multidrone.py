@@ -1,6 +1,8 @@
 
+from random import random
 import sys
 import time
+from mapeditor import loadMap
 
 import numpy as np
 
@@ -8,13 +10,8 @@ sys.path.append('py-engine')
 sys.path.append('src')
 
 from simulation.simulation import Simulation
-from simulation.fixedpoint import FixedPoint
-from simulation.infinitpoint import InfinitPoint
-from simulation.checkpoints import Checkpoint
-from simulation.roadpersue import RoadPursue
-from simulation.pursue import Pursue
 from simulation.uavsim import UavSimulation
-from simulation.imguiapp import ImGuiApp
+from simulation.imguiappUAV import ImGuiAppUav
 
 from PIL import Image
 from typing import List
@@ -22,9 +19,11 @@ from OpenGL.GL import *
 
 from utils.objparser import ObjParser
 
-from core.primitives import cube, line
+from core.primitives import cone, cube, line
 import core.components.transform
 import core.components.camera
+import core.components.cMesh
+import core.components.mesh
 import core.application
 import core.time
 
@@ -32,10 +31,10 @@ import imgui
 import glfw
 import glm
 
-class Game:
+class GameMultiDrone:
 
     movementMode   = { 0: 'r', 1: 'h', 2: 'a' }
-    camouflageMode = { 0: 'f', 1: 'i', 2: 'p', 3: 'rp', 4: 'cp', 5: 'uav' }
+    camouflageMode = { 0: 'uav' }
     lockCamera: bool = False
 
     m_Application: core.application.Application
@@ -50,11 +49,37 @@ class Game:
 
     cameraTransform: core.components.transform.Transform
 
-    imGuiApp: ImGuiApp
+    imGuiApp: ImGuiAppUav
     simulation: Simulation = None
 
     def __init__(self) -> None:
         (core.application.Application(init=self.initGame)).run(update=self.update)
+
+
+    def makeUserMesh(self):
+        user = cube(self.m_Application.m_ActiveScene, (0, 0, 0), (.8, .3, .4, 1), (.3, 1, .3))
+
+        user.m_isActive = False
+        return user.getComponent(core.components.mesh.Mesh)
+
+    def makeDroneMesh(self):
+        droneObject = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj')
+
+        droneObject.m_isActive = False
+        return droneObject.getComponent(core.components.cMesh.CMesh)
+
+    def makeObstacleMesh(self):
+        obstacle = cube(self.m_Application.m_ActiveScene, (0, 0, 0), (.5, .3, .3, .9), (5, 30, 5))
+
+        obstacle.m_isActive = False
+        return obstacle.getComponent(core.components.mesh.Mesh)
+
+    def generateFromMesh(self, mesh: core.components.mesh.Mesh, position):
+        obj = self.m_Application.m_ActiveScene.makeEntity()
+        obj.linkComponent(mesh)
+        obj.addComponent(core.components.transform.Transform, *position, *([0]*3))
+
+        return obj
 
     def initGame(self, application: core.application.Application):
         self.m_Application = application
@@ -72,16 +97,30 @@ class Game:
         self.m_Application.setProcessInputFunc(self.processInput)
 
         # Loading the drone objects
-        self.preyTransform = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj').getComponent(core.components.transform.Transform)
-        self.predTransform = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj').getComponent(core.components.transform.Transform)
+        self.ground = cube(self.m_Application.m_ActiveScene, (25, 0, 25), (.3, .3, .3, 1), (50, 1, 50))
 
-        self.staticObjects = []
+        self.userMesh     = self.makeUserMesh()
+        self.droneMesh    = self.makeDroneMesh()
+        self.obstacleMesh = self.makeObstacleMesh()
+
+        self.droneObject = self.generateFromMesh(self.droneMesh, (25, 20, 25)).getComponent(core.components.transform.Transform)
+        self.users = [self.generateFromMesh(self.userMesh, (random() * 50, 1, random() * 50)).getComponent(core.components.transform.Transform) for _ in range(10)]
+
+        lines = loadMap('file.txt')
+
+        cone(self.m_Application.m_ActiveScene, (25, 0, 25), 8, [0, 0, 1, .1], [5, 20, 5])
+
+        for i in range(len(lines)):
+            for j in range(len(lines[i])):
+                if lines[i][j] == 'x':
+                    self.generateFromMesh(self.obstacleMesh, (2.5 + i * 5, 15, 2.5 + j * 5))
+        
 
         self.initApp()
 
 
     def initApp(self):
-        self.imGuiApp = ImGuiApp()
+        self.imGuiApp = ImGuiAppUav()
         self.imGuiApp.startSimulationFunc = self.startSimulation
         self.imGuiApp.takeScreenshotFunction = self.takeScreenshot
 
@@ -106,98 +145,25 @@ class Game:
 
     def startSimulation(self):
         self.clearScene()
-
-        mode = self.movementMode[self.imGuiApp.selectedMovementMode]
         
-        if self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'f' :
-            self.simulation = FixedPoint(self.imGuiApp.RESOLUTION, mode)
-        elif self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'i' :
-            self.simulation = InfinitPoint(self.imGuiApp.RESOLUTION, mode)
-        elif self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'p' :
-            self.simulation = Pursue(self.imGuiApp.RESOLUTION, mode)
-        elif self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'rp' :
-            self.simulation = RoadPursue(self.imGuiApp.RESOLUTION, mode)
-        elif self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'cp':
-            self.simulation = Checkpoint(self.imGuiApp.RESOLUTION, mode)
-        elif self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'uav':
-            self.simulation = UavSimulation(self.imGuiApp.RESOLUTION, mode)
+        if self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'uav' :
+            self.simulation = UavSimulation(self.imGuiApp.RESOLUTION)
             
         self.onStartNew()
 
     def onStartNew(self):
-        self.predTransform.m_Position = self.simulation.pred
-        
-        if self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'cp':
-            self.imGuiApp.other_plots = [[] for _ in range(len(self.simulation.prey))]
-            self.preyTransform.m_Enabled  = False
-
-            for cp in self.simulation.prey:
-                self.lines.append(cube(self.m_Application.m_ActiveScene, cp, global_scale=[.2]*3))
-        else:
-            self.preyTransform.m_Position = self.simulation.prey
-
-
+        pass
 
 
     def update(self):
         self.imGuiApp.render()
+
         # imgui.show_test_window()
         if not self.simulation:return
         if not self.simulation.run(): return
 
-        self.imGuiApp.errors = self.simulation.errors
-        self.imGuiApp.speed  = self.simulation.speed
-
-        if self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'f':
-            if self.simulation.iteration == 1:
-                self.c_lastpos = glm.vec3(*self.simulation.prey)
-                self.p_lastpos = glm.vec3(*self.simulation.pred)
-
-                self.lines.append(cube(self.m_Application.m_ActiveScene, self.simulation.pred, global_scale=[.1]*3))
-
-
-            # Line drawing stuff!!
-            if self.simulation.iteration > 1 and self.simulation.iteration % 60 == 0:
-                self.lines.append(line(self.m_Application.m_ActiveScene, self.c_lastpos, self.simulation.prey))
-                self.lines.append(line(self.m_Application.m_ActiveScene, self.p_lastpos, self.simulation.pred, [1, 0, 0, .3]))
-                self.lines.append(cube(self.m_Application.m_ActiveScene, self.simulation.pred, global_scale=[.1]*3))
-
-                self.lines.append(line(self.m_Application.m_ActiveScene, self.simulation.point, self.simulation.prey, [1, 0, 1, 1]))
-
-                self.c_lastpos = glm.vec3(*self.simulation.prey)
-                self.p_lastpos = glm.vec3(*self.simulation.pred)
-        elif self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'cp':
-            rps = self.simulation.getReferenceVectors()
-
-            for _ in range(len(rps)):
-                self.imGuiApp.other_plots = self.simulation.other
-                
-        elif self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'uav':
-            pass
-        else:
-            if self.simulation.iteration == 1:
-                self.c_lastpos = glm.vec3(*self.simulation.prey)
-                self.p_lastpos = glm.vec3(*self.simulation.pred)
-
-            if self.simulation.iteration > 1 and self.simulation.iteration % 60 == 0:
-                self.lines.append(line(self.m_Application.m_ActiveScene, self.c_lastpos, self.simulation.prey))
-                self.lines.append(line(self.m_Application.m_ActiveScene, self.p_lastpos, self.simulation.pred, [0, 0, 1, .1]))
-                self.lines.append(line(self.m_Application.m_ActiveScene, self.simulation.prey, self.simulation.pred, [1, 0, 0, .3]))
-
-
-                self.c_lastpos = glm.vec3(*self.simulation.prey)
-                self.p_lastpos = glm.vec3(*self.simulation.pred)
-
-        
-        """
-        if core.time.Time.GAME_SPEED == 0: return
-
-
-
-        if self.lookAtTarget != None:
-            self.cameraTransform.lookAt(self.lookAtTarget)
-        """
-
+        for user in self.users:
+            user.m_Position.x += .1
 
 
 

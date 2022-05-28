@@ -2,7 +2,7 @@
 
 
 
-from math import acos, degrees, sqrt
+from math import sqrt
 import glm
 from neurovec3D import NeuroVector3D
 

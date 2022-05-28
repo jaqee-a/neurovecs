@@ -28,11 +28,21 @@ class NeuroVector3D:
 
     # TODO TEST!
     @staticmethod
-    def fromMS(ms: np.ndarray, bias: float):
+    def fromMS(ms: np.ndarray, bias = None):
         out = NeuroVector3D(ms=ms)
 
-        out.bias = bias
-
+        if bias == None:
+            min_val = ms.min()
+            out.bias = 0
+            if min_val < 0:
+                out.bias = abs(min_val)
+            if min_val < 50:
+                out.bias += 50
+            out.__MS += out.bias
+        else:
+            out.bias = bias
+        
+        
         return out
 
     def __init__(self, rho: float = None, theta: float = None, phi: float = None, resolution: int = None, ms: np.ndarray = None) -> None:
@@ -147,5 +157,5 @@ class NeuroVector3D:
             vm    = max__    - ( vm - min__ ) + min__
             __o   = abs(__o)
 
-        return NeuroVector3D.fromMS(vm * __o, self.bias * __o)
+        return NeuroVector3D.fromMS((vm - self.bias) * __o)
 

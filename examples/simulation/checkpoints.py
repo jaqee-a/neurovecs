@@ -1,6 +1,7 @@
 import numpy as np
 import glm
 from neurovec3D import NeuroVector3D
+from logic import *
 
 from simulation.simulation import Simulation
 
@@ -15,7 +16,7 @@ class Checkpoint(Simulation):
         self.dt = glm.vec3(0)
         self.D  = 5
 
-        self.memory_signals = [np.ones((self.resolution, self.resolution)) for _ in range(len(self.prey))]
+        self.memory_signals = [NeuroVector3D.fromMS(np.zeros((self.resolution, self.resolution))) for _ in range(len(self.prey))]
 
     def getReferenceVectors(self):
         rp  = [cp - self.pred for cp in self.prey]
@@ -24,19 +25,6 @@ class Checkpoint(Simulation):
     
     def simulationOver(self):
         return self.iteration > 50000
-
-    def doOR(self, pv1: np.ndarray, pv2: np.ndarray):
-        cp = pv1.copy()
-        cp[cp < 0.1] = pv2[cp < 0.1]
-        return cp
-
-    def doAND(self, pv1: np.ndarray, pv2: np.ndarray):
-        cp = pv2.copy()
-        cp[pv1 < 0.1] = 0
-        return cp
-
-    def reachedActionPotential(self, pv1: np.ndarray) -> bool:
-        return (pv1 > 0.1).any()
 
     def run(self):
         super().run()
@@ -52,30 +40,29 @@ class Checkpoint(Simulation):
             n_rp.append(NeuroVector3D.fromCartesianVector(*rp[i] , self.resolution))
 
 
+        v = doAND(n_rp[0], doNOT(self.memory_signals[0]))
+        #print(n_rp[0].getMS() == v.getMS())
+        self.memory_signals[0] = sr_latch(doNOT(v), self.memory_signals[0])
+        res = v
+        
+        for i in range(len(n_rp)-1):
+            index = i + 1
+            v = doAND(n_rp[index], doNOT(self.memory_signals[index]))
+            self.memory_signals[index] = sr_latch(doNOT(v), self.memory_signals[index])
+            vv = doAND(v, doNOT(res))
+            res = res + vv
+
+
         """
         Movement Logic
         
         """
 
-        sum_force = self.doAND(self.memory_signals[0], n_rp[0].getMS())
-        self.memory_signals[0] *= self.reachedActionPotential(sum_force - 50)#self.doAND(sum_force - 50, self.memory_signals[0])
+        dt_cart = glm.vec3(*NeuroVector3D.extractCartesianParameters(res * 0.01))
 
-        for i in range(len(n_rp) - 1):
-            local_force = self.doAND(self.memory_signals[i + 1], n_rp[i + 1].getMS())
-            self.memory_signals[i + 1] *= self.reachedActionPotential(local_force - 50)
-
-            #local_force = self.doAND(np.logical_not(self.memory_signals[i]) * 1.0, local_force - 50)
-
-            sum_force = self.doOR(sum_force, local_force)
-
-        print(sum_force)
-
-        dt = NeuroVector3D.fromMS(sum_force * 0.001, 0)
-
-        dt_cart = glm.vec3(*NeuroVector3D.extractCartesianParameters(dt))
+        # dt_cart = glm.vec3(*NeuroVector3D.extractCartesianParameters(dt))
 
         self.pred += dt_cart
-        
         if self.iteration > 1:
             for i in range(len(n_rp)):
                 self.other[i] = n_rp[i].getMS().sum(axis=1)
