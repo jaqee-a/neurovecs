@@ -20,7 +20,7 @@ class Drone :
         self.con = []
         self.theta = 42.44
         self.capacity = 20
-        self.color = Drone.color[Drone.i]
+        #self.color = Drone.color[Drone.i]
         Drone.i += 1
 
 
