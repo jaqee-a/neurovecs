@@ -17,9 +17,8 @@ drone_n = 1
 
 height, width = 700, 700
 user_tr = 10
-non_con_user = 100
+non_con_user = user_n
 dist = 120
-non_con = 0
 
 screen = pygame.display.set_mode((width, height))
 wall = pygame.image.load("src\wall.png").convert_alpha()
@@ -45,7 +44,7 @@ iter = 0
 font = pygame.font.SysFont("Arial", 18)
 
 def connected():
-	return font.render(str(int(100 - non_con_user))+"%", 1, pygame.Color("coral"))
+	return font.render(str(int((100 * (user_n - non_con_user))/user_n))+"%", 1, pygame.Color("coral"))
 
 def deployed():
     return font.render(str(int(drone_n)), 1, pygame.Color("coral"))
@@ -58,8 +57,6 @@ def inService(drones):
     return True, NULL
 
 
-txt = connected()
-
 running = True
 while running:
     screen.fill((0,0,0))
@@ -67,6 +64,7 @@ while running:
 
     if iter % 10 == 0 :
         txt = connected()
+ 
     screen.blit(txt, (300,10))
     screen.blit(deployed(), (350,10))
  
@@ -75,27 +73,34 @@ while running:
             running = False
     
     
-    non_con_user = 100
+    non_con_user = user_n
+    
+    for p in pop :
+            p.isConnected = NULL
 
     for d in drone :
         d.n_users = 0
         d.con.clear()
-    
-    for p in pop :
-            p.isConnected = 0
-            for i, d in enumerate(drone):
-                if not p.isConnected and p.SNR(d) > 10 :
-                    p.isConnected = 1
-                    non_con_user -= 1
-                    d.n_users += 1
-                    d.con.append(p)
-                    break
+        
+        l = []
+        for p in pop :
+            if p.isConnected == NULL and d.n_users < d.capacity :
+                snr = p.SNR(d)[0]
+                if snr > 10 :
+                    l.append([snr, p])
+        l.sort(reverse= True)
+        i = 0
+        while i < d.capacity and i < len(l) :
+            l[i][1].isConnected = d
+            non_con_user -= 1
+            d.n_users += 1
+            d.con.append(l[i][1])
+            i += 1
+
     
     dr = 0 
     for d in drone :
         if d.n_users > 0 :
-            f = font.render(str(int(d.p.z)), 1, pygame.Color("coral"))
-            screen.blit(f, (30,10))
             dr += d.SNR()
     
     dat = font.render(str(int(dr / drone_n)), 1, pygame.Color("coral"))
@@ -109,7 +114,7 @@ while running:
         F1 = pygame.Vector3(0, 0, 0)
         
         for p in pop:
-            if not p.isConnected :
+            if p.isConnected == NULL :
                 v = p.u - d.p
                 F1 += v.normalize() * 1 / (v.length() * (user_n/drone_n))
                 #F1 += v
@@ -122,7 +127,7 @@ while running:
         for dr in drone:
             if d.p != dr.p :  
                 v = d.p - dr.p
-                F2 += v.normalize() * 1 / (v.length()*8)
+                F2 += v.normalize() * 1 / (v.length()*9)
             
             
         # Repulsion force with the obstacles
@@ -137,8 +142,11 @@ while running:
         
         F = F1 + F2 + F3 + F4
         #print(i, ":" , F.length())
-        if F.length() > 0.0001  :
+        if F.length() > 0.001  :
             stable = False
+        else :
+            print(i, ":" , F.length())
+
         dt = F.normalize()
         
         d.p += dt*2
@@ -169,12 +177,14 @@ while running:
         else :
             pygame.draw.circle(screen, (255, 255, 255), [d.p.x, d.p.y], 5)
         
+        d.show(screen, font)
+        
     for p in pop :
         
-        if p.isConnected == 0:
-           pygame.draw.circle(screen, (255, 0, 0), [p.u.x, p.u.y], 2)
+        if p.isConnected == NULL:
+           pygame.draw.circle(screen, (255, 255, 255), [p.u.x, p.u.y], 2)
         else:
-           pygame.draw.circle(screen, (0, 255, 0), [p.u.x, p.u.y], 2)
+           pygame.draw.circle(screen, p.isConnected.color, [p.u.x, p.u.y], 2)
     
     
     i = 0
