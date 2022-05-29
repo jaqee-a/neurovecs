@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 import random
 from tkinter import W
 from math import log2, sqrt
@@ -20,7 +21,7 @@ class user :
            self.u = pygame.Vector3(random.random() * 300 * 0.5 + 450, random.random() * 320 * 0.5 + 320, 0)"""
         self.v = random.uniform(1.25, 1.5) * 6
         self.u = pygame.Vector3(random.randint(50, 650), random.randint(50, 650), 0)
-        self.isConnected = 0
+        self.isConnected = NULL
         self.theta = 0
         self.beta = 0
         self.delta_theta = 0.3
@@ -52,7 +53,7 @@ class user :
            a = random.randint(0, 360)
            self.theta = a * np.pi / 180
 
-        elif self.isValid() == False or self.u.x < 50 or self.u.x > 750 or self.u.y < 50 or self.u.y > 750:
+        elif self.isValid() == False or self.u.x < 50 or self.u.x > 650 or self.u.y < 50 or self.u.y > 650:
            self.theta += np.pi
 
         self.beta = random.uniform(0,1)
@@ -101,4 +102,4 @@ class user :
 
         r = band * np.log2(1 + snr) * 10**-6  #Mbps
         
-        return snr
+        return snr, r
