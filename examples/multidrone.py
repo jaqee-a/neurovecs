@@ -69,7 +69,7 @@ class GameMultiDrone:
         return droneObject.getComponent(core.components.cMesh.CMesh)
 
     def makeObstacleMesh(self):
-        obstacle = cube(self.m_Application.m_ActiveScene, (0, 0, 0), (.5, .3, .3, .9), (5, 30, 5))
+        obstacle = cube(self.m_Application.m_ActiveScene, (0, 0, 0), (.5, .3, .3, 1), (5, 30, 5))
 
         obstacle.m_isActive = False
         return obstacle.getComponent(core.components.mesh.Mesh)
@@ -99,22 +99,23 @@ class GameMultiDrone:
         # Loading the drone objects
         self.ground = cube(self.m_Application.m_ActiveScene, (25, 0, 25), (.3, .3, .3, 1), (50, 1, 50))
 
-        self.userMesh     = self.makeUserMesh()
-        self.droneMesh    = self.makeDroneMesh()
         self.obstacleMesh = self.makeObstacleMesh()
+        self.droneMesh    = self.makeDroneMesh()
+        self.userMesh     = self.makeUserMesh()
 
-        self.droneObject = self.generateFromMesh(self.droneMesh, (25, 20, 25)).getComponent(core.components.transform.Transform)
-        self.users = [self.generateFromMesh(self.userMesh, (random() * 50, 1, random() * 50)).getComponent(core.components.transform.Transform) for _ in range(10)]
 
         lines = loadMap('file.txt')
 
-        cone(self.m_Application.m_ActiveScene, (25, 0, 25), 8, [0, 0, 1, .1], [5, 20, 5])
 
         for i in range(len(lines)):
             for j in range(len(lines[i])):
                 if lines[i][j] == 'x':
                     self.generateFromMesh(self.obstacleMesh, (2.5 + i * 5, 15, 2.5 + j * 5))
         
+        self.droneObject = self.generateFromMesh(self.droneMesh, (25, 20, 25)).getComponent(core.components.transform.Transform)
+        self.users = [self.generateFromMesh(self.userMesh, (random() * 50, 1, random() * 50)).getComponent(core.components.transform.Transform) for _ in range(10)]
+        
+        cone(self.m_Application.m_ActiveScene, (25, 0, 25), 8, [0, 0, 1, .1], [5, 20, 5])
 
         self.initApp()
 
