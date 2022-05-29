@@ -14,13 +14,13 @@ class user :
     def __init__(self, height, width, obs) -> None:
         
         self.height, self.width = height, width
-        """a = random.choice([0,1])
+        a = random.choice([0,1])
         if a == 0 :
            self.u = pygame.Vector3(random.random() * 300 * 0.5 + 100, random.random() * 320 * 0.5 + 320, 0)
         else :
-           self.u = pygame.Vector3(random.random() * 300 * 0.5 + 450, random.random() * 320 * 0.5 + 320, 0)"""
+           self.u = pygame.Vector3(random.random() * 300 * 0.5 + 450, random.random() * 320 * 0.5 + 320, 0)
         self.v = random.uniform(1.25, 1.5) * 6
-        self.u = pygame.Vector3(random.randint(50, 650), random.randint(50, 650), 0)
+        #self.u = pygame.Vector3(random.randint(50, 650), random.randint(50, 650), 0)
         self.isConnected = NULL
         self.theta = 0
         self.beta = 0
@@ -53,8 +53,11 @@ class user :
            a = random.randint(0, 360)
            self.theta = a * np.pi / 180
 
-        elif self.isValid() == False or self.u.x < 50 or self.u.x > 650 or self.u.y < 50 or self.u.y > 650:
+        elif self.isValid() == False :
            self.theta += np.pi
+        
+        elif self.u.x < 50 or self.u.x > 650 or self.u.y < 50 or self.u.y > 650 :
+            self.theta += np.pi
 
         self.beta = random.uniform(0,1)
         self.delta_theta = 0.3 - 0.6 * self.beta
@@ -75,7 +78,7 @@ class user :
         b = 0.16
         nlos = 1 #dB
         nNlos = 20 #dB
-        fc = 2.5 * 10**9 # Hz
+        fc = 3 * 10**9 # Hz
         c = 299792458 # m/s
 
         pt = 10 * np.log10(d.pt) + 30 #dBm
