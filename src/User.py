@@ -15,12 +15,12 @@ class user :
         
         self.height, self.width = height, width
         a = random.choice([0,1])
-        if a == 0 :
-           self.u = pygame.Vector3(random.random() * 300 * 0.5 + 100, random.random() * 320 * 0.5 + 320, 0)
+        """if a == 0 :
+           self.p = pygame.Vector3(random.random() * 300 * 0.5 + 100, random.random() * 320 * 0.5 + 320, 0)
         else :
-           self.u = pygame.Vector3(random.random() * 300 * 0.5 + 450, random.random() * 320 * 0.5 + 320, 0)
+           self.p = pygame.Vector3(random.random() * 300 * 0.5 + 450, random.random() * 320 * 0.5 + 320, 0)"""
         self.v = random.uniform(1.25, 1.5) * 6
-        #self.u = pygame.Vector3(random.randint(50, 650), random.randint(50, 650), 0)
+        self.p = pygame.Vector3(random.randint(50, 650), random.randint(50, 650), 0)
         self.isConnected = NULL
         self.theta = 0
         self.beta = 0
@@ -35,11 +35,14 @@ class user :
               self.u = pygame.Vector3(random.randint(50, 650), random.randint(50, 650), 0)
               #self.u = pygame.Vector3(random.random() * 700 * 0.5, random.random() * 700 * 0.5, 0)
         
+    def meters(self) :
+
+        return self.p / 6
 
     def isValid(self):
 
         for ob in self.obs :
-            if ob.collidepoint(self.u.x, self.u.y) == True :
+            if ob.collidepoint(self.p.x, self.p.y) == True :
                 return False
                 
         return True
@@ -56,7 +59,7 @@ class user :
         elif self.isValid() == False :
            self.theta += np.pi
         
-        elif self.u.x < 50 or self.u.x > 650 or self.u.y < 50 or self.u.y > 650 :
+        elif self.p.x < 50 or self.p.x > 650 or self.p.y < 50 or self.p.y > 650 :
             self.theta += np.pi
 
         self.beta = random.uniform(0,1)
@@ -64,15 +67,15 @@ class user :
 
         self.theta += self.delta_theta
 
-        self.u.x += v * np.cos(self.theta) 
-        self.u.y += v * np.sin(self.theta) 
+        self.p.x += v * np.cos(self.theta) 
+        self.p.y += v * np.sin(self.theta) 
 
         
 
     def SNR(self, d) :
         
         #Pt = 5 Watt
-        T = 2 # db
+        
         sig = 10**-6 # Watts
         u = 9.61
         b = 0.16
@@ -83,10 +86,14 @@ class user :
 
         pt = 10 * np.log10(d.pt) + 30 #dBm
         
-        dist = d.p.distance_to(self.u) / 6 #m
-        h = d.p.z / 6 #m
+        dist = d.meters().distance_to(self.meters()) #m
+        h = d.meters().z #m
         r = np.sqrt(dist**2 - h**2)
-        band = d.band / (d.n_users + 1)
+        
+        if d.n_users > 0 :
+           band = d.band / (d.n_users)
+        else :
+           band = d.band
     
         plos = 1 / (1 + u * np.exp( -1 * b * (np.degrees(np.arctan(h / r)) - u)))
 
