@@ -12,7 +12,7 @@ class Drone :
 
     def __init__ (self) :
 
-        self.p = pygame.Vector3(800, 60, 100)
+        self.p = pygame.Vector3(800, 60, 600)
         self.theta = 0
         self.n_users = 0
         self.pt = 5 #Watt
@@ -23,14 +23,17 @@ class Drone :
         #self.color = Drone.color[Drone.i]
         Drone.i += 1
 
+    def meters(self) :
+
+        return self.p / 6
 
     def r(self) :
         
-        return (self.p.z/6) / np.tan(np.radians(self.theta))
+        return (self.meters().z) / np.tan(np.radians(self.theta))
 
     def distance(self) :
 
-        return np.sqrt(self.r()**2 + self.p.z**2)
+        return np.sqrt(self.r()**2 + self.meters().z**2)
 
     def SNR(self) :
 
@@ -43,5 +46,5 @@ class Drone :
 
     def show(self, screen, font) :
 
-        f = font.render(str(int(self.p.z/6)), 1, pygame.Color("coral"))
+        f = font.render(str(int(self.meters().z)), 1, pygame.Color("coral"))
         screen.blit(f, (self.p.x,self.p.y))
