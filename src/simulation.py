@@ -18,7 +18,7 @@ drone_n = 1
 height, width = 700, 800
 user_tr = 10
 non_con_user = user_n
-dist = 120
+T = 2 #db
 
 screen = pygame.display.set_mode((width, height))
 wall = pygame.image.load("src\wall.png").convert_alpha()
@@ -28,10 +28,10 @@ clock = pygame.time.Clock()
 obs = read()
 obs = []
 
-pop = []
+users = []
 for _ in range(user_n):
-    p = user(height, width, obs)
-    pop.append(p)
+    u = user(height, width, obs)
+    users.append(u)
 
 drone = []
 for _ in range(drone_n):
@@ -75,35 +75,39 @@ while running:
     
     non_con_user = user_n
     
-    for p in pop :
-            p.isConnected = NULL
+    for u in users :
+            u.isConnected = NULL
 
     for d in drone :
         d.n_users = 0
         d.con.clear()
         
         l = []
-        for p in pop :
-            if p.isConnected == NULL and d.n_users < d.capacity :
-                snr = p.SNR(d)[0]
+        for u in users :
+            if u.isConnected == NULL and d.n_users < d.capacity :
+                snr = u.SNR(d)[0]
                 if snr > 10 :
-                    l.append([snr, p])
+                    l.append([snr, u])
         l.sort(reverse= True,key=lambda x:x[0])
         i = 0
         while i < d.capacity and i < len(l) :
-            l[i][1].isConnected = d
-            non_con_user -= 1
-            d.n_users += 1
-            d.con.append(l[i][1])
-            i += 1
+            if l[i][0] > T :
+               l[i][1].isConnected = d
+               non_con_user -= 1
+               d.n_users += 1
+               d.con.append(l[i][1])
+               i += 1
+            else :
+                break
 
     
     dr = 0 
-    for p in pop :
-        if p.isConnected != NULL :
-           dr += p.SNR(p.isConnected)[1]
+    """for u in users :
+        if u.isConnected != NULL :
+           dr += u.SNR(u.isConnected)[1]"""
+
     
-    dat = font.render("data rate :"+str(int(dr / user_n))+" Mbps", 1, pygame.Color("coral"))
+    dat = font.render("data rate :"+str(int(drone[0].SNR()))+" Mbps", 1, pygame.Color("coral"))
     screen.blit(dat, (10,10))
     
     
@@ -113,9 +117,9 @@ while running:
         # Attraction force with the users
         F1 = pygame.Vector3(0, 0, 0)
         
-        for p in pop:
-            if p.isConnected == NULL :
-                v = p.u - d.p
+        for u in users:
+            if u.isConnected == NULL :
+                v = u.meters() - d.meters()
                 F1 += v.normalize() * 1 / (v.length() * (user_n/drone_n))
                 #F1 += v
         
@@ -126,7 +130,7 @@ while running:
 
         for dr in drone:
             if d.p != dr.p :  
-                v = d.p - dr.p
+                v = d.meters() - dr.meters()
                 F2 += v.normalize() * 1 / (v.length()*9)
             
             
@@ -134,31 +138,30 @@ while running:
         F3 = pygame.Vector3(0, 0, 0)
 
         for ob in obs :
-            v = d.p - ob[0]
+            v = d.meters() - ob[0] / 6
             F3 += v.normalize() * 1 / (v.length()**2)
         
         # Repulsion force with the ground
-        F4 = pygame.Vector3(0, 0, 1) * (1 / d.p.z**2)
+        F4 = pygame.Vector3(0, 0, 1) * (1 / d.meters().z**2)
 
         F = F1 + F2 + F3 + F4
         dt = F.normalize()
         
         c = pygame.Vector3(0)
         for u in d.con:
-            c += u.u
+            c += u.p
         
-
         if d.n_users > 0:
             c = c / d.n_users
 
             a = (c-d.p).length()
         else:
-            a = 50
+            a = 51
 
         pygame.draw.line(screen, (0, 255, 0), (d.p.x, d.p.y), (c.x, c.y), 1)
                 
         #print(i, ":" , dt.length())
-        if a > 40:
+        if a > 50:
         #if F.length() > 0.0001  :
             stable = False
         """else :
@@ -182,7 +185,7 @@ while running:
         """elif b == False :
             
             #print(drone[i].n_users)
-            drone.pop(i)
+            drone.users(i)
             drone_n -= 1
             print("deleted")"""
             
@@ -197,19 +200,19 @@ while running:
         
         d.show(screen, font)
         
-    for p in pop :
+    for u in users :
         
-        if p.isConnected == NULL:
-           pygame.draw.circle(screen, (255, 255, 255), [p.u.x, p.u.y], 2)
+        if u.isConnected == NULL:
+           pygame.draw.circle(screen, (255, 255, 255), [u.p.x, u.p.y], 2)
         else:
-           pygame.draw.circle(screen, (255,0,0), [p.u.x, p.u.y], 2)
+           pygame.draw.circle(screen, (255,0,0), [u.p.x, u.p.y], 2)
     
     
     i = 0
     
-    for p in pop :
+    for u in users :
 
-        p.randomWalk(iter, clock.get_time())
+        u.randomWalk(iter, clock.get_time())
 
     iter += 1
     
