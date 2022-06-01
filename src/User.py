@@ -81,7 +81,7 @@ class user :
         b = 0.16
         nlos = 1 #dB
         nNlos = 20 #dB
-        fc = 3 * 10**9 # Hz
+        fc = 2.5 * 10**9 # Hz
         c = 299792458 # m/s
 
         pt = 10 * np.log10(d.pt) + 30 #dBm
@@ -104,12 +104,14 @@ class user :
 
         l = lOS * plos + nLOS * pNlos #dB
         
-        pr = (pt - l) #dB
+        pr = (pt - l) #dBm
 
-        pr = 10 ** (pr/10) #Watt
+        pr = 10 ** ((pr-30)/10)  #Watt
 
-        snr = pr / sig
+        snr = pr / (sig**2) #Watt
 
         r = band * np.log2(1 + snr) * 10**-6  #Mbps
-        
+
+        snr = 10 * np.log10(snr) #db
+       
         return snr, r
