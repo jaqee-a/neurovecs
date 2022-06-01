@@ -12,14 +12,14 @@ class Drone :
 
     def __init__ (self) :
 
-        self.p = pygame.Vector3(800, 60, 600)
+        self.p = pygame.Vector3(800, 60, 200)
         self.theta = 0
         self.n_users = 0
         self.pt = 5 #Watt
         self.band = 100 * 10**6 #Hz
         self.con = []
         self.theta = 42.44
-        self.capacity = 20
+        self.capacity = 30
         #self.color = Drone.color[Drone.i]
         Drone.i += 1
 
@@ -47,4 +47,4 @@ class Drone :
     def show(self, screen, font) :
 
         f = font.render(str(int(self.meters().z)), 1, pygame.Color("coral"))
-        screen.blit(f, (self.p.x,self.p.y))
+        screen.blit(f, (self.p.x-40,self.p.y))
