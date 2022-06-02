@@ -12,7 +12,7 @@ class Drone :
 
     def __init__ (self) :
 
-        self.p = pygame.Vector3(200, 10, 200) # meters
+        self.p = pygame.Vector3(150, 12, 10) # meters
         self.theta = 0
         self.n_users = 0
         self.pt = 20 # db
