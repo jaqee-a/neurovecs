@@ -1,15 +1,16 @@
 from asyncio.windows_events import NULL
+from operator import le
 import pygame
 from User import user
 from drone import Drone
 from readMap import draw, read
 import matplotlib.pyplot as plt
-import graph 
+ 
 
 
 pygame.init()
 
-user_n = 300
+user_n = 100
 drone_n = 1
 
 height, width = 700, 1300
@@ -56,6 +57,7 @@ def inService(drones):
 
 data = [0]
 time = [0]
+vel = [0]
 
 
 running = True
@@ -72,9 +74,17 @@ while running:
     for event in pygame.event.get() :
         if event.type == pygame.QUIT:
             running = False
-            plt.plot(time, data)
+
+            fig, axs = plt.subplots(2)
+
+            axs[0].plot(time, data)
+            axs[1].plot(time, vel)
+            
+            axs[0].set(xlabel='Time (s)', ylabel='Data rate (Mbps)')
+            axs[1].set(xlabel='Time (s)', ylabel='Energy (kW)')
+
             plt.show()
-    
+            
     
     non_con_user = user_n
     
@@ -144,10 +154,10 @@ while running:
     
         # Repulsion force with the obstacles
         F3 = pygame.Vector3(0, 0, 0)
-
+        
         for ob in obs :
-            v = d.p - ob[0]
-            F3 += v.normalize() * 1 / (v.length())
+            v = ((d.p * 6) + pygame.Vector3(50, 50, 0)) - ob[0]
+            F3 += v.normalize() * 1 / (v.length()**2)
 
 
         # Repulsion force with the ground 
@@ -179,9 +189,15 @@ while running:
             stable = False
 
         
-        dt = F.normalize()  
-        d.p += dt*0.5
+        dt = F.normalize()  * 0.5
+        d.p += dt
         
+        try :
+            if i == 0 :
+               v = dt.length() / (clock.get_time()*10**-3)
+               vel.append(d.EnergyConsumption(v))
+        except:
+               vel.append(0)
     
     if stable == True : 
     
@@ -196,9 +212,7 @@ while running:
            stable = False
         
             
-            
-
-            
+                        
     for i, d in enumerate(drone) :
         
         # pygame.draw.circle(screen, (0, 0 , 50), [d.p.x, d.p.y], d.r()*6)
