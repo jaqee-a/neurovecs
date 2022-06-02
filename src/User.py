@@ -8,6 +8,8 @@ from matplotlib.style import use
 import pygame
 import numpy as np
 
+from drone import Drone
+
 
 class user :
 
@@ -19,8 +21,8 @@ class user :
            self.p = pygame.Vector3(random.random() * 300 * 0.5 + 100, random.random() * 320 * 0.5 + 320, 0)
         else :
            self.p = pygame.Vector3(random.random() * 300 * 0.5 + 450, random.random() * 320 * 0.5 + 320, 0)"""
-        self.v = random.uniform(1.25, 1.5) * 6
-        self.p = pygame.Vector3(random.randint(50, 650), random.randint(50, 650), 0)
+        self.v = random.uniform(1.25, 1.5) # m/s
+        self.p = pygame.Vector3(random.randint(0, 100), random.randint(0, 100), 0)
         self.isConnected = NULL
         self.theta = 0
         self.beta = 0
@@ -32,12 +34,8 @@ class user :
                self.obs.append(pygame.Rect(ob[0].x-int(ob[1][0]/2), ob[0].y-int(ob[1][1]/2), ob[1][0], ob[1][1]))
         
         while self.isValid() == False :
-              self.u = pygame.Vector3(random.randint(50, 650), random.randint(50, 650), 0)
+              self.u = pygame.Vector3(random.randint(0, 100), random.randint(0, 100), 0)
               #self.u = pygame.Vector3(random.random() * 700 * 0.5, random.random() * 700 * 0.5, 0)
-        
-    def meters(self) :
-
-        return self.p / 6
 
     def isValid(self):
 
@@ -59,7 +57,7 @@ class user :
         elif self.isValid() == False :
            self.theta += np.pi
         
-        elif self.p.x < 50 or self.p.x > 650 or self.p.y < 50 or self.p.y > 650 :
+        elif self.p.x < 0 or self.p.x > 100 or self.p.y < 0 or self.p.y > 100 :
             self.theta += np.pi
 
         self.beta = random.uniform(0,1)
@@ -74,26 +72,26 @@ class user :
 
     def SNR(self, d) :
         
-        #Pt = 5 Watt
+        #Pt = 20 dBm
         
-        sig = 10**-6 # Watts
+        sig = -80 # Watts
         u = 9.61
         b = 0.16
         nlos = 1 #dB
         nNlos = 20 #dB
-        fc = 2.5 * 10**9 # Hz
+        fc = 2 * 10**9 # Hz
         c = 299792458 # m/s
-
-        pt = 10 * np.log10(d.pt) + 30 #dBm
         
-        dist = d.meters().distance_to(self.meters()) #m
-        h = d.meters().z #m
+        dist = d.p.distance_to(self.p) #m
+        h = d.p.z #m
         r = np.sqrt(dist**2 - h**2)
+        
         
         if d.n_users > 0 :
            band = d.band / (d.n_users)
         else :
            band = d.band
+        
     
         plos = 1 / (1 + u * np.exp( -1 * b * (np.degrees(np.arctan(h / r)) - u)))
 
@@ -104,14 +102,15 @@ class user :
 
         l = lOS * plos + nLOS * pNlos #dB
         
-        pr = (pt - l) #dBm
+        pr = (d.pt - l) #dBm
 
         pr = 10 ** ((pr-30)/10)  #Watt
-
-        snr = pr / (sig**2) #Watt
+        sig = 10 ** ((sig-30)/10) #watt
+        
+        snr = pr / sig #Watt
 
         r = band * np.log2(1 + snr) * 10**-6  #Mbps
 
         snr = 10 * np.log10(snr) #db
-       
+        
         return snr, r
