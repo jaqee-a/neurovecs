@@ -18,9 +18,9 @@ class user :
         self.height, self.width = height, width
         a = random.choice([0,1])
         """if a == 0 :
-           self.p = pygame.Vector3(random.random() * 300 * 0.5 + 100, random.random() * 320 * 0.5 + 320, 0)
+           self.p = pygame.Vector3(random.randint(20, 40), random.randint(60, 80), 0)
         else :
-           self.p = pygame.Vector3(random.random() * 300 * 0.5 + 450, random.random() * 320 * 0.5 + 320, 0)"""
+           self.p = pygame.Vector3(random.randint(60, 80), random.randint(60, 80), 0)"""
         self.v = random.uniform(1.25, 1.5) # m/s
         self.p = pygame.Vector3(random.randint(0, 100), random.randint(0, 100), 0)
         self.isConnected = NULL
