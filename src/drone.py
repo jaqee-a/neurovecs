@@ -22,6 +22,10 @@ class Drone :
         self.capacity = 30
         self.color = Drone.color[Drone.i % 10]
         Drone.i += 1
+
+        self.availableEnergy = 8 * 3600 * 49
+        self.pourc = 100 / (8 * 3600 * 49)
+        print(self.availableEnergy*self.pourc)
     
 
     def r(self) :
