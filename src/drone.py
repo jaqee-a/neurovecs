@@ -21,12 +21,7 @@ class Drone :
         self.theta = 42.44
         self.capacity = 30
         self.color = Drone.color[Drone.i % 10]
-        Drone.i += 1
-
-        self.availableEnergy = 8 * 3600 * 49
-        self.pourc = 100 / (8 * 3600 * 49)
-        print(self.availableEnergy*self.pourc)
-    
+        Drone.i += 1    
 
     def r(self) :
         
