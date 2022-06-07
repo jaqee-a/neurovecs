@@ -43,9 +43,6 @@ class User :
               self.postion = pygame.Vector3(random.randint(0, 100), random.randint(0, 100), 0)
               self.obj.m_Position = self.position
 
-
-        
-
               
     def makeUserMesh(self, app):
 
