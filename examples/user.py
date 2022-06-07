@@ -16,6 +16,8 @@ import core.components.mesh
 import core.application
 import core.time
 
+from drone import Drone
+
 
 class User :
 
@@ -46,12 +48,15 @@ class User :
 
               
     def makeUserMesh(self, app):
-        user = cube(app.m_ActiveScene, (0, 0, 0), (.8, .3, .4, 1), (.3, 1, .3))
 
+        user = cube(app.m_ActiveScene, (0, 0, 0), (1, 1, 1, 1), (.3, 1, .3))
         user.m_isActive = False
+
         return user.getComponent(core.components.mesh.Mesh)
+        
 
     def generateFromMesh(self, mesh: core.components.mesh.Mesh, position, app):
+
         obj = app.m_ActiveScene.makeEntity()
         obj.linkComponent(mesh)
         obj.addComponent(core.components.transform.Transform, *position, *([0]*3))
@@ -67,7 +72,7 @@ class User :
         return True
     
     def randomWalk(self, iter, time) :
-        
+
         
         #v = self.velocity * time / 1000
         v = .01
@@ -106,14 +111,12 @@ class User :
         c = 299792458 # m/s
         
         dist = glm.length(d.position - self.position) #m
-        h = d.position.y #m
-        print(d.position , self.position)
-        print(dist, h)
+        h = d.position.y - 1 #m
         r = np.sqrt(dist**2 - h**2)
         
         
         if d.n_users > 0 :
-           band = d.bandwidth / (d.n_users)
+           band = Drone.bandwidth / (d.n_users)
         else :
            band = d.bandwidth
         
@@ -127,7 +130,7 @@ class User :
 
         l = lOS * plos + nLOS * pNlos #dB
         
-        pr = (d.transmission_power - l) #dBm
+        pr = (Drone.transmission_power - l) #dBm
 
         pr = 10 ** ((pr-30)/10)  #Watt
         sig = 10 ** ((sig-30)/10) #watt
