@@ -1,8 +1,11 @@
-
+from asyncio.windows_events import NULL
 from random import random
 import sys
 import time
 from mapeditor import loadMap
+from user import User
+from drone import Drone
+import cover
 
 import numpy as np
 
@@ -17,7 +20,7 @@ from PIL import Image
 from typing import List
 from OpenGL.GL import *
 
-from utils.objparser import ObjParser
+#from utils.objparser import ObjParser
 
 from core.primitives import cone, cube, line
 import core.components.transform
@@ -37,6 +40,8 @@ class GameMultiDrone:
     camouflageMode = { 0: 'uav' }
     lockCamera: bool = False
 
+    height, width = 50, 50
+
     m_Application: core.application.Application
 
     lastX: float = 0
@@ -52,21 +57,28 @@ class GameMultiDrone:
     imGuiApp: ImGuiAppUav
     simulation: Simulation = None
 
+    iteration = 0
+
+    n_users = 10
+    non_connected_tr = 10
+    non_connected = n_users
+    T = 15
+
     def __init__(self) -> None:
         (core.application.Application(init=self.initGame)).run(update=self.update)
 
 
-    def makeUserMesh(self):
+    """def makeUserMesh(self):
         user = cube(self.m_Application.m_ActiveScene, (0, 0, 0), (.8, .3, .4, 1), (.3, 1, .3))
 
         user.m_isActive = False
-        return user.getComponent(core.components.mesh.Mesh)
+        return user.getComponent(core.components.mesh.Mesh)"""
 
-    def makeDroneMesh(self):
+    """def makeDroneMesh(self):
         droneObject = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj')
 
         droneObject.m_isActive = False
-        return droneObject.getComponent(core.components.cMesh.CMesh)
+        return droneObject.getComponent(core.components.cMesh.CMesh)"""
 
     def makeObstacleMesh(self):
         obstacle = cube(self.m_Application.m_ActiveScene, (0, 0, 0), (.5, .3, .3, 1), (5, 30, 5))
@@ -97,25 +109,30 @@ class GameMultiDrone:
         self.m_Application.setProcessInputFunc(self.processInput)
 
         # Loading the drone objects
-        self.ground = cube(self.m_Application.m_ActiveScene, (25, 0, 25), (.3, .3, .3, 1), (50, 1, 50))
+        self.ground = cube(self.m_Application.m_ActiveScene, (25, 0, 25), (.3, .3, .3, 1), (self.height, 1, self.width))
 
         self.obstacleMesh = self.makeObstacleMesh()
-        self.droneMesh    = self.makeDroneMesh()
-        self.userMesh     = self.makeUserMesh()
+        #self.droneMesh    = self.makeDroneMesh()
+        #self.userMesh     = self.makeUserMesh()
 
 
         lines = loadMap('file.txt')
 
-
-        for i in range(len(lines)):
+        obs = []
+        """for i in range(len(lines)):
+            l = []
             for j in range(len(lines[i])):
                 if lines[i][j] == 'x':
+                    l.append(glm.vec3(i,0,j))
                     self.generateFromMesh(self.obstacleMesh, (2.5 + i * 5, 15, 2.5 + j * 5))
+            obs.append(l)"""
         
-        self.droneObject = self.generateFromMesh(self.droneMesh, (25, 20, 25)).getComponent(core.components.transform.Transform)
-        self.users = [self.generateFromMesh(self.userMesh, (random() * 50, 1, random() * 50)).getComponent(core.components.transform.Transform) for _ in range(10)]
-        
-        cone(self.m_Application.m_ActiveScene, (25, 0, 25), 8, [0, 0, 1, .1], [5, 20, 5])
+        #self.droneObject = self.generateFromMesh(self.droneMesh, (25, 20, 25)).getComponent(core.components.transform.Transform)
+        #self.users = [self.generateFromMesh(self.userMesh, (random() * 50, 1, random() * 50)).getComponent(core.components.transform.Transform) for _ in range(10)]
+        self.drones = [Drone(self.m_Application)]
+        self.users = [User(self.height, self.width, obs, self.m_Application) for _ in range(self.n_users)]
+
+        #cone(self.m_Application.m_ActiveScene, (25, 0, 25), 8, [0, 0, 1, .1], [5, 20, 5])
 
         self.initApp()
 
@@ -157,15 +174,22 @@ class GameMultiDrone:
 
 
     def update(self):
+
         self.imGuiApp.render()
 
         # imgui.show_test_window()
         if not self.simulation:return
         if not self.simulation.run(): return
 
-        for user in self.users:
-            user.m_Position.x += .1
+        self.non_connected = cover.update(self.drones, self.users, self.non_connected, self.non_connected_tr, self.m_Application, self.T)
 
+
+
+        """for user in self.users:
+            user.randomWalk(self.iteration, core.time.Time.FIXED_DELTA_TIME)"""
+
+
+        self.iteration += 1
 
 
     
