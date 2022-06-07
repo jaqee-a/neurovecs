@@ -59,7 +59,7 @@ class GameMultiDrone:
 
     iteration = 0
 
-    n_users = 10
+    n_users = 100
     non_connected_tr = 10
     non_connected = n_users
     T = 15
@@ -181,13 +181,11 @@ class GameMultiDrone:
         if not self.simulation:return
         if not self.simulation.run(): return
 
-        self.non_connected = cover.update(self.drones, self.users, self.non_connected, self.non_connected_tr, self.m_Application, self.T)
-
-
+        self.non_connected = cover.update(self.drones, self.users, self.non_connected_tr, self.m_Application, self.T)
+        
 
         """for user in self.users:
             user.randomWalk(self.iteration, core.time.Time.FIXED_DELTA_TIME)"""
-
 
         self.iteration += 1
 
