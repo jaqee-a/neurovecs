@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 import random
 import pygame
 import numpy as np
@@ -29,7 +28,7 @@ class User :
 
         self.userMesh    = self.makeUserMesh(app)
         self.obj         = self.generateFromMesh(self.userMesh, self.position, app).getComponent(core.components.transform.Transform)
-        self.isConnected = NULL
+        self.isConnected = None
         self.theta       = 0
         self.beta        = 0
         self.delta_theta = 0.3
