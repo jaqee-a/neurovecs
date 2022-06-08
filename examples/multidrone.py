@@ -69,31 +69,6 @@ class GameMultiDrone:
         (core.application.Application(init=self.initGame)).run(update=self.update)
 
 
-    """def makeUserMesh(self):
-        user = cube(self.m_Application.m_ActiveScene, (0, 0, 0), (.8, .3, .4, 1), (.3, 1, .3))
-
-        user.m_isActive = False
-        return user.getComponent(core.components.mesh.Mesh)"""
-
-    """def makeDroneMesh(self):
-        droneObject = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj')
-
-        droneObject.m_isActive = False
-        return droneObject.getComponent(core.components.cMesh.CMesh)"""
-
-    """def makeObstacleMesh(self):
-        obstacle = cube(self.m_Application.m_ActiveScene, (0, 0, 0), (.5, .3, .3, 1), (5, 30, 5))
-
-        obstacle.m_isActive = False
-        return obstacle.getComponent(core.components.mesh.Mesh)"""
-
-    """def generateFromMesh(self, mesh: core.components.mesh.Mesh, position):
-        obj = self.m_Application.m_ActiveScene.makeEntity()
-        obj.linkComponent(mesh)
-        obj.addComponent(core.components.transform.Transform, *position, *([0]*3))
-
-        return obj"""
-
     def initGame(self, application: core.application.Application):
         self.m_Application = application
         self.m_Application.m_ActiveScene = core.scene.Scene()
@@ -112,10 +87,6 @@ class GameMultiDrone:
         # Loading the drone objects
         self.ground = cube(self.m_Application.m_ActiveScene, (25, 0, 25), (.3, .3, .3, 1), (self.height, 1, self.width))
 
-        #self.obstacleMesh = self.makeObstacleMesh()
-        #self.droneMesh    = self.makeDroneMesh()
-        #self.userMesh     = self.makeUserMesh()
-
 
         lines = loadMap('file.txt')
         self.obstacles = []
@@ -126,14 +97,10 @@ class GameMultiDrone:
                     self.obstacles.append(obstacle(i, j, self.m_Application))
                     #self.generateFromMesh(self.obstacleMesh, (2.5 + i * 5, 15, 2.5 + j * 5))
         
-        #self.droneObject = self.generateFromMesh(self.droneMesh, (25, 20, 25)).getComponent(core.components.transform.Transform)
-        #self.users = [self.generateFromMesh(self.userMesh, (random() * 50, 1, random() * 50)).getComponent(core.components.transform.Transform) for _ in range(10)]
-        
         self.drones    = [Drone(self.m_Application)]
         self.users     = [User(self.height, self.width, self.obstacles, self.m_Application) for _ in range(self.n_users)]
 
-        #cone(self.m_Application.m_ActiveScene, (25, 0, 25), 8, [0, 0, 1, .1], [5, 20, 5])
-
+        
         self.initApp()
 
 
