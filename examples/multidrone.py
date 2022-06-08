@@ -75,7 +75,7 @@ class GameMultiDrone:
         # Creating an entity
         camera_entity = self.m_Application.m_ActiveScene.makeEntity()
         # Giving the entity a transform
-        self.cameraTransform = camera_entity.addComponent(core.components.transform.Transform, 0, 0, 5, 0, -90, 0)
+        self.cameraTransform = camera_entity.addComponent(core.components.transform.Transform, -15, 10, -10, -20, 20, 20)
         # Adding a camera component
         camera_entity.addComponent(core.components.camera.Camera, 45.0, self.m_Application.WIDTH / self.m_Application.HEIGHT)
 
@@ -94,8 +94,8 @@ class GameMultiDrone:
             for j in range(len(lines[i])):
                 if lines[i][j] == 'x':
                     self.obstacles.append(obstacle(i, j, self.m_Application))
-                    #self.generateFromMesh(self.obstacleMesh, (2.5 + i * 5, 15, 2.5 + j * 5))
-        
+                    
+
         self.drones    = [Drone(self.m_Application)]
         self.users     = [User(self.height, self.width, self.obstacles, self.m_Application) for _ in range(self.n_users)]
 
