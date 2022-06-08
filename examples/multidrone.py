@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 from random import random
 import sys
 import time
