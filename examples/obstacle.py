@@ -1,5 +1,4 @@
 import glm
-from regex import R
 
 from core.primitives import cone, cube, line
 import core.components.transform

@@ -1,5 +1,4 @@
 import random
-import pygame
 import numpy as np
 import sys
 import glm
@@ -38,7 +37,7 @@ class User :
                self.obs.append(pygame.Rect(ob[0].x-int(ob[1][0]/2), ob[0].y-int(ob[1][1]/2), ob[1][0], ob[1][1]))
         """
         while self.isValid() == False :
-              self.postion = pygame.Vector3(random.randint(0, 100), random.randint(0, 100), 0)
+              self.postion = glm.vec3(random.randint(0, 100), random.randint(0, 100), 0)
               self.obj.m_Position = self.position
 
               

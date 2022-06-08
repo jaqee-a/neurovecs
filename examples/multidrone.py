@@ -1,4 +1,3 @@
-from random import random
 import sys
 import time
 #from mapeditor import loadMap
@@ -6,8 +5,6 @@ from user import User
 from drone import Drone
 from obstacle import obstacle, loadMap
 import cover
-
-import numpy as np
 
 sys.path.append('py-engine')
 sys.path.append('src')

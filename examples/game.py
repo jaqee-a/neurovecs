@@ -2,8 +2,6 @@
 import sys
 import time
 
-import numpy as np
-
 sys.path.append('py-engine')
 sys.path.append('src')
 

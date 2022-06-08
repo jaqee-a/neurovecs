@@ -2,7 +2,7 @@ import numpy as np
 from utils.objparser import ObjParser
 from user import User
 
-from core.primitives import cone, cube, line
+from core.primitives import cone
 import core.components.transform
 import core.components.camera
 import core.components.cMesh
