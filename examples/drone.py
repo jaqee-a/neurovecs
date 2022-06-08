@@ -1,8 +1,6 @@
 import numpy as np
-from utils.objparser import ObjParser
 from user import User
 
-from core.primitives import cone
 import core.components.transform
 import core.components.camera
 import core.components.cMesh
@@ -22,34 +20,20 @@ class Drone :
     theta               = 42.44 #degrees
     capacity            = 30
 
-    def __init__ (self, app) :
+    def __init__ (self, app, droneMesh, coneMesh) :
 
         self.color           = Drone.colors[Drone.i % 10]
         self.n_users         = 0
         self.connected_users = []
-
-        self.droneMesh = self.makeDroneMesh(app)
+        
         self.position  = glm.vec3(0, 20, 0) #meter
-        self.obj       = self.generateFromMesh(self.droneMesh, self.position, app).getComponent(core.components.transform.Transform)
-        self.coneObj   = self.generateFromMesh(self.makeConeMesh(app), self.position-glm.vec3(0, self.position.y, 0), app).getComponent(core.components.transform.Transform)
+        self.obj       = self.generateFromMesh(droneMesh, self.position, app).getComponent(core.components.transform.Transform)
+        self.coneObj   = self.generateFromMesh(coneMesh, self.position-glm.vec3(0, self.position.y, 0), app).getComponent(core.components.transform.Transform)
         
         Drone.i += 1
 
         #cone(app.m_ActiveScene, (25, 0, 25), 8, [0, 0, 1, .1], [5, 20, 5])
 
-    def makeDroneMesh(self, app):
-
-        droneObject = ObjParser.parse(app.m_ActiveScene, 'assets/drone.obj')
-
-        droneObject.m_isActive = False
-        return droneObject.getComponent(core.components.cMesh.CMesh)    
-    
-    def makeConeMesh(self, app):
-
-        Cone = cone(app.m_ActiveScene, (25, 0, 25), 8, self.color, [5, 20, 5])
-        Cone.m_isActive = False
-
-        return Cone.getComponent(core.components.mesh.Mesh)
 
     def generateFromMesh(self, mesh: core.components.mesh.Mesh, position, app):
 
