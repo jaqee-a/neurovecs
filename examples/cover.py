@@ -89,9 +89,8 @@ def update(drones, users, non_con_tr, app, T) :
     
     for user in users:
         uMesh = user.obj.m_Entity.getComponent(Mesh)
-        
-        if user.isConnected: uMesh.m_BlendColor = connectedColor
-        else: uMesh.m_BlendColor = nonConnectedColor
+
+        if user.isConnected: uMesh.m_BlendColor = user.isConnected.color
 
     return non_con
     
