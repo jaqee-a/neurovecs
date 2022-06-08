@@ -169,9 +169,12 @@ class Game:
         if not self.simulation:return
         if not self.simulation.run(): return
 
-
-        # newFront = self.cameraTransform.lookAt(self.predTransform.m_Position)
-        # self.cameraTransform.front += (newFront - self.cameraTransform.front) * core.time.Time.DELTA_TIME * 10
+        if self.imGuiApp.cameraLock:
+            self.mouseInit = False
+            newFront = glm.normalize(self.predTransform.m_Position - self.cameraTransform.m_Position)
+            self.cameraTransform.front += (newFront - self.cameraTransform.front) * core.time.Time.DELTA_TIME * 10
+            self.cameraTransform.frontToRotation()
+            self.cameraTransform.updateDirectionalVectors()
 
         self.imGuiApp.errors = self.simulation.errors
         self.imGuiApp.speed  = self.simulation.speed
@@ -269,7 +272,7 @@ class Game:
             break
 
     def onMouseMove(self, w, xpos, ypos):
-        if self.cursor: return
+        if self.cursor or self.imGuiApp.cameraLock: return
 
         if not self.mouseInit:
             self.lastX = xpos

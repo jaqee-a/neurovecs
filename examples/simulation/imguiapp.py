@@ -16,6 +16,8 @@ class ImGuiApp:
     prey_trajectory: bool = True
     pred_trajectory: bool = True
 
+    cameraLock: bool = False
+
     def __init__(self) -> None:
         pass
 
@@ -70,6 +72,7 @@ class ImGuiApp:
 
         # _, core.time.Time.GAME_SPEED = imgui.drag_float("Simulation Speed", core.time.Time.GAME_SPEED, 0.01, 0.0, 1.0)
 
+        _, self.cameraLock = imgui.checkbox("Camera Lock", self.cameraLock)
 
         if imgui.button("Start new simulation"):
             self.startSimulationFunc()
