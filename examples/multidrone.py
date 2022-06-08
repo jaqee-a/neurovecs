@@ -1,11 +1,11 @@
 import sys
 import time
 from core.shader import Shader
-#from mapeditor import loadMap
 from user import User
 from drone import Drone
 from obstacle import obstacle, loadMap
 import cover
+from utils.objparser import ObjParser
 
 sys.path.append('py-engine')
 sys.path.append('src')
@@ -20,7 +20,7 @@ from OpenGL.GL import *
 
 #from utils.objparser import ObjParser
 
-from core.primitives import cube
+from core.primitives import cube, cone
 import core.components.transform
 import core.components.camera
 import core.components.cMesh
@@ -67,6 +67,34 @@ class GameMultiDrone:
     def __init__(self) -> None:
         (core.application.Application(init=self.initGame)).run(update=self.update)
 
+    def makeDroneMesh(self):
+
+        droneObject = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj')
+
+        droneObject.m_isActive = False
+        return droneObject.getComponent(core.components.cMesh.CMesh)    
+    
+    def makeConeMesh(self):
+
+        Cone = cone(self.m_Application.m_ActiveScene, (25, 0, 25), 8, (0, 0, 1, .1), [5, 20, 5])
+        Cone.m_isActive = False
+
+        return Cone.getComponent(core.components.mesh.Mesh)
+
+    def makeUserMesh(self):
+
+        user = cube(self.m_Application.m_ActiveScene, (0, 0, 0), (1.0, 1.0, 1.0, 1), (.3, 1, .3))
+        user.m_isActive = False
+
+        return user.getComponent(core.components.mesh.Mesh)
+    
+    def makeObstacleMesh(self):
+        obstacle = cube(self.m_Application.m_ActiveScene, (0, 0, 0), (.5, .3, .3, 1), (2, 2, 2))
+
+        obstacle.m_isActive = False
+        return obstacle.getComponent(core.components.mesh.Mesh)
+
+
 
     def initGame(self, application: core.application.Application):
         self.m_Application = application
@@ -86,6 +114,10 @@ class GameMultiDrone:
         # Loading the drone objects
         self.ground = cube(self.m_Application.m_ActiveScene, (25, 0, 25), (.3, .3, .3, 1), (self.height, 1, self.width))
 
+        self.userMesh    = self.makeUserMesh()
+        self.droneMesh = self.makeDroneMesh()
+        self.obstacleMesh = self.makeObstacleMesh()
+        self.coneMesh = self.makeConeMesh()
 
         lines = loadMap('file.txt')
         self.obstacles = []
@@ -93,11 +125,11 @@ class GameMultiDrone:
         for i in range(len(lines)):
             for j in range(len(lines[i])):
                 if lines[i][j] == 'x':
-                    self.obstacles.append(obstacle(i, j, self.m_Application))
+                    self.obstacles.append(obstacle(i, j, self.m_Application, self.obstacleMesh))
                     
 
-        self.drones    = [Drone(self.m_Application)]
-        self.users     = [User(self.height, self.width, self.obstacles, self.m_Application) for _ in range(self.n_users)]
+        self.drones    = [Drone(self.m_Application, self.droneMesh, self.coneMesh)]
+        self.users     = [User(self.height, self.width, self.obstacles, self.m_Application, self.userMesh) for _ in range(self.n_users)]
         
         self.initApp()
 
@@ -146,9 +178,8 @@ class GameMultiDrone:
         if not self.simulation:return
         if not self.simulation.run(): return
 
-        self.non_connected = cover.update(self.drones, self.users, self.non_connected_tr, self.m_Application, self.T)
+        self.non_connected = cover.update(self.drones, self.users, self.non_connected_tr, self.m_Application, self.T, self.coneMesh, self.droneMesh)
         
-
         for user in self.users:
             user.randomWalk(self.iteration, core.time.Time.FIXED_DELTA_TIME)
 
