@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 import numpy as np
 from utils.objparser import ObjParser
 
@@ -63,17 +62,13 @@ class Drone :
         return (self.z) / np.tan(np.radians(self.theta))
 
 
-    def distance(self) :
-
-        return np.sqrt(self.r()**2 + self.z**2)
-
     def force(self, users, drones, non_con) :
 
         #Attracton force with the users 
         F1 = glm.vec3(0)
 
         for user in users :
-            if user.isConnected == NULL :
+            if user.isConnected == None :
                 v = user.position - self.position
                 F1 += glm.normalize(v) * 1 / (glm.length(v) * (non_con / len(drones)))
         
