@@ -19,7 +19,7 @@ from OpenGL.GL import *
 
 #from utils.objparser import ObjParser
 
-from core.primitives import cone, cube, line
+from core.primitives import cube
 import core.components.transform
 import core.components.camera
 import core.components.cMesh
