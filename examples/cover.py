@@ -1,21 +1,20 @@
-from asyncio.windows_events import NULL
 import glm
 from drone import Drone
-
+import numpy as np
 
 def average_SNR(users) :
 
         avr = 0
 
         for user in users :
-            if user.isConnected != NULL : avr += user.SNR(user.isConnected)[1]
+            if user.isConnected != None : avr += user.SNR(user.isConnected)[1]
 
         return avr / len(users)
 
 def clear(users, drones) :
 
     for user in users :
-        user.isConnected = NULL
+        user.isConnected = None
 
     for drone in drones :
         drone.n_users = 0
@@ -31,9 +30,10 @@ def reArrange(users, drones, T) :
 
         snr_list = []
         for user in users :
-            if user.isConnected == NULL :
-                snr = user.SNR(drone)[0]
-                #snr = glm.length(user.position - drone.position)
+            if user.isConnected == None :
+                dist = glm.length(drone.position - user.position) #m
+                r = np.sqrt(dist**2 - drone.position.y**2)
+                snr = user.SNR(drone, r)[0]
 
                 if snr > T :
                    snr_list.append([snr, user])
