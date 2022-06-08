@@ -2,9 +2,10 @@ from asyncio.windows_events import NULL
 from random import random
 import sys
 import time
-from mapeditor import loadMap
+#from mapeditor import loadMap
 from user import User
 from drone import Drone
+from obstacle import obstacle, loadMap
 import cover
 
 import numpy as np
@@ -80,18 +81,18 @@ class GameMultiDrone:
         droneObject.m_isActive = False
         return droneObject.getComponent(core.components.cMesh.CMesh)"""
 
-    def makeObstacleMesh(self):
+    """def makeObstacleMesh(self):
         obstacle = cube(self.m_Application.m_ActiveScene, (0, 0, 0), (.5, .3, .3, 1), (5, 30, 5))
 
         obstacle.m_isActive = False
-        return obstacle.getComponent(core.components.mesh.Mesh)
+        return obstacle.getComponent(core.components.mesh.Mesh)"""
 
-    def generateFromMesh(self, mesh: core.components.mesh.Mesh, position):
+    """def generateFromMesh(self, mesh: core.components.mesh.Mesh, position):
         obj = self.m_Application.m_ActiveScene.makeEntity()
         obj.linkComponent(mesh)
         obj.addComponent(core.components.transform.Transform, *position, *([0]*3))
 
-        return obj
+        return obj"""
 
     def initGame(self, application: core.application.Application):
         self.m_Application = application
@@ -111,26 +112,25 @@ class GameMultiDrone:
         # Loading the drone objects
         self.ground = cube(self.m_Application.m_ActiveScene, (25, 0, 25), (.3, .3, .3, 1), (self.height, 1, self.width))
 
-        self.obstacleMesh = self.makeObstacleMesh()
+        #self.obstacleMesh = self.makeObstacleMesh()
         #self.droneMesh    = self.makeDroneMesh()
         #self.userMesh     = self.makeUserMesh()
 
 
         lines = loadMap('file.txt')
+        self.obstacles = []
 
-        obs = []
-        """for i in range(len(lines)):
-            l = []
+        for i in range(len(lines)):
             for j in range(len(lines[i])):
                 if lines[i][j] == 'x':
-                    l.append(glm.vec3(i,0,j))
-                    self.generateFromMesh(self.obstacleMesh, (2.5 + i * 5, 15, 2.5 + j * 5))
-            obs.append(l)"""
+                    self.obstacles.append(obstacle(i, j, self.m_Application))
+                    #self.generateFromMesh(self.obstacleMesh, (2.5 + i * 5, 15, 2.5 + j * 5))
         
         #self.droneObject = self.generateFromMesh(self.droneMesh, (25, 20, 25)).getComponent(core.components.transform.Transform)
         #self.users = [self.generateFromMesh(self.userMesh, (random() * 50, 1, random() * 50)).getComponent(core.components.transform.Transform) for _ in range(10)]
-        self.drones = [Drone(self.m_Application)]
-        self.users = [User(self.height, self.width, obs, self.m_Application) for _ in range(self.n_users)]
+        
+        self.drones    = [Drone(self.m_Application)]
+        self.users     = [User(self.height, self.width, self.obstacles, self.m_Application) for _ in range(self.n_users)]
 
         #cone(self.m_Application.m_ActiveScene, (25, 0, 25), 8, [0, 0, 1, .1], [5, 20, 5])
 
@@ -184,8 +184,8 @@ class GameMultiDrone:
         self.non_connected = cover.update(self.drones, self.users, self.non_connected_tr, self.m_Application, self.T)
         
 
-        """for user in self.users:
-            user.randomWalk(self.iteration, core.time.Time.FIXED_DELTA_TIME)"""
+        for user in self.users:
+            user.randomWalk(self.iteration, core.time.Time.FIXED_DELTA_TIME)
 
         self.iteration += 1
 
