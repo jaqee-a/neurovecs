@@ -15,7 +15,6 @@ import core.components.mesh
 import core.application
 import core.time
 
-from drone import Drone
 
 
 class User :
@@ -93,8 +92,8 @@ class User :
 
         self.obj.m_Position = self.position
        
-
-    def SNR(self, d) :
+    @staticmethod
+    def SNR(d, r) :
         
         #Pt = 20 dBm
         
@@ -106,13 +105,11 @@ class User :
         fc = 2 * 10**9 # Hz
         c = 299792458 # m/s
         
-        dist = glm.length(d.position - self.position) #m
         h = d.position.y - 1 #m
-        r = np.sqrt(dist**2 - h**2)
-        
+        dist = np.sqrt(h**2 + r**2)
         
         if d.n_users > 0 :
-           band = Drone.bandwidth / (d.n_users)
+           band = d.bandwidth / (d.n_users)
         else :
            band = d.bandwidth
         
@@ -126,7 +123,7 @@ class User :
 
         l = lOS * plos + nLOS * pNlos #dB
         
-        pr = (Drone.transmission_power - l) #dBm
+        pr = (d.transmission_power - l) #dBm
 
         pr = 10 ** ((pr-30)/10)  #Watt
         sig = 10 ** ((sig-30)/10) #watt
