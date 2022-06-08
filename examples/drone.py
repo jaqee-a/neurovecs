@@ -14,7 +14,7 @@ import glm
 
 class Drone :
 
-    color = [(255,0,0,1), (0,255,0,1), (0,0,255,1), (255,255,0,1), (0,255,255,1), (255,0,255,1), (50,200,0,1), (50,0,200,1), (20,20,100,1), (0,20,100,1)]
+    colors = [(255,0,0,.1), (0,255,0,.1), (0,0,255,.1), (255,255,0,.1), (0,255,255,.1), (255,0,255,.1), (50,200,0,.1), (50,0,200,.1), (20,20,100,.1), (0,20,100,.1)]
     i = 0
 
     transmission_power  = 20 # db
@@ -24,6 +24,7 @@ class Drone :
 
     def __init__ (self, app) :
 
+        self.color           = Drone.colors[Drone.i % 10]
         self.droneMesh = self.makeDroneMesh(app)
         self.position  = glm.vec3(0, 20, 0) #meter
         self.obj       = self.generateFromMesh(self.droneMesh, self.position, app).getComponent(core.components.transform.Transform)
@@ -31,7 +32,6 @@ class Drone :
         
         self.n_users         = 0
         self.connected_users = []
-        self.color           = Drone.color[Drone.i % 10]
         Drone.i += 1
 
         #cone(app.m_ActiveScene, (25, 0, 25), 8, [0, 0, 1, .1], [5, 20, 5])
@@ -45,7 +45,7 @@ class Drone :
     
     def makeConeMesh(self, app):
 
-        Cone = cone(app.m_ActiveScene, (25, 0, 25), 8, [0, 0, 1, .1], [5, 20, 5])
+        Cone = cone(app.m_ActiveScene, (25, 0, 25), 8, self.color, [5, 20, 5])
         Cone.m_isActive = False
 
         return Cone.getComponent(core.components.mesh.Mesh)
