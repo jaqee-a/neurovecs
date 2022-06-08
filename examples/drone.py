@@ -1,5 +1,6 @@
 import numpy as np
 from utils.objparser import ObjParser
+from user import User
 
 from core.primitives import cone, cube, line
 import core.components.transform
@@ -24,13 +25,14 @@ class Drone :
     def __init__ (self, app) :
 
         self.color           = Drone.colors[Drone.i % 10]
+        self.n_users         = 0
+        self.connected_users = []
+
         self.droneMesh = self.makeDroneMesh(app)
         self.position  = glm.vec3(0, 20, 0) #meter
         self.obj       = self.generateFromMesh(self.droneMesh, self.position, app).getComponent(core.components.transform.Transform)
         self.coneObj   = self.generateFromMesh(self.makeConeMesh(app), self.position-glm.vec3(0, self.position.y, 0), app).getComponent(core.components.transform.Transform)
         
-        self.n_users         = 0
-        self.connected_users = []
         Drone.i += 1
 
         #cone(app.m_ActiveScene, (25, 0, 25), 8, [0, 0, 1, .1], [5, 20, 5])
@@ -59,7 +61,12 @@ class Drone :
 
     def r(self) :
         
-        return (self.z) / np.tan(np.radians(self.theta))
+        snr = 15
+        r = 0
+        while snr >= 15 :
+            r += 1
+            snr = User.SNR(self, r)[0]
+        return r
 
 
     def force(self, users, drones, non_con) :
