@@ -1,7 +1,14 @@
 import glm
+from matplotlib.transforms import Transform
+from core.components.mesh import Mesh
 from drone import Drone
 from user import User
 import numpy as np
+
+    
+nonConnectedColor = glm.vec4(0.8, 0.3, 0.4, 1.0)
+connectedColor = glm.vec4(0.3, 0.8, 0.4, 1.0)
+
 
 def average_SNR(users) :
 
@@ -80,5 +87,11 @@ def update(drones, users, non_con_tr, app, T) :
             drones.insert(0, d)
             stable = False
     
+    for user in users:
+        uMesh = user.obj.m_Entity.getComponent(Mesh)
+        
+        if user.isConnected: uMesh.m_BlendColor = connectedColor
+        else: uMesh.m_BlendColor = nonConnectedColor
+
     return non_con
     

@@ -43,7 +43,7 @@ class User :
               
     def makeUserMesh(self, app):
 
-        user = cube(app.m_ActiveScene, (0, 0, 0), (.8, .3, .4, 1), (.3, 1, .3))
+        user = cube(app.m_ActiveScene, (0, 0, 0), (1.0, 1.0, 1.0, 1), (.3, 1, .3))
         user.m_isActive = False
 
         return user.getComponent(core.components.mesh.Mesh)

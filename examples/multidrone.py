@@ -1,5 +1,6 @@
 import sys
 import time
+from core.shader import Shader
 #from mapeditor import loadMap
 from user import User
 from drone import Drone
@@ -61,6 +62,8 @@ class GameMultiDrone:
     non_connected = n_users
     T = 15
 
+    userShader: Shader = None
+
     def __init__(self) -> None:
         (core.application.Application(init=self.initGame)).run(update=self.update)
 
@@ -95,7 +98,6 @@ class GameMultiDrone:
 
         self.drones    = [Drone(self.m_Application)]
         self.users     = [User(self.height, self.width, self.obstacles, self.m_Application) for _ in range(self.n_users)]
-
         
         self.initApp()
 
