@@ -36,6 +36,8 @@ class Game:
 
     movementMode   = { 0: 'r', 1: 'h', 2: 'a' }
     camouflageMode = { 0: 'f', 1: 'i', 2: 'p', 3: 'rp', 4: 'cp', 5: 'uav' }
+    selectedMovementMode = 0
+    selectedCamouflageMode = 0
     lockCamera: bool = False
 
     m_Application: core.application.Application
@@ -56,9 +58,25 @@ class Game:
     def __init__(self) -> None:
         (core.application.Application(init=self.initGame)).run(update=self.update)
 
+    def makeDroneMesh(self):
+        droneObject = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj')
+
+        droneObject.m_isActive = False
+        return droneObject.getComponent(core.components.cMesh.CMesh)
+
+    def generateFromMesh(self, mesh: core.components.mesh.Mesh, position):
+        obj = self.m_Application.m_ActiveScene.makeEntity()
+        obj.linkComponent(mesh)
+        obj.addComponent(core.components.transform.Transform, *position, *([0]*3))
+
+        return obj
     def initGame(self, application: core.application.Application):
         self.m_Application = application
         self.m_Application.m_ActiveScene = core.scene.Scene()
+
+
+        self.droneMesh = self.makeDroneMesh()
+
 
         # Creating an entity
         camera_entity = self.m_Application.m_ActiveScene.makeEntity()
@@ -72,8 +90,8 @@ class Game:
         self.m_Application.setProcessInputFunc(self.processInput)
 
         # Loading the drone objects
-        self.preyTransform = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj').getComponent(core.components.transform.Transform)
-        self.predTransform = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj').getComponent(core.components.transform.Transform)
+        self.preyTransform = self.generateFromMesh(self.droneMesh, (0, 0, 0)).getComponent(core.components.transform.Transform)
+        self.predTransform = self.generateFromMesh(self.droneMesh, (0, 0, 0)).getComponent(core.components.transform.Transform)
 
         self.staticObjects = []
 
@@ -108,20 +126,26 @@ class Game:
         self.clearScene()
 
         mode = self.movementMode[self.imGuiApp.selectedMovementMode]
+        camMode = self.camouflageMode[self.imGuiApp.selectedCamouflageMode]
         
-        if self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'f' :
+        if camMode == 'f' :
             self.simulation = FixedPoint(self.imGuiApp.RESOLUTION, mode)
-        elif self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'i' :
+        elif camMode == 'i' :
             self.simulation = InfinitPoint(self.imGuiApp.RESOLUTION, mode)
-        elif self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'p' :
+        elif camMode == 'p' :
             self.simulation = Pursue(self.imGuiApp.RESOLUTION, mode)
-        elif self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'rp' :
+        elif camMode == 'rp' :
             self.simulation = RoadPursue(self.imGuiApp.RESOLUTION, mode)
-        elif self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'cp':
+        elif camMode == 'cp':
             self.simulation = Checkpoint(self.imGuiApp.RESOLUTION, mode)
-        elif self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'uav':
+        elif camMode == 'uav':
             self.simulation = UavSimulation(self.imGuiApp.RESOLUTION, mode)
-            
+        
+        self.preyTransform.m_Entity.m_isActive = camMode != 'cp'
+
+        self.selectedCamouflageMode = self.imGuiApp.selectedCamouflageMode
+        self.selectedMovementMode = self.imGuiApp.selectedMovementMode
+
         self.onStartNew()
 
     def onStartNew(self):
@@ -145,10 +169,14 @@ class Game:
         if not self.simulation:return
         if not self.simulation.run(): return
 
+
+        # newFront = self.cameraTransform.lookAt(self.predTransform.m_Position)
+        # self.cameraTransform.front += (newFront - self.cameraTransform.front) * core.time.Time.DELTA_TIME * 10
+
         self.imGuiApp.errors = self.simulation.errors
         self.imGuiApp.speed  = self.simulation.speed
 
-        if self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'f':
+        if self.camouflageMode[self.selectedCamouflageMode] == 'f':
             if self.simulation.iteration == 1:
                 self.c_lastpos = glm.vec3(*self.simulation.prey)
                 self.p_lastpos = glm.vec3(*self.simulation.pred)
@@ -166,13 +194,13 @@ class Game:
 
                 self.c_lastpos = glm.vec3(*self.simulation.prey)
                 self.p_lastpos = glm.vec3(*self.simulation.pred)
-        elif self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'cp':
+        elif self.camouflageMode[self.selectedCamouflageMode] == 'cp':
             rps = self.simulation.getReferenceVectors()
 
             for _ in range(len(rps)):
                 self.imGuiApp.other_plots = self.simulation.other
                 
-        elif self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'uav':
+        elif self.camouflageMode[self.selectedCamouflageMode] == 'uav':
             pass
         else:
             if self.simulation.iteration == 1:
