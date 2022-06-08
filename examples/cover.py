@@ -68,7 +68,7 @@ def update(drones, users, non_con_tr, app, T) :
         dt = glm.normalize(F) * 0.1
         drone.position += dt
         drone.obj.m_Position = drone.position
-        #drone.coneObj.m_Position = drone.position - glm.vec3(0, drone.position.y, 0)
+        drone.coneObj.m_Position = drone.position - glm.vec3(0, drone.position.y, 0)
 
     if stable == True :
 
