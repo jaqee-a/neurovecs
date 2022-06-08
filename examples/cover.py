@@ -1,5 +1,5 @@
 import glm
-from matplotlib.transforms import Transform
+
 from core.components.mesh import Mesh
 from drone import Drone
 from user import User
@@ -61,7 +61,7 @@ def reArrange(users, drones, T) :
     return non_con
 
 
-def update(drones, users, non_con_tr, app, T) :
+def update(drones, users, non_con_tr, app, T, coneMesh, droneMesh) :
 
     non_con = reArrange(users, drones, T)
 
@@ -83,7 +83,7 @@ def update(drones, users, non_con_tr, app, T) :
 
         if n_p > non_con_tr :
 
-            d = Drone(app)
+            d = Drone(app, droneMesh, coneMesh)
             drones.insert(0, d)
             stable = False
     
