@@ -81,13 +81,6 @@ class GameMultiDrone:
 
         return Cone.getComponent(core.components.mesh.Mesh)
 
-    def makeUserMesh(self):
-
-        user = cube(self.m_Application.m_ActiveScene, (0, 0, 0), (1.0, 1.0, 1.0, 1), (.3, 1, .3))
-        user.m_isActive = False
-
-        return user.getComponent(core.components.mesh.Mesh)
-    
     def makeObstacleMesh(self):
         obstacle = cube(self.m_Application.m_ActiveScene, (0, 0, 0), (.5, .3, .3, 1), (2, 2, 2))
 
@@ -114,7 +107,6 @@ class GameMultiDrone:
         # Loading the drone objects
         self.ground = cube(self.m_Application.m_ActiveScene, (25, 0, 25), (.3, .3, .3, 1), (self.height, 1, self.width))
 
-        self.userMesh    = self.makeUserMesh()
         self.droneMesh = self.makeDroneMesh()
         self.obstacleMesh = self.makeObstacleMesh()
         self.coneMesh = self.makeConeMesh()
@@ -129,7 +121,7 @@ class GameMultiDrone:
                     
 
         self.drones    = [Drone(self.m_Application, self.droneMesh, self.coneMesh)]
-        self.users     = [User(self.height, self.width, self.obstacles, self.m_Application, self.userMesh) for _ in range(self.n_users)]
+        self.users     = [User(self.height, self.width, self.obstacles, self.m_Application) for _ in range(self.n_users)]
         
         self.initApp()
 
