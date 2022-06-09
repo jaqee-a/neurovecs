@@ -9,10 +9,14 @@ class Drone :
 
     color = [(255,0,0), (0,255,0), (0,0,255), (255,255,0), (0,255,255), (255,0,255), (50,200,0), (50,0,200), (20,20,100), (0,20,100)]
     i = 0
+    
+    batteryCapacity = 22000 #mAh
+    capacity = batteryCapacity
+    batteryVoltage = 51.8 #v
 
     def __init__ (self) :
 
-        self.p = pygame.Vector3(150, 12, 10) # meters
+        self.p = pygame.Vector3(150, 12, 100) # meters
         self.theta = 0
         self.n_users = 0
         self.pt = 20 # db
@@ -21,7 +25,10 @@ class Drone :
         self.theta = 42.44
         self.capacity = 30
         self.color = Drone.color[Drone.i % 10]
-        Drone.i += 1    
+        Drone.i += 1 
+
+        self.q = 0
+        self.f = pygame.Vector3(0)  
 
     def r(self) :
         
@@ -62,4 +69,4 @@ class Drone :
 
         p = p0 * (1 + (3* v**2 / Utip**2)) + pi * (np.sqrt(1+(v**4/4*v0**4))-(v**2/2*v0**2))**(1/2) + 1/2*d0*rho*s*A*v**3
 
-        return p * 10**-3
+        return p
