@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 import random
 from tkinter import W
 from math import log2, sqrt
@@ -15,27 +14,29 @@ class user :
 
     def __init__(self, height, width, obs) -> None:
         
-        self.height, self.width = height, width
-        a = random.choice([0,1])
-        """if a == 0 :
-           self.p = pygame.Vector3(random.randint(20, 40), random.randint(60, 80), 0)
-        else :
-           self.p = pygame.Vector3(random.randint(60, 80), random.randint(60, 80), 0)"""
-        self.v = random.uniform(1.25, 1.5) # m/s
-        self.p = pygame.Vector3(random.randint(0, 100), random.randint(0, 100), 0)
-        self.isConnected = NULL
-        self.theta = 0
-        self.beta = 0
-        self.delta_theta = 0.3
-        self.delta_t = 200
-        self.obs = []
-        for ob in obs :
-            if ob[0].z == 0 :
-               self.obs.append(pygame.Rect(ob[0].x-int(ob[1][0]/2), ob[0].y-int(ob[1][1]/2), ob[1][0], ob[1][1]))
-        
-        while self.isValid() == False :
-              self.u = pygame.Vector3(random.randint(0, 100), random.randint(0, 100), 0)
-              #self.u = pygame.Vector3(random.random() * 700 * 0.5, random.random() * 700 * 0.5, 0)
+         self.height, self.width = height, width
+         a = random.choice([0,1])
+         """if a == 0 :
+            self.p = pygame.Vector3(random.randint(20, 40), random.randint(60, 80), 0)
+         else :
+            self.p = pygame.Vector3(random.randint(60, 80), random.randint(60, 80), 0)"""
+         self.v = random.uniform(1.25, 1.5) # m/s
+         self.p = pygame.Vector3(random.randint(0, 100), random.randint(0, 100), 0)
+         self.isConnected = None
+         self.theta = 0
+         self.beta = 0
+         self.delta_theta = 0.3
+         self.delta_t = 200
+         self.obs = []
+         for ob in obs :
+               if ob[0].z == 0 :
+                  self.obs.append(pygame.Rect(ob[0].x-int(ob[1][0]/2), ob[0].y-int(ob[1][1]/2), ob[1][0], ob[1][1]))
+         
+         while self.isValid() == False :
+               self.u = pygame.Vector3(random.randint(0, 100), random.randint(0, 100), 0)
+               #self.u = pygame.Vector3(random.random() * 700 * 0.5, random.random() * 700 * 0.5, 0)
+
+         self.q = -1
 
     def isValid(self):
 
@@ -73,13 +74,16 @@ class user :
     def SNR(self, d) :
         
         #Pt = 20 dBm
-        
-        sig = -80 # Watts
+        """pt = 5 #w
+        pt = 10 * np.log10(pt) + 30
+        sig = 10**-6"""
+
+        sig = -80 # dB
         u = 9.61
         b = 0.16
         nlos = 1 #dB
         nNlos = 20 #dB
-        fc = 2 * 10**9 # Hz
+        fc = 2.5 * 10**9 # Hz
         c = 299792458 # m/s
         
         dist = d.p.distance_to(self.p) #m
