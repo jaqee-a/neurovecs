@@ -1,10 +1,10 @@
-from asyncio.windows_events import NULL
 from operator import le
 import pygame
 from User import user
 from drone import Drone
 from readMap import draw, read
 import matplotlib.pyplot as plt
+import numpy as np
  
 
 
@@ -53,11 +53,11 @@ def inService(drones):
     for i, dr in enumerate(drones) :
         if dr.n_users == 0 :
             return False, i
-    return True, NULL
+    return True, None
 
 data = [0]
 time = [0]
-vel = [0]
+vel = [Drone.batteryCapacity*100/Drone.capacity]
 
 
 running = True
@@ -81,7 +81,8 @@ while running:
             axs[1].plot(time, vel)
             
             axs[0].set(xlabel='Time (s)', ylabel='Data rate (Mbps)')
-            axs[1].set(xlabel='Time (s)', ylabel='Energy (kW)')
+            axs[1].set(xlabel='Time (s)', ylabel='Battery (%')
+            #axs[1].set_ylim([0,100])
 
             plt.show()
             
@@ -89,7 +90,7 @@ while running:
     non_con_user = user_n
     
     for u in users :
-            u.isConnected = NULL
+            u.isConnected = None
 
     for d in drone :
         d.n_users = 0
@@ -97,7 +98,7 @@ while running:
         
         l = []
         for u in users :
-            if u.isConnected == NULL and d.n_users < d.capacity :
+            if u.isConnected == None and d.n_users < d.capacity :
                 snr = u.SNR(d)[0]
                 
                 if snr > T :
@@ -117,15 +118,27 @@ while running:
     
     dr = 0 
     for u in users :
-        if u.isConnected != NULL :
+        if u.isConnected != None :
            dr += u.SNR(u.isConnected)[1]
 
-    
     dr = dr / user_n
+    
+    e = 0
+    for u in users :
+        if u.isConnected != None :
+            e += (u.SNR(u.isConnected)[1] - dr)**2
+        else :
+            e += (0 - dr)**2
+
+    e = np.sqrt(e / user_n)
+
     data.append(dr)
     time.append(time[-1] + clock.get_time()/1000)
     dat = font.render("data rate :"+str(int(dr))+" Mbps", 1, pygame.Color("coral"))
     screen.blit(dat, (10,10))
+
+    et = font.render("Ecart type :"+str(int(e)), 1, pygame.Color("coral"))
+    screen.blit(et, (800,10))
     
     
     stable = True
@@ -135,7 +148,7 @@ while running:
         F1 = pygame.Vector3(0, 0, 0)
         
         for u in users:
-            if u.isConnected == NULL :
+            if u.isConnected == None :
                 v = u.p - d.p
                 F1 += v.normalize() * 1 / (v.length() * (non_con_user/drone_n))
                 
@@ -149,7 +162,7 @@ while running:
             if d.p != dr.p :  
                 v = d.p - dr.p
                 F2 += v.normalize() * 1 / (v.length()*drone_n)
-                """.normalize() * 1 / (v.length())"""
+                
         
     
         # Repulsion force with the obstacles
@@ -168,8 +181,8 @@ while running:
 
         F = F1 + F2 + F3 + F4
         
-        
-        """c = pygame.Vector3(0)
+       
+        """ #c = pygame.Vector3(0)
         for u in d.con:
             c += u.p
         
@@ -180,7 +193,7 @@ while running:
         else:
             a = 51
 
-        pygame.draw.line(screen, (0, 255, 0), (d.p.x, d.p.y), (c.x, c.y), 1)"""
+        pygame.draw.line(screen, (0, 255, 0), (d.p.x, d.p.y), (c.x, c.y), 1)#"""
                 
         #print(i, ":" , dt.length())
         #if a > 50:
@@ -195,9 +208,16 @@ while running:
         try :
             if i == 0 :
                v = dt.length() / (clock.get_time()*10**-3)
-               vel.append(d.EnergyConsumption(v))
+               e = d.EnergyConsumption(v)
+               
+               #amps = watts / volts
+               c = (clock.get_time()*10**-3 / 3600) * e / Drone.batteryVoltage
+               Drone.batteryCapacity -= (c * 1000)
+               
+               vel.append(Drone.batteryCapacity*100/Drone.capacity)
+
         except:
-               vel.append(0)
+               vel.append(Drone.batteryCapacity*100/Drone.capacity)
     
     if stable == True : 
     
@@ -226,7 +246,7 @@ while running:
         
     for u in users :
         
-        if u.isConnected == NULL:
+        if u.isConnected == None:
            pygame.draw.circle(screen, (255, 255, 255), [u.p.x*6+50, u.p.y*6+50], 2)
         else:
            pygame.draw.circle(screen, u.isConnected.color, [u.p.x*6+50, u.p.y*6+50], 2)
@@ -242,4 +262,3 @@ while running:
     
     clock.tick(60)
     pygame.display.update()
-    
