@@ -170,6 +170,13 @@ class GameMultiDrone:
         if not self.simulation:return
         if not self.simulation.run(): return
 
+        
+        # self.mouseInit = False
+        # newFront = glm.normalize(glm.vec3(0) - self.cameraTransform.m_Position)
+        # self.cameraTransform.front += (newFront - self.cameraTransform.front) * core.time.Time.DELTA_TIME * 10
+        # self.cameraTransform.frontToRotation()
+        # self.cameraTransform.updateDirectionalVectors()
+
         self.non_connected = cover.update(self.drones, self.users, self.non_connected_tr, self.m_Application, self.T, self.coneMesh, self.droneMesh)
         
         for user in self.users:
