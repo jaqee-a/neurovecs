@@ -105,6 +105,10 @@ class NeuroVector3D:
 
         return x, y, z
 
+    def normalize(self):
+        self.__MS = self.bias + (self.__MS - self.bias) * float(1 / (self.__MS.max() - (self.bias - .01)))
+
+
     def getMS(self):
         return self.__MS
         
