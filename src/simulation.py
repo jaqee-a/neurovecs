@@ -198,11 +198,11 @@ while running:
         #print(i, ":" , dt.length())
         #if a > 50:
         
-        if F.length() > 0.005 :
+        if F.length() > 0.001 :
             stable = False
 
         
-        dt = F.normalize()  * 0.5
+        dt = F * 100
         d.p += dt
         
         try :
