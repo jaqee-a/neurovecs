@@ -10,9 +10,9 @@ class Drone :
     color = [(255,0,0), (0,255,0), (0,0,255), (255,255,0), (0,255,255), (255,0,255), (50,200,0), (50,0,200), (20,20,100), (0,20,100)]
     i = 0
     
-    batteryCapacity = 22000 #mAh
+    batteryCapacity = 8000 #mAh
     capacity = batteryCapacity
-    batteryVoltage = 51.8 #v
+    batteryVoltage = 3.2 #v
 
     def __init__ (self) :
 
