@@ -58,7 +58,9 @@ class Checkpoint(Simulation):
         
         """
 
-        dt_cart = glm.vec3(*NeuroVector3D.extractCartesianParameters(res * 0.01))
+        res.normalize()
+
+        dt_cart = glm.vec3(*NeuroVector3D.extractCartesianParameters(res * 0.3))
 
         # dt_cart = glm.vec3(*NeuroVector3D.extractCartesianParameters(dt))
 
@@ -69,9 +71,6 @@ class Checkpoint(Simulation):
 
 
         return True
-
-
-        dist  = NeuroVector3D.extractPolarParameters(n_rp)[2]
 
 
     """
