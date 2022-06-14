@@ -75,6 +75,10 @@ class Game:
 
         self.staticObjects = []
 
+        if self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'rp' :
+            self.ground = cube(self.m_Application.m_ActiveScene, (25, 0, 25), (.3, .3, .3, 1), (50, 1, 50))
+
+
         self.initApp()
 
 
