@@ -1,10 +1,11 @@
 import numpy as np
+from math import exp
 from neurovec3D import NeuroVector3D
 
 def sigmoid(x):
-    lambd = 50
+    lambd = float('inf')
     apt = .1
-    return 1./(1+2.72**(-lambd*(x-apt)))
+    return 1./(1+exp(-lambd*(x-apt)))
 
 def reachedActionPotential(a: NeuroVector3D) -> bool:
     return sigmoid(a.getMS().max() - a.bias)
