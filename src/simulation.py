@@ -150,9 +150,9 @@ while running:
         for u in users:
             if u.isConnected == None :
                 v = u.p - d.p
-                F1 += v.normalize() * 1 / (v.length() * (non_con_user/drone_n))
+                F1 += v.normalize() * (1 - 1 / v.length()) * (1 / non_con_user)
                 
-        #F1 = F1.normalize() * d.meters().z * (1 / drone_n)
+        #F1 = F1 * 1 / user_n
         
 
         # Repulsion force with other drones
@@ -161,9 +161,8 @@ while running:
         for dr in drone:
             if d.p != dr.p :  
                 v = d.p - dr.p
-                F2 += v.normalize() * 1 / (v.length()*drone_n)
-                
-        
+                F2 += v.normalize() * (1 / v.length() ) * non_con_user
+
     
         # Repulsion force with the obstacles
         F3 = pygame.Vector3(0, 0, 0)
@@ -174,7 +173,7 @@ while running:
 
 
         # Repulsion force with the ground 
-        F4 = pygame.Vector3(0, 0, 1) *  1 / (d.p.z ** 2)
+        F4 = pygame.Vector3(0, 0, 1) *  1 / (d.p.z ** 2) * user_n
 
         
         #F4 = (F1 - (F1 + F4)) * (-lamb)
@@ -197,12 +196,12 @@ while running:
                 
         #print(i, ":" , dt.length())
         #if a > 50:
-        
-        if F.length() > 0.001 :
+        print(F.length())
+        if F.length() > 0.01 :
             stable = False
 
         
-        dt = F * 100
+        dt = F.normalize()
         d.p += dt
         
         try :
