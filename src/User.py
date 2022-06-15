@@ -13,6 +13,8 @@ from drone import Drone
 class user :
 
     def __init__(self, height, width, obs) -> None:
+
+         self.q = 1
         
          self.height, self.width = height, width
          a = random.choice([0,1])
@@ -36,7 +38,7 @@ class user :
                self.u = pygame.Vector3(random.randint(0, 100), random.randint(0, 100), 0)
                #self.u = pygame.Vector3(random.random() * 700 * 0.5, random.random() * 700 * 0.5, 0)
 
-         self.q = -1
+         
 
     def isValid(self):
 
