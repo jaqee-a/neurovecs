@@ -10,8 +10,10 @@ class Simulation:
     def __init__(self, resolution: int, type_: str) -> None:
         self.resolution = resolution
         self.type  = type_
+
         
         self.mv_vec = glm.normalize(glm.vec3(np.random.random() ,np.random.random(),np.random.random())) * 5 * core.time.Time.FIXED_DELTA_TIME
+        self.v = glm.normalize(glm.vec3(0, .01, .01)) * core.time.Time.FIXED_DELTA_TIME * 5
 
         if self.type == 'r' :
             self.prey  = glm.vec3(np.random.random()*40,np.random.random()*40,np.random.random()*40)
@@ -21,7 +23,7 @@ class Simulation:
 
         elif self.type == 'a' :
             self.prey = glm.vec3(15, 0, 0)
-            self.v = glm.normalize(glm.vec3(0, .01, .01)) * core.time.Time.FIXED_DELTA_TIME * 5
+            
 
         self.point = glm.vec3(0)
         self.pred  = glm.vec3(0)
