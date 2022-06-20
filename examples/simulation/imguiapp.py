@@ -18,6 +18,7 @@ class ImGuiApp:
 
     cameraLock: bool = False
 
+
     def __init__(self) -> None:
         pass
 
@@ -80,5 +81,6 @@ class ImGuiApp:
 
         if imgui.button("Take screen shot"):
             self.takeScreenshotFunction()
+            
 
         imgui.end()
