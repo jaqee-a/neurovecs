@@ -101,7 +101,7 @@ class User :
         b = 0.16
         nlos = 1 #dB
         nNlos = 20 #dB
-        fc = 2 * 10**9 # Hz
+        fc = 2.5 * 10**9 # Hz
         c = 299792458 # m/s
         
         h = d.position.y - 1 #m
