@@ -26,6 +26,7 @@ class Drone :
         self.n_users         = 0
         self.connected_users = []
         
+        
         self.position  = glm.vec3(0, 20, 0) #meter
         self.obj       = self.generateFromMesh(droneMesh, self.position, app).getComponent(core.components.transform.Transform)
         self.coneObj   = self.generateFromMesh(coneMesh, self.position-glm.vec3(0, self.position.y, 0), app).getComponent(core.components.transform.Transform)
@@ -61,7 +62,8 @@ class Drone :
         for user in users :
             if user.isConnected == None :
                 v = user.position - self.position
-                F1 += glm.normalize(v) * 1 / (glm.length(v) * (non_con / len(drones)))
+                #F1 += glm.normalize(v) * 1 / (glm.length(v) * (non_con / len(drones)))
+                F1 += glm.normalize(v) * (1 - 1 / glm.length(v)) * (1 / non_con)
         
         #Repulsion force with other drones
         F2 = glm.vec3(0)
@@ -69,7 +71,8 @@ class Drone :
         for drone in drones :
             if self.position != drone.position :
                 v = self.position - drone.position
-                F2 += glm.normalize(v) * 1 / (glm.length(v) * len(drones))
+                #F2 += glm.normalize(v) * 1 / (glm.length(v) * len(drones))
+                F2 += glm.normalize(v) * (1 / glm.length(v) ) * non_con
 
         #Repulsion force with the obstacles
         F3 = glm.vec3(0)
@@ -79,7 +82,8 @@ class Drone :
             F3 += glm.normalize(v) * 1 / (glm.length(v)**2)"""
         
         #Repulsion force with the ground
-        F4 = glm.vec3(0, 1, 0) * 1 / (self.position.y**2)
+        #F4 = glm.vec3(0, 1, 0) * 1 / (self.position.y**2)
+        F4 = glm.vec3(0, 1, 0) *  1 / (self.position.y ** 2) * len(users)
 
         F = F1 + F2 + F3 + F4
 
