@@ -101,8 +101,8 @@ class Game:
         self.imGuiApp.startSimulationFunc = self.startSimulation
         self.imGuiApp.takeScreenshotFunction = self.takeScreenshot
 
-        self.ground = cube(self.m_Application.m_ActiveScene, (25, 0, 25), (.3, .3, .3, 1), (30, 1, 100))
-        self.uproad = cube2(self.m_Application.m_ActiveScene, (25, 2.5, 25), (.4, .4, .4, 1), (30, 4, 30))
+        self.ground = cube(self.m_Application.m_ActiveScene, (25, 0, 25), (.5, .5, .5, 1), (30, 1, 100))
+        self.uproad = cube2(self.m_Application.m_ActiveScene, (25, 2.5, 25), (.6, .6, .6, 1), (30, 4, 30))
 
     def takeScreenshot(self):
 
@@ -214,10 +214,11 @@ class Game:
                 self.p_lastpos = glm.vec3(*self.simulation.pred)
 
             if self.simulation.iteration > 1 and self.simulation.iteration % 10 == 0 :
-                self.lines.append(line(self.m_Application.m_ActiveScene, self.simulation.prey, self.simulation.pred, [0, 1, 0, .1]))
+                self.lines.append(line(self.m_Application.m_ActiveScene, self.simulation.prey, self.simulation.pred, [0, 1, 0, .5]))
                 self.lines.append(line(self.m_Application.m_ActiveScene, self.c_lastpos, self.simulation.prey, [0, 0, 1, 1]))
+                self.lines.append(line(self.m_Application.m_ActiveScene, glm.vec3(self.c_lastpos.x, self.c_lastpos.y+0.02, self.c_lastpos.z), glm.vec3(self.simulation.prey.x, self.simulation.prey.y+0.02, self.simulation.prey.z) , [0, 0, 1, 1]))
                 self.lines.append(line(self.m_Application.m_ActiveScene, self.p_lastpos, self.simulation.pred, [1, 0, 0, 1]))
-
+                self.lines.append(line(self.m_Application.m_ActiveScene, glm.vec3(self.p_lastpos.x, self.p_lastpos.y+0.02, self.p_lastpos.z), glm.vec3(self.simulation.pred.x, self.simulation.pred.y+0.02, self.simulation.pred.z) , [1, 0, 0, 1]))
 
                 self.c_lastpos = glm.vec3(*self.simulation.prey)
                 self.p_lastpos = glm.vec3(*self.simulation.pred)
