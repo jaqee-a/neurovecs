@@ -22,17 +22,19 @@ class Drone :
     theta               = 42.44 #degrees
     capacity            = 30
     resolution = 4
+    #obstacles = []
 
-    def __init__ (self, app, droneMesh, coneMesh) :
+    def __init__ (self, app, droneMesh, obstacles=[]) :
 
         self.color           = Drone.colors[Drone.i % 10]
         self.n_users         = 0
         self.connected_users = []
+        self.obstacles       = obstacles
         
         
-        self.position  = glm.vec3(0, 20, 0) #meter
+        self.position  = glm.vec3(0, 15, 0) #meter
         self.obj       = self.generateFromMesh(droneMesh, self.position, app).getComponent(core.components.transform.Transform)
-        self.coneObj   = self.generateFromMesh(coneMesh, self.position-glm.vec3(0, self.position.y, 0), app).getComponent(core.components.transform.Transform)
+        #self.coneObj   = self.generateFromMesh(coneMesh, self.position-glm.vec3(0, self.position.y, 0), app).getComponent(core.components.transform.Transform)
         
         Drone.i += 1
 
@@ -50,9 +52,9 @@ class Drone :
     def r(self) :
         
         snr = 15
-        r = 0
+        r   = 0
         while snr >= 15 :
-            r += 1
+            r   += 1
             snr = User.SNR(self, r)[0]
         return r
 
@@ -61,7 +63,7 @@ class Drone :
 
         #Attracton force with the users 
         init = glm.vec3(0)
-        F1 = NeuroVector3D.fromCartesianVector(*init, self.resolution)
+        F1   = NeuroVector3D.fromCartesianVector(*init, self.resolution)
 
 
         for user in users :
@@ -86,9 +88,13 @@ class Drone :
         #Repulsion force with the obstacles
         F3 = NeuroVector3D.fromCartesianVector(*init, self.resolution)
 
-        """for ob in obstacles :
-            v = ((self.position) + glm.vec3(50, 0, 50)) - ob[0]
-            F3 += glm.normalize(v) * 1 / (glm.length(v)**2)"""
+        for obstacle in self.obstacles :
+            if obstacle.type == 'y' :
+                v   = self.position - obstacle.position
+                n_v = NeuroVector3D.fromCartesianVector(*v, self.resolution)
+                l   = NeuroVector3D.extractPolarParameters(n_v)[2]
+                NeuroVector3D.normalize(n_v)
+                F3 += n_v * float(1 / (l**2))
         
         #Repulsion force with the ground
         ground = glm.vec3(0, 1, 0)
