@@ -18,11 +18,12 @@ import core.time
 
 class User :
 
-    def __init__(self, height, width, obs, app) -> None:
+    def __init__(self, height, width, app, obstacles) -> None:
         
         self.height, self.width = height, width
         self.velocity    = random.uniform(1.25, 1.5) # m/s
         self.position    = glm.vec3(random.randint(5, 45), 1, random.randint(5, 45))
+        self.obstacles   = obstacles
 
         self.userMesh    = self.makeUserMesh(app)
         self.obj         = self.generateFromMesh(self.userMesh, self.position, app).getComponent(core.components.transform.Transform)
@@ -31,11 +32,7 @@ class User :
         self.beta        = 0
         self.delta_theta = 0.3
         self.delta_t     = 200
-        self.obs         = []
-        """for ob in self.obs :
-            if ob[0].z == 0 :
-               self.obs.append(pygame.Rect(ob[0].x-int(ob[1][0]/2), ob[0].y-int(ob[1][1]/2), ob[1][0], ob[1][1]))
-        """
+        
         while self.isValid() == False :
               self.postion = glm.vec3(random.randint(0, 100), random.randint(0, 100), 0)
               self.obj.m_Position = self.position
@@ -59,17 +56,22 @@ class User :
 
     def isValid(self):
 
-        for ob in self.obs :
-            if ob.collidepoint(self.postion.x, self.position.z) == True :
-                return False
-                
+        for ob in self.obstacles :
+            if self.position.x + 0.15 > ob.position.x - 1 and self.position.x - 0.15 < ob.position.x + 1 :
+                dist = np.abs(self.position.z - ob.position.z)
+                if dist < 1.15 :
+                    return False
+            if self.position.z + 0.15 > ob.position.z - 1 and self.position.z - 0.15 < ob.position.z + 1 :
+                dist = np.abs(self.position.x - ob.position.x)
+                if dist < 1.15 :
+                    return False
         return True
     
     def randomWalk(self, iter, time) :
 
         
         #v = self.velocity * time / 1000
-        v = .01
+        v = .05
     
         if iter % self.delta_t == 0 :
            a = random.randint(0, 360)
