@@ -61,7 +61,7 @@ def reArrange(users, drones, T) :
     return non_con
 
 
-def update(drones, users, non_con_tr, app, T, coneMesh, droneMesh) :
+def update(drones, users, non_con_tr, app, T, droneMesh, obstacles) :
 
     non_con = reArrange(users, drones, T)
 
@@ -75,7 +75,7 @@ def update(drones, users, non_con_tr, app, T, coneMesh, droneMesh) :
         dt = glm.normalize(F) * 0.1
         drone.position += dt
         drone.obj.m_Position = drone.position
-        drone.coneObj.m_Position = drone.position - glm.vec3(0, 20, 0)
+        #drone.coneObj.m_Position = drone.position - glm.vec3(0, 20, 0)
 
     if stable == True :
 
@@ -83,7 +83,7 @@ def update(drones, users, non_con_tr, app, T, coneMesh, droneMesh) :
 
         if n_p > non_con_tr :
 
-            d = Drone(app, droneMesh, coneMesh)
+            d = Drone(app, droneMesh, coneMesh, obstacles)
             drones.insert(0, d)
             stable = False
     
