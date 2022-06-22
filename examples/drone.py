@@ -1,6 +1,8 @@
 import numpy as np
 from user import User
 
+from neurovec3D import NeuroVector3D
+
 import core.components.transform
 import core.components.camera
 import core.components.cMesh
@@ -19,6 +21,7 @@ class Drone :
     bandwidth           = 40 * 10**6 #Hz
     theta               = 42.44 #degrees
     capacity            = 30
+    resolution = 4
 
     def __init__ (self, app, droneMesh, coneMesh) :
 
@@ -57,35 +60,47 @@ class Drone :
     def force(self, users, drones, non_con) :
 
         #Attracton force with the users 
-        F1 = glm.vec3(0)
+        init = glm.vec3(0)
+        F1 = NeuroVector3D.fromCartesianVector(*init, self.resolution)
+
 
         for user in users :
             if user.isConnected == None :
-                v = user.position - self.position
-                #F1 += glm.normalize(v) * 1 / (glm.length(v) * (non_con / len(drones)))
-                F1 += glm.normalize(v) * (1 - 1 / glm.length(v)) * (1 / non_con)
+                v   = user.position - self.position
+                n_v = NeuroVector3D.fromCartesianVector(*v, self.resolution)
+                l   = NeuroVector3D.extractPolarParameters(n_v)[2]
+                NeuroVector3D.normalize(n_v)
+                F1 += n_v * float((1 - 1 / l) * (1 / non_con))
         
         #Repulsion force with other drones
-        F2 = glm.vec3(0)
+        F2 = NeuroVector3D.fromCartesianVector(*init, self.resolution)
 
         for drone in drones :
             if self.position != drone.position :
-                v = self.position - drone.position
-                #F2 += glm.normalize(v) * 1 / (glm.length(v) * len(drones))
-                F2 += glm.normalize(v) * (1 / glm.length(v) ) * non_con
+                v   = self.position - drone.position
+                n_v = NeuroVector3D.fromCartesianVector(*v, self.resolution)
+                l   = NeuroVector3D.extractPolarParameters(n_v)[2]
+                NeuroVector3D.normalize(n_v)
+                F2 += n_v * float((1 / l ) * non_con)
 
         #Repulsion force with the obstacles
-        F3 = glm.vec3(0)
+        F3 = NeuroVector3D.fromCartesianVector(*init, self.resolution)
 
         """for ob in obstacles :
             v = ((self.position) + glm.vec3(50, 0, 50)) - ob[0]
             F3 += glm.normalize(v) * 1 / (glm.length(v)**2)"""
         
         #Repulsion force with the ground
-        #F4 = glm.vec3(0, 1, 0) * 1 / (self.position.y**2)
-        F4 = glm.vec3(0, 1, 0) *  1 / (self.position.y ** 2) * len(users)
+        ground = glm.vec3(0, 1, 0)
+        gr     = NeuroVector3D.fromCartesianVector(*ground, self.resolution)
+        heigth = glm.vec3(0, self.position.y, 0)
+        h      = NeuroVector3D.fromCartesianVector(*heigth, self.resolution)
+        l_h    = NeuroVector3D.extractPolarParameters(h)[2]
 
-        F = F1 + F2 + F3 + F4
+        F4     = gr *  float(1 / (l_h ** 2) * len(users))
+
+        n_F = F1 + F2 + F3 + F4
+        F = NeuroVector3D.extractCartesianParameters(n_F)
 
         return F
 
