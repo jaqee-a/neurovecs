@@ -110,19 +110,23 @@ class GameMultiDrone:
 
         self.droneMesh = self.makeDroneMesh()
         self.obstacleMesh = self.makeObstacleMesh()
-        self.coneMesh = self.makeConeMesh()
+        #self.coneMesh = self.makeConeMesh()
 
         lines = loadMap('file.txt')
         self.obstacles = []
 
         for i in range(len(lines)):
             for j in range(len(lines[i])):
-                if lines[i][j] == 'x':
-                    self.obstacles.append(obstacle(i, j, self.m_Application, self.obstacleMesh))
+                if lines[i][j] == 'x' :
+                    self.obstacles.append(obstacle(i, j, 0, self.m_Application, self.obstacleMesh, 'x'))
+                elif lines[i][j] == 'y' :
+                    for e in range(5) :
+                        self.obstacles.append(obstacle(i, j, e, self.m_Application, self.obstacleMesh, 'y'))
+                
                     
 
-        self.drones    = [Drone(self.m_Application, self.droneMesh, self.coneMesh)]
-        self.users     = [User(self.height, self.width, self.obstacles, self.m_Application) for _ in range(self.n_users)]
+        self.drones    = [Drone(self.m_Application, self.droneMesh, self.obstacles)]
+        self.users     = [User(self.height, self.width, self.m_Application, self.obstacles) for _ in range(self.n_users)]
         
         self.initApp()
 
@@ -178,7 +182,7 @@ class GameMultiDrone:
         # self.cameraTransform.frontToRotation()
         # self.cameraTransform.updateDirectionalVectors()
 
-        self.non_connected = cover.update(self.drones, self.users, self.non_connected_tr, self.m_Application, self.T, self.coneMesh, self.droneMesh)
+        self.non_connected = cover.update(self.drones, self.users, self.non_connected_tr, self.m_Application, self.T, self.droneMesh, self.obstacles)
         
         for user in self.users:
             user.randomWalk(self.iteration, core.time.Time.FIXED_DELTA_TIME)
