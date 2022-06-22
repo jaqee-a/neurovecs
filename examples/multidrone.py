@@ -67,6 +67,7 @@ class GameMultiDrone:
     def __init__(self) -> None:
         (core.application.Application(init=self.initGame)).run(update=self.update)
 
+
     def makeDroneMesh(self):
 
         droneObject = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj')
