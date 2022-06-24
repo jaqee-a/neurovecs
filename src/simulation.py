@@ -10,13 +10,13 @@ import numpy as np
 
 pygame.init()
 
-user_n = 100
-drone_n = 1
+user_n = 200
+drone_n = 7
 
 height, width = 700, 1300
 user_tr = 10
 non_con_user = user_n
-T = 15 #db
+T = 2 #db
 
 screen = pygame.display.set_mode((width, height))
 wall = pygame.image.load("src\wall.png").convert_alpha()
@@ -55,9 +55,20 @@ def inService(drones):
             return False, i
     return True, None
 
+def equilibrium(con, rate):
+
+    et = np.std(con)
+    er = np.std(rate)
+    
+    return et < 1 and er < 1 and non_con_user < user_n
+    
+
 data = [0]
 time = [0]
 vel = [Drone.batteryCapacity*100/Drone.capacity]
+
+conne = [0 for _ in range(100)]
+rate  = [0 for _ in range(100)]
 
 
 running = True
@@ -98,7 +109,7 @@ while running:
         
         l = []
         for u in users :
-            if u.isConnected == None and d.n_users < d.capacity :
+            if u.isConnected == None :
                 snr = u.SNR(d)[0]
                 
                 if snr > T :
@@ -115,33 +126,24 @@ while running:
             else :
                 break
 
-    
-    dr = 0 
+    dar = [] 
     for u in users :
         if u.isConnected != None :
-           dr += u.SNR(u.isConnected)[1]
-
-    dr = dr / user_n
-    
-    e = 0
-    for u in users :
-        if u.isConnected != None :
-            e += (u.SNR(u.isConnected)[1] - dr)**2
+           dar.append(u.SNR(u.isConnected)[1])
         else :
-            e += (0 - dr)**2
+           dar.append(0)  
 
-    e = np.sqrt(e / user_n)
 
-    data.append(dr)
-    time.append(time[-1] + clock.get_time()/1000)
-    dat = font.render("data rate :"+str(int(dr))+" Mbps", 1, pygame.Color("coral"))
+    """data.append(dr)
+    time.append(time[-1] + clock.get_time()/1000)"""
+    dat = font.render("data rate :"+str(int(np.mean(dar)))+" Mbps", 1, pygame.Color("coral"))
     screen.blit(dat, (10,10))
 
-    et = font.render("Ecart type :"+str(int(e)), 1, pygame.Color("coral"))
+    et = font.render("Ecart type :"+str(int(np.std(dar))), 1, pygame.Color("coral"))
     screen.blit(et, (800,10))
     
+  
     
-    stable = True
     for i, d in enumerate(drone) :
 
         # Attraction force with the users
@@ -180,27 +182,6 @@ while running:
 
         F = F1 + F2 + F3 + F4
         
-       
-        """ #c = pygame.Vector3(0)
-        for u in d.con:
-            c += u.p
-        
-        if d.n_users > 0:
-            c = c / d.n_users
-
-            a = (c-d.p).length()
-        else:
-            a = 51
-
-        pygame.draw.line(screen, (0, 255, 0), (d.p.x, d.p.y), (c.x, c.y), 1)#"""
-                
-        #print(i, ":" , dt.length())
-        #if a > 50:
-        print(F.length())
-        if F.length() > 0.01 :
-            stable = False
-
-        
         dt = F.normalize()
         d.p += dt
         
@@ -218,7 +199,19 @@ while running:
         except:
                vel.append(Drone.batteryCapacity*100/Drone.capacity)
     
-    if stable == True : 
+    
+    conne[iter % 100] = (100 * (user_n - non_con_user))/user_n
+    rate[iter % 100] = np.mean(dar)
+
+    """if equilibrium(conne, rate) :
+        dr_a = np.mean(dar)
+        et = np.std(dar)
+        con = 100 * (user_n - non_con_user) / user_n
+            
+        print(dr_a, con, et)
+        running = False"""
+
+    """if stable == True : 
     
         b, i = inService(drone)
         n_p = (non_con_user * 100) / user_n
@@ -228,33 +221,16 @@ while running:
            d = Drone()
            drone.insert(0, d)
            drone_n += 1
-           stable = False
-        
-            
+           stable = False"""
+    
                         
     for i, d in enumerate(drone) :
-        
-        # pygame.draw.circle(screen, (0, 0 , 50), [d.p.x, d.p.y], d.r()*6)
-        
-        if d.p.z > 0 :
-           pygame.draw.circle(screen, (0, 0 ,255), [d.p.x*6+50, d.p.y*6+50], 5)
-        else :
-            pygame.draw.circle(screen, (255, 255, 255), [d.p.x*6+50, d.p.y*6+50], 5)
-        
         d.show(screen, font)
         
     for u in users :
-        
-        if u.isConnected == None:
-           pygame.draw.circle(screen, (255, 255, 255), [u.p.x*6+50, u.p.y*6+50], 2)
-        else:
-           pygame.draw.circle(screen, u.isConnected.color, [u.p.x*6+50, u.p.y*6+50], 2)
-    
-    
-    i = 0
+        u.show(screen)
     
     for u in users :
-
         u.randomWalk(iter, clock.get_time())
 
     iter += 1
