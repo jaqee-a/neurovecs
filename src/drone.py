@@ -14,13 +14,13 @@ class Drone :
     capacity = batteryCapacity
     batteryVoltage = 51.8 #v
 
-    def __init__ (self) :
-
-        self.p = pygame.Vector3(150, 12, 100) # meters
+    def __init__ (self, p) :
+        
+        self.p = p # meters
         self.theta = 0
         self.n_users = 0
         self.pt = 20 # db
-        self.band = 40 * 10**6 #Hz
+        self.band = 100 * 10**6 #Hz
         self.con = []
         self.theta = 42.44
         self.capacity = 30
@@ -49,11 +49,17 @@ class Drone :
 
     def show(self, screen, font) :
 
+        if self.p.z > 0 :
+           pygame.draw.circle(screen, (0, 0 ,255), [self.p.x+50, self.p.y+50], 5)
+        else :
+            pygame.draw.circle(screen, (255, 255, 255), [self.p.x+50, self.p.y+50], 5)
+        
+
         f = font.render(str(int(self.p.z)), 1, pygame.Color("coral"))
-        screen.blit(f, (self.p.x*6-10,self.p.y*6+50))
+        screen.blit(f, (self.p.x-10,self.p.y+50))
 
         f1 = font.render(str(int(self.n_users)), 1, pygame.Color("coral"))
-        screen.blit(f1, (self.p.x*6+60,self.p.y*6+50))
+        screen.blit(f1, (self.p.x+60,self.p.y+50))
 
 
     def EnergyConsumption(self, v) :
