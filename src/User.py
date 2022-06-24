@@ -12,9 +12,9 @@ from drone import Drone
 
 class user :
 
-    def __init__(self, height, width, obs) -> None:
+   def __init__(self, height, width, obs) -> None:
 
-         self.q = 1
+         self.q = -1
         
          self.height, self.width = height, width
          a = random.choice([0,1])
@@ -23,7 +23,7 @@ class user :
          else :
             self.p = pygame.Vector3(random.randint(60, 80), random.randint(60, 80), 0)"""
          self.v = random.uniform(1.25, 1.5) # m/s
-         self.p = pygame.Vector3(random.randint(0, 100), random.randint(0, 100), 0)
+         self.p = pygame.Vector3(random.randint(200, 400), random.randint(200, 400), 0)
          self.isConnected = None
          self.theta = 0
          self.beta = 0
@@ -35,12 +35,11 @@ class user :
                   self.obs.append(pygame.Rect(ob[0].x-int(ob[1][0]/2), ob[0].y-int(ob[1][1]/2), ob[1][0], ob[1][1]))
          
          while self.isValid() == False :
-               self.u = pygame.Vector3(random.randint(0, 100), random.randint(0, 100), 0)
-               #self.u = pygame.Vector3(random.random() * 700 * 0.5, random.random() * 700 * 0.5, 0)
-
+               self.u = pygame.Vector3(random.randint(200, 400), random.randint(200, 400), 0)
+               
          
 
-    def isValid(self):
+   def isValid(self):
 
         for ob in self.obs :
             if ob.collidepoint(self.p.x, self.p.y) == True :
@@ -48,10 +47,10 @@ class user :
                 
         return True
     
-    def randomWalk(self, iter, time) :
+   def randomWalk(self, iter, time) :
         
         
-        v = self.v * time / 1000
+        v = self.v * time / 100
     
         if iter % self.delta_t == 0 :
            a = random.randint(0, 360)
@@ -60,7 +59,7 @@ class user :
         elif self.isValid() == False :
            self.theta += np.pi
         
-        elif self.p.x < 0 or self.p.x > 100 or self.p.y < 0 or self.p.y > 100 :
+        elif self.p.x < 0 or self.p.x > 600 or self.p.y < 0 or self.p.y > 600 :
             self.theta += np.pi
 
         self.beta = random.uniform(0,1)
@@ -71,21 +70,25 @@ class user :
         self.p.x += v * np.cos(self.theta) 
         self.p.y += v * np.sin(self.theta) 
 
+    
+   def show(self, screen) :
+      
+      if self.isConnected == None:
+         pygame.draw.circle(screen, (255, 255, 255), [self.p.x+50, self.p.y+50], 2)
+      else:
+         pygame.draw.circle(screen, self.isConnected.color, [self.p.x+50, self.p.y+50], 2)
         
 
-    def SNR(self, d) :
+   def SNR(self, d) :
         
         #Pt = 20 dBm
-        """pt = 5 #w
-        pt = 10 * np.log10(pt) + 30
-        sig = 10**-6"""
-
+        
         sig = -80 # dB
         u = 9.61
         b = 0.16
         nlos = 1 #dB
         nNlos = 20 #dB
-        fc = 2.5 * 10**9 # Hz
+        fc = 2 * 10**9 # Hz
         c = 299792458 # m/s
         
         dist = d.p.distance_to(self.p) #m
