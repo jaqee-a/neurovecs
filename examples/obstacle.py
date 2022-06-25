@@ -11,7 +11,7 @@ import core.time
 
 class obstacle:
 
-    def __init__(self, i, j, h, app, mesh) :
+    def __init__(self, i, j, h, app, mesh, type) :
         
         self.position = glm.vec3(1 + i * 2, h, 1 + j * 2)
         self.obstacle = self.generateFromMesh(mesh, self.position, app)
