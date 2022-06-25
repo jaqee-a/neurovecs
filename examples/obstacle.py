@@ -11,15 +11,11 @@ import core.time
 
 class obstacle:
 
-    def __init__(self, i, j, h, app, mesh, type) :
+    def __init__(self, i, j, h, app, mesh) :
         
-        if type == 'x' :
-           self.position = glm.vec3(1 + i * 2, 2*h+1, 1 + j * 2)
-        elif type == 'y' :
-           self.position = glm.vec3(1 + i * 2, 4 * h + 2, 1 + j * 2)
-           
+        self.position = glm.vec3(1 + i * 2, h, 1 + j * 2)
         self.obstacle = self.generateFromMesh(mesh, self.position, app)
-
+        
         self.type = type
 
 
