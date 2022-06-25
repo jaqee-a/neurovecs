@@ -4,6 +4,7 @@ from core.components.mesh import Mesh
 from drone import Drone
 from user import User
 import numpy as np
+import core.time
 
     
 nonConnectedColor = glm.vec4(1 , 1, 1, 1.0)
@@ -69,30 +70,29 @@ def update(drones, users, non_con_tr, app, T, droneMesh, obstacles) :
     for drone in drones :
 
         F = drone.force(users, drones, non_con)
-        print(glm.length(F))
-        if glm.length(F) > 0.1 :
+        #print(glm.length(F))
+        if glm.length(F) > 0.03 :
+        
             stable = False
-
-        dt = glm.normalize(F) * 0.1
-        drone.position += dt
-        drone.obj.m_Position = drone.position
+        
+            dt = glm.normalize(F) * .5
+            drone.position += dt
+            drone.obj.m_Position = drone.position
+        
         #drone.coneObj.m_Position = drone.position - glm.vec3(0, 20, 0)
+    
+    n_p = non_con * 100 / len(users)
+    """if stable == True and n_p > non_con_tr :
 
-    if stable == True :
-
-        n_p = non_con * 100 / len(users)
-
-        if n_p > non_con_tr :
-
-            d = Drone(app, droneMesh, obstacles)
-            drones.insert(0, d)
-            stable = False
+        d = Drone(app, droneMesh, obstacles)
+        drones.insert(0, d)
+        stable = False"""
     
     for user in users:
         uMesh = user.obj.m_Entity.getComponent(Mesh)
 
         if user.isConnected: 
-            uMesh.m_BlendColor = (.8, .8, .8, 1)
+            uMesh.m_BlendColor = (0, 0, 0, 1)
         else :
             uMesh.m_BlendColor = nonConnectedColor
 
