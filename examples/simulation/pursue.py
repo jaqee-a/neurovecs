@@ -1,6 +1,7 @@
 import glm
 import numpy as np
 from neurovec3D import NeuroVector3D
+import matplotlib.pyplot as plt
 
 from simulation.simulation import Simulation
 
@@ -14,21 +15,34 @@ class Pursue(Simulation):
 
         self.prey = glm.vec3(0,0,15)
 
+        self.speed_p = []
+
     def getReferenceVectors(self):
         rp  = self.prey - self.pred
 
         return rp
     
     def simulationOver(self):
-        return self.iteration > 500
+        return  self.iteration > 500
+         
 
     def updatePreyPosition(self):
         
-        self.prey += self.v
         if self.iteration % 10 == 0 :
             axis = [glm.vec3(1, 0, 0), glm.vec3(0, 1, 0), glm.vec3(0, 0, 1)]
             np.random.shuffle(axis)
             self.v = glm.rotate(self.v, np.pi/9, axis[0])
+        self.prey += self.v
+        self.speed_p.append(glm.length(self.v))
+
+        if self.iteration == 500 :
+            print(self.speed_p)
+            a = [i for i in range(len(self.speed_p))]
+            b = [i for i in range(len(self.speed))]
+            plt.plot(a, self.speed_p)
+            plt.plot(b, self.speed)
+            plt.ylim(0, .1)
+            plt.show()
 
     def run(self):
         super().run()
@@ -37,6 +51,7 @@ class Pursue(Simulation):
 
         # Can be found in the parent class also.
         self.updatePreyPosition()
+        
 
         # Get the needed reference vectors
         rp  = self.getReferenceVectors()
