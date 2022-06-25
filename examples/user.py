@@ -22,11 +22,11 @@ class User :
         
         self.height, self.width = height, width
         self.velocity    = random.uniform(1.25, 1.5) # m/s
-        self.position    = glm.vec3(random.randint(3, 47), 1, random.randint(3, 47))
+        self.position    = glm.vec3(random.randint(15, self.height -3), 1, random.randint(3, self.width - 3))
         self.obstacles   = obstacles
         
         while self.isValid() == False :
-              self.position = glm.vec3(random.randint(3, 47), 1, random.randint(3, 47))
+              self.position = glm.vec3(random.randint(15, self.height -3), 1, random.randint(3, self.width - 3))
 
         self.userMesh    = self.makeUserMesh(app)
         self.obj         = self.generateFromMesh(self.userMesh, self.position, app).getComponent(core.components.transform.Transform)
@@ -42,7 +42,7 @@ class User :
               
     def makeUserMesh(self, app):
 
-        user = cube(app.m_ActiveScene, (0, 0, 0), (1.0, 1.0, 1.0, 1), (.3, 1, .3))
+        user = cube(app.m_ActiveScene, (0, 0, 0), (0, 0, 0, 1), (.3, 1, .3))
         user.m_isActive = False
 
         return user.getComponent(core.components.mesh.Mesh)
@@ -76,7 +76,7 @@ class User :
         elif self.isValid() == False :
            self.theta += np.pi
            
-        elif self.position.x < 3 or self.position.x > 47 or self.position.z < 3 or self.position.z > 47 :
+        elif self.position.x < 3 or self.position.x > self.height - 3 or self.position.z < 3 or self.position.z > self.width - 3 :
             self.theta += np.pi
 
         self.beta = random.uniform(0,1)
