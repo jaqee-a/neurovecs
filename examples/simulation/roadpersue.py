@@ -4,6 +4,7 @@ from neurovec3D import NeuroVector3D
 from core.primitives import cube, cube2
 
 from simulation.simulation import Simulation
+import matplotlib.pyplot as plt
 
 class RoadPursue(Simulation):
 
@@ -19,14 +20,18 @@ class RoadPursue(Simulation):
         self.uproad = cube2(app.m_ActiveScene, (25, 2.5, 25), (.4, .4, .4, 1), (30, 4, 30))
         self.base   = cube(app.m_ActiveScene, (37.5, 5, -122.5), (.3, .3, .3, 1), (5, 10, 5))"""
 
-        self.pred = glm.vec3(25, 5, -32.5)
+        self.pred = glm.vec3(25, 5, -10.5)
         self.prey = glm.vec3(25, 0.7, -10)
 
         self.ph = glm.vec3(0, 5, 0)
 
+        self.speed_t = []
+        self.vel = 0.07
 
-    def getReferenceVectors(self):
+
+    def getReferenceVectors(self, lprey):
         
+        lrp = lprey - self.pred
         rp  = self.prey - self.pred
 
         up  = glm.vec3(0, 1, 0) * self.H
@@ -42,32 +47,35 @@ class RoadPursue(Simulation):
 
         d2  = sqrt(self.D**2 - self.H ** 2)"""
         
-        return rp, self.ph
+        return rp, self.ph, lrp
     
     def simulationOver(self):
+
         return self.iteration > 50000
-
-    def sigmoide(self, x) :
-        
-        return 1 / (1 + 2.72**(-100*x))
-
-    def velocity(self, v, tresh) :
-
-        return float(v * self.sigmoide(v) - (v - tresh) * self.sigmoide(v - tresh))
+          
 
     def updatePreyPosition(self, position):
-        vel = 0.05
 
         if 10 < position.z < 16 :
-            position.y += (4*vel / 6)
-            position.z += vel
+            position.y += (4*self.vel / 6)
+            position.z += self.vel
+            self.vel -= 0.0001
+        
+        elif 16 <= position.z <= 34 :
+            position.z += glm.length(glm.vec2((4*self.vel / 6), self.vel))
         elif 34 < position.z < 40 :
-            position.y -= (4*vel / 6)
-            position.z += vel
-        elif position.z > 50:
-            position.z += 0
+            position.y -= (4*self.vel / 6)
+            position.z += self.vel
+            self.vel += 0.0001
+        elif position.z > 50 :
+            self.iteration = 5000000
+            a = [i for i in range(len(self.speed_t))]
+            b = [i for i in range(len(self.speed))]
+            plt.plot(a, self.speed_t)
+            plt.plot(b, self.speed)
+            plt.show()
         else :
-            position.z += 0.1
+            position.z += 0.085
 
         return position
     
@@ -84,15 +92,16 @@ class RoadPursue(Simulation):
         super().run()
 
         if self.simulationOver(): return False
-     
+        
+        lastPrey = glm.vec3(self.prey)
         self.prey = self.updatePreyPosition(self.prey)
         
         # Get the needed reference vectors
-        rp, h = self.getReferenceVectors()
+        rp, h, lrp = self.getReferenceVectors(lastPrey)
 
         n_rp    = NeuroVector3D.fromCartesianVector(*rp , self.resolution)
         
-        n_h     = NeuroVector3D.fromCartesianVector(*h, self.resolution)
+        n_lrp     = NeuroVector3D.fromCartesianVector(*lrp, self.resolution)
         n_hp     = NeuroVector3D.fromCartesianVector(*self.ph, self.resolution)
         _, _, r_rp = NeuroVector3D.extractPolarParameters(n_rp)
         _, _, r_hp = NeuroVector3D.extractPolarParameters(n_hp)
@@ -100,6 +109,7 @@ class RoadPursue(Simulation):
        
         n_rp_d = n_rp * float(1 - self.D / r_rp)
         r_rp_d = NeuroVector3D.extractPolarParameters(n_rp_d)[2]
+        r_lrp = NeuroVector3D.extractPolarParameters(n_lrp - n_rp)[2]
 
         h1 = r_rp_d * r_hp / r_rp
         h2 = r_hp - h1
@@ -110,10 +120,10 @@ class RoadPursue(Simulation):
         n_vh = NeuroVector3D.fromCartesianVector(*vh, self.resolution)
 
         dt = n_rp_d + n_vh
-        """_, _, r = NeuroVector3D.extractPolarParameters(dt)
+        _, _, r = NeuroVector3D.extractPolarParameters(dt)
         
-        vel = self.velocity(r, self.tresh)
-        NeuroVector3D.normalize(dt)"""
+        
+        #NeuroVector3D.normalize(dt)
 
         dt_cart = glm.vec3(*NeuroVector3D.extractCartesianParameters(dt))
 
@@ -122,13 +132,14 @@ class RoadPursue(Simulation):
         # Calculate the error and speed
         if self.iteration > 1:
             self.errors.append(self.getError())
-            self.speed .append(glm.length(dt_cart))
+            self.speed.append(glm.length(dt_cart))
+            self.speed_t.append(glm.length(lastPrey - self.prey))
 
         return True
 
 
     def getError(self):
-        *_,rp = self.getReferenceVectors()
+        rp = self.getReferenceVectors(glm.vec3(0))[0]
         dis  = abs(self.D - glm.length(rp))
 
         return dis
