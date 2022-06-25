@@ -22,20 +22,22 @@ class User :
         
         self.height, self.width = height, width
         self.velocity    = random.uniform(1.25, 1.5) # m/s
-        self.position    = glm.vec3(random.randint(5, 45), 1, random.randint(5, 45))
+        self.position    = glm.vec3(random.randint(3, 47), 1, random.randint(3, 47))
         self.obstacles   = obstacles
+        
+        while self.isValid() == False :
+              self.position = glm.vec3(random.randint(3, 47), 1, random.randint(3, 47))
 
         self.userMesh    = self.makeUserMesh(app)
         self.obj         = self.generateFromMesh(self.userMesh, self.position, app).getComponent(core.components.transform.Transform)
         self.isConnected = None
+
         self.theta       = 0
         self.beta        = 0
         self.delta_theta = 0.3
         self.delta_t     = 200
         
-        while self.isValid() == False :
-              self.postion = glm.vec3(random.randint(0, 100), random.randint(0, 100), 0)
-              self.obj.m_Position = self.position
+       
 
               
     def makeUserMesh(self, app):
@@ -57,14 +59,8 @@ class User :
     def isValid(self):
 
         for ob in self.obstacles :
-            if self.position.x + 0.15 > ob.position.x - 1 and self.position.x - 0.15 < ob.position.x + 1 :
-                dist = np.abs(self.position.z - ob.position.z)
-                if dist < 1.15 :
-                    return False
-            if self.position.z + 0.15 > ob.position.z - 1 and self.position.z - 0.15 < ob.position.z + 1 :
-                dist = np.abs(self.position.x - ob.position.x)
-                if dist < 1.15 :
-                    return False
+            if np.abs(self.position.x - ob.position.x) < 1.2 and np.abs(self.position.z - ob.position.z) < 1.2 :
+                 return False
         return True
     
     def randomWalk(self, iter, time) :
@@ -79,8 +75,8 @@ class User :
 
         elif self.isValid() == False :
            self.theta += np.pi
-        
-        elif self.position.x < 5 or self.position.x > 45 or self.position.z < 5 or self.position.z > 45 :
+           
+        elif self.position.x < 3 or self.position.x > 47 or self.position.z < 3 or self.position.z > 47 :
             self.theta += np.pi
 
         self.beta = random.uniform(0,1)
