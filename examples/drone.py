@@ -20,7 +20,7 @@ class Drone :
     transmission_power  = 20 # db
     bandwidth           = 40 * 10**6 #Hz
     theta               = 42.44 #degrees
-    capacity            = 30
+    capacity            = 20
     resolution = 4
     #obstacles = []
 
@@ -39,7 +39,8 @@ class Drone :
         Drone.i += 1
 
         #cone(app.m_ActiveScene, (25, 0, 25), 8, [0, 0, 1, .1], [5, 20, 5])
-
+        self.lastStop = glm.vec3(0)
+        
 
     def generateFromMesh(self, mesh: core.components.mesh.Mesh, position, app):
 
@@ -89,12 +90,14 @@ class Drone :
         F3 = NeuroVector3D.fromCartesianVector(*init, self.resolution)
 
         for obstacle in self.obstacles :
-            if obstacle.type == 'y' :
-                v   = self.position - obstacle.position
-                n_v = NeuroVector3D.fromCartesianVector(*v, self.resolution)
-                l   = NeuroVector3D.extractPolarParameters(n_v)[2]
-                NeuroVector3D.normalize(n_v)
-                F3 += n_v * float(1 / (l**2))
+        
+            v   = self.position - obstacle.position
+            v.y = 0
+            n_v = NeuroVector3D.fromCartesianVector(*v, self.resolution)
+            l   = NeuroVector3D.extractPolarParameters(n_v)[2]
+            NeuroVector3D.normalize(n_v)
+            F3 += n_v * float(1 / (l**4))
+            
         
         #Repulsion force with the ground
         ground = glm.vec3(0, 1, 0)
