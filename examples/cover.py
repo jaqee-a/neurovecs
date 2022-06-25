@@ -6,8 +6,8 @@ from user import User
 import numpy as np
 
     
-nonConnectedColor = glm.vec4(0.8, 0.3, 0.4, 1.0)
-connectedColor = glm.vec4(0.3, 0.8, 0.4, 1.0)
+nonConnectedColor = glm.vec4(1 , 1, 1, 1.0)
+
 
 
 def average_SNR(users) :
@@ -69,7 +69,8 @@ def update(drones, users, non_con_tr, app, T, droneMesh, obstacles) :
     for drone in drones :
 
         F = drone.force(users, drones, non_con)
-        if glm.length(F) > 0.005 :
+        print(glm.length(F))
+        if glm.length(F) > 0.1 :
             stable = False
 
         dt = glm.normalize(F) * 0.1
@@ -83,14 +84,17 @@ def update(drones, users, non_con_tr, app, T, droneMesh, obstacles) :
 
         if n_p > non_con_tr :
 
-            d = Drone(app, droneMesh, coneMesh, obstacles)
+            d = Drone(app, droneMesh, obstacles)
             drones.insert(0, d)
             stable = False
     
     for user in users:
         uMesh = user.obj.m_Entity.getComponent(Mesh)
 
-        if user.isConnected: uMesh.m_BlendColor = user.isConnected.color
+        if user.isConnected: 
+            uMesh.m_BlendColor = (.8, .8, .8, 1)
+        else :
+            uMesh.m_BlendColor = nonConnectedColor
 
     return non_con
     
