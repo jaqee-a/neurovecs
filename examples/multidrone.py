@@ -20,7 +20,7 @@ from OpenGL.GL import *
 
 #from utils.objparser import ObjParser
 
-from core.primitives import cube, cone
+from core.primitives import cube, cone, line
 import core.components.transform
 import core.components.camera
 import core.components.cMesh
@@ -82,8 +82,8 @@ class GameMultiDrone:
 
         return Cone.getComponent(core.components.mesh.Mesh)
 
-    def makeObstacleMesh(self):
-        obstacle = cube(self.m_Application.m_ActiveScene, (0, 0, 0), (.5, .3, .3, 1), (2, 2, 2))
+    def makeObstacleMesh(self, s):
+        obstacle = cube(self.m_Application.m_ActiveScene, (0, 0, 0), (.5, .3, .3, 1), s)
 
         obstacle.m_isActive = False
         return obstacle.getComponent(core.components.mesh.Mesh)
@@ -109,20 +109,21 @@ class GameMultiDrone:
         self.ground = cube(self.m_Application.m_ActiveScene, (25, 0, 25), (.3, .3, .3, 1), (self.height, 1, self.width))
 
         self.droneMesh = self.makeDroneMesh()
-        self.obstacleMesh = self.makeObstacleMesh()
+        self.obstacleMesh_x = self.makeObstacleMesh((2,2,2))
+        self.obstacleMesh_y = self.makeObstacleMesh((4, 20 ,4))
         #self.coneMesh = self.makeConeMesh()
 
         lines = loadMap('file.txt')
         self.obstacles = []
+        
 
         for i in range(len(lines)):
             for j in range(len(lines[i])):
                 if lines[i][j] == 'x' :
-                    self.obstacles.append(obstacle(i, j, 0, self.m_Application, self.obstacleMesh, 'x'))
+                    self.obstacles.append(obstacle(i, j, 1, self.m_Application, self.obstacleMesh_x))
+                    
                 elif lines[i][j] == 'y' :
-                    for e in range(5) :
-                        self.obstacles.append(obstacle(i, j, e, self.m_Application, self.obstacleMesh, 'y'))
-                
+                    self.obstacles.append(obstacle(i, j, 10, self.m_Application, self.obstacleMesh_y))
                     
 
         self.drones    = [Drone(self.m_Application, self.droneMesh, self.obstacles)]
@@ -184,10 +185,21 @@ class GameMultiDrone:
 
         self.non_connected = cover.update(self.drones, self.users, self.non_connected_tr, self.m_Application, self.T, self.droneMesh, self.obstacles)
         
-        for user in self.users:
-            user.randomWalk(self.iteration, core.time.Time.FIXED_DELTA_TIME)
+        """for user in self.users:
+            user.randomWalk(self.iteration, core.time.Time.FIXED_DELTA_TIME
 
-        self.iteration += 1
+"""     
+        for d in self.drones :
+            if self.simulation.iteration == 1:
+                    
+                    d.lastStop = glm.vec3(*d.position)
+
+            if self.simulation.iteration > 1 and self.simulation.iteration % 10 == 0 :
+                self.lines.append(line(self.m_Application.m_ActiveScene, d.position,  d.lastStop, d.color))
+                
+                d.lastStop = glm.vec3(*d.position)
+
+            self.iteration += 1
 
 
     
