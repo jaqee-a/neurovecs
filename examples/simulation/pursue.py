@@ -16,6 +16,7 @@ class Pursue(Simulation):
         self.prey = glm.vec3(0,0,15)
 
         self.speed_p = []
+        self.distance = []
 
     def getReferenceVectors(self):
         rp  = self.prey - self.pred
@@ -36,12 +37,19 @@ class Pursue(Simulation):
         self.speed_p.append(glm.length(self.v))
 
         if self.iteration == 500 :
-            print(self.speed_p)
+            print(self.distance)
             a = [i for i in range(len(self.speed_p))]
-            b = [i for i in range(len(self.speed))]
-            plt.plot(a, self.speed_p)
-            plt.plot(b, self.speed)
-            plt.ylim(0, .1)
+            b = [i for i in range(len(self.distance))]
+            #plt.plot(a, self.speed_p, label = "Target")
+            plt.plot(b, self.distance)
+            plt.xlabel("Time (a.u.)", fontsize = "18")
+            plt.ylabel("Distance (a.u.)", fontsize = "18")
+            plt.ylim(0, 10)
+
+            plt.xticks(fontsize=12)
+            plt.yticks(fontsize=12)
+            plt.legend(fontsize = "18")
+
             plt.show()
 
     def run(self):
@@ -72,6 +80,8 @@ class Pursue(Simulation):
         if self.iteration > 1:
             self.errors.append(self.getError())
             self.speed .append(glm.length(dt_cart))
+
+            self.distance.append(glm.length(self.prey - self.pred))
 
         return True
 
