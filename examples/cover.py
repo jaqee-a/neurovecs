@@ -8,7 +8,7 @@ import core.time
 
 
     
-nonConnectedColor = glm.vec4(1 , 1, 1, 1.0)
+nonConnectedColor = glm.vec4(0 , 0, 0, 1.0)
 
 def average_SNR(users) :
 
@@ -81,6 +81,7 @@ def update(drones, users, non_con_tr, app, T, droneMesh, obstacles) :
         d = Drone(app, droneMesh, obstacles)
         drones.insert(0, d)
         stable = False"""
+    print(non_con)
     
     for user in users:
         uMesh = user.obj.m_Entity.getComponent(Mesh)
