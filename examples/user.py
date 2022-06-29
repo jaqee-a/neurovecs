@@ -18,17 +18,17 @@ import core.time
 
 class User :
 
-    def __init__(self, height, width, app, obstacles) -> None:
+    def __init__(self, height, width, app, obstacles, color) -> None:
         
         self.height, self.width = height, width
         self.velocity    = random.uniform(1.25, 1.5) # m/s
-        self.position    = glm.vec3(random.randint(15, self.height -3), 1, random.randint(3, self.width - 3))
+        self.position    = glm.vec3(random.randint(30, self.height -30), 5, random.randint(30, self.width - 30))
         self.obstacles   = obstacles
         
         while self.isValid() == False :
-              self.position = glm.vec3(random.randint(15, self.height -3), 1, random.randint(3, self.width - 3))
+              self.position = glm.vec3(random.randint(13, self.height -13), 5, random.randint(13, self.width - 13))
 
-        self.userMesh    = self.makeUserMesh(app)
+        self.userMesh    = self.makeUserMesh(app, color)
         self.obj         = self.generateFromMesh(self.userMesh, self.position, app).getComponent(core.components.transform.Transform)
         self.isConnected = None
 
@@ -40,9 +40,9 @@ class User :
        
 
               
-    def makeUserMesh(self, app):
+    def makeUserMesh(self, app, color):
 
-        user = cube(app.m_ActiveScene, (0, 0, 0), (0, 0, 0, 1), (.3, 1, .3))
+        user = cube(app.m_ActiveScene, (0, 0, 0), color, (3, 5, 3))
         user.m_isActive = False
 
         return user.getComponent(core.components.mesh.Mesh)
@@ -67,7 +67,7 @@ class User :
 
         
         #v = self.velocity * time / 1000
-        v = .05
+        v = .3
     
         if iter % self.delta_t == 0 :
            a = random.randint(0, 360)
@@ -76,7 +76,7 @@ class User :
         elif self.isValid() == False :
            self.theta += np.pi
            
-        elif self.position.x < 3 or self.position.x > self.height - 3 or self.position.z < 3 or self.position.z > self.width - 3 :
+        elif self.position.x < 13 or self.position.x > self.height - 13 or self.position.z < 13 or self.position.z > self.width - 13 :
             self.theta += np.pi
 
         self.beta = random.uniform(0,1)
@@ -89,8 +89,7 @@ class User :
 
         self.obj.m_Position = self.position
        
-    @staticmethod
-    def SNR(d, r) :
+    def SNR(self, d) :
         
         #Pt = 20 dBm
         
@@ -101,6 +100,10 @@ class User :
         nNlos = 20 #dB
         fc = 2.5 * 10**9 # Hz
         c = 299792458 # m/s
+        
+        dist = glm.length(d.position - self.position) #m
+        h = d.position.y - 1 #m
+        r = np.sqrt(dist**2 - h**2)
         
         h = d.position.y - 1 #m
         dist = np.sqrt(h**2 + r**2)
