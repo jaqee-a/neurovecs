@@ -6,10 +6,9 @@ from user import User
 import numpy as np
 import core.time
 
+
     
 nonConnectedColor = glm.vec4(1 , 1, 1, 1.0)
-
-
 
 def average_SNR(users) :
 
@@ -40,11 +39,9 @@ def reArrange(users, drones, T) :
         snr_list = []
         for user in users :
             if user.isConnected == None :
-                dist = glm.length(drone.position - user.position) #m
-                r = np.sqrt(dist**2 - (drone.position.y-1)**2)
-                snr = User.SNR(drone, r)[0]
+                snr = user.SNR(drone)[0]
 
-                if snr > T :
+                if snr >= T :
                    snr_list.append([snr, user])
 
         snr_list.sort(reverse = True, key = lambda x:x[0])
@@ -56,7 +53,7 @@ def reArrange(users, drones, T) :
             drone.n_users += 1
             drone.connected_users.append(snr_list[i][1])
             i += 1
-            user.obj.m_color = drone.color
+            #user.obj.m_color = drone.color
         
 
     return non_con
@@ -71,19 +68,16 @@ def update(drones, users, non_con_tr, app, T, droneMesh, obstacles) :
 
         F = drone.force(users, drones, non_con)
         #print(glm.length(F))
-        if glm.length(F) > 0.03 :
-        
-            stable = False
-        
-            dt = glm.normalize(F) * .5
-            drone.position += dt
-            drone.obj.m_Position = drone.position
+      
+        dt = glm.normalize(F) 
+        drone.position += dt
+        drone.obj.m_Position = drone.position
         
         #drone.coneObj.m_Position = drone.position - glm.vec3(0, 20, 0)
     
-    n_p = non_con * 100 / len(users)
-    """if stable == True and n_p > non_con_tr :
-
+    """n_p = non_con * 100 / len(users)
+    if stable == True and n_p > non_con_tr :
+    
         d = Drone(app, droneMesh, obstacles)
         drones.insert(0, d)
         stable = False"""
@@ -92,7 +86,7 @@ def update(drones, users, non_con_tr, app, T, droneMesh, obstacles) :
         uMesh = user.obj.m_Entity.getComponent(Mesh)
 
         if user.isConnected: 
-            uMesh.m_BlendColor = (0, 0, 0, 1)
+            uMesh.m_BlendColor = user.isConnected.color
         else :
             uMesh.m_BlendColor = nonConnectedColor
 
