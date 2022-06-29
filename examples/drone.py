@@ -14,14 +14,14 @@ import glm
 
 class Drone :
 
-    colors = [(0,255,0,1), (255,0,0,1), (0,0,255,1), (255,255,0,1), (0,255,255,.1), (255,0,255,.1), (50,200,0,.1), (50,0,200,.1), (20,20,100,.1), (0,20,100,.1)]
+    colors = [(0,255,0,1), (255,0,0,1), (0,0,255,1), (255,255,0,1), (18,204,237,1), (185,0,185,1), (79,28,136,1), (151,13,117,1), (20,20,100,1), (0,20,100,1)]
     i = 0
 
     transmission_power  = 20 # db
-    bandwidth           = 40 * 10**6 #Hz
+    bandwidth           = 100 * 10**6 #Hz
     theta               = 42.44 #degrees
     capacity            = 30
-    resolution = 4
+    resolution = 10
     #obstacles = []
 
     def __init__ (self, app, droneMesh, obstacles=[]) :
@@ -32,7 +32,7 @@ class Drone :
         self.obstacles       = obstacles
         
         
-        self.position  = glm.vec3(0, 15, 0) #meter
+        self.position  = glm.vec3(300, 40, 300) #meter
         self.obj       = self.generateFromMesh(droneMesh, self.position, app).getComponent(core.components.transform.Transform)
         #self.coneObj   = self.generateFromMesh(coneMesh, self.position-glm.vec3(0, self.position.y, 0), app).getComponent(core.components.transform.Transform)
         
@@ -49,15 +49,6 @@ class Drone :
         obj.addComponent(core.components.transform.Transform, *position, *([0]*3))
 
         return obj
-
-    def r(self) :
-        
-        snr = 15
-        r   = 0
-        while snr >= 15 :
-            r   += 1
-            snr = User.SNR(self, r)[0]
-        return r
 
 
     def force(self, users, drones, non_con) :
