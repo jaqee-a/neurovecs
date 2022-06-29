@@ -73,7 +73,7 @@ class GameMultiDrone:
 
     def makeDroneMesh(self):
 
-        droneObject = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj',[40,40,40])
+        droneObject = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj',[60,60,60])
 
         droneObject.m_isActive = False
         return droneObject.getComponent(core.components.cMesh.CMesh)    
