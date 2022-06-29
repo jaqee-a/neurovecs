@@ -58,8 +58,8 @@ class GameMultiDrone:
 
     iteration = 0
 
-    n_users = 100
-    n_drones = 3
+    n_users = 200
+    n_drones = 7
     non_connected_tr = 10
     non_connected = n_users
     T = 2
@@ -73,7 +73,7 @@ class GameMultiDrone:
 
     def makeDroneMesh(self):
 
-        droneObject = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj',[20,20,20])
+        droneObject = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj',[40,40,40])
 
         droneObject.m_isActive = False
         return droneObject.getComponent(core.components.cMesh.CMesh)    
@@ -109,7 +109,7 @@ class GameMultiDrone:
         self.m_Application.setProcessInputFunc(self.processInput)
 
         # Loading the drone objects
-        self.ground = cube(self.m_Application.m_ActiveScene, (300, 0, 300), (.5, .5, .5, 1), (self.height, 1, self.width))
+        self.ground = cube(self.m_Application.m_ActiveScene, (300, 0, 300), (.6, .6, .6, 1), (self.height, 1, self.width))
 
         self.droneMesh = self.makeDroneMesh()
         self.obstacleMesh_x = self.makeObstacleMesh((12,4,12))
