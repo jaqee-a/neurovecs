@@ -37,20 +37,23 @@ class Pursue(Simulation):
         self.speed_p.append(glm.length(self.v))
 
         if self.iteration == 500 :
-            print(self.distance)
-            a = [i for i in range(len(self.speed_p))]
-            b = [i for i in range(len(self.distance))]
-            #plt.plot(a, self.speed_p, label = "Target")
-            plt.plot(b, self.distance)
-            plt.xlabel("Time (a.u.)", fontsize = "18")
-            plt.ylabel("Distance (a.u.)", fontsize = "18")
-            plt.ylim(0, 10)
 
-            plt.xticks(fontsize=12)
-            plt.yticks(fontsize=12)
+            a = [i for i in range(len(self.speed_p))]
+            b = [i for i in range(len(self.speed))]
+            plt.plot(a, self.speed_p, label = "Target")
+            plt.plot(b, self.speed, label="Tracker")
+            
+            plt.xlabel("Time (a.u.)", fontsize = "18")
+            plt.ylabel("Speed (a.u.)", fontsize = "18")
+            plt.ylim(0, .1)
+            plt.grid()
+
+            plt.xticks(fontsize=14)
+            plt.yticks(fontsize=14)
             plt.legend(fontsize = "18")
 
             plt.show()
+            
 
     def run(self):
         super().run()
@@ -80,6 +83,7 @@ class Pursue(Simulation):
         if self.iteration > 1:
             self.errors.append(self.getError())
             self.speed .append(glm.length(dt_cart))
+           
 
             self.distance.append(glm.length(self.prey - self.pred))
 
