@@ -11,17 +11,17 @@ class Simulation:
         self.resolution = resolution
         self.type  = type_
         
-        self.mv_vec = glm.normalize(glm.vec3(np.random.random() ,np.random.random(),np.random.random())) * 5 * core.time.Time.FIXED_DELTA_TIME
 
         if self.type == 'r' :
-            self.prey  = glm.vec3(np.random.random()*40,np.random.random()*40,np.random.random()*40)
+            self.prey  = glm.vec3(np.cos(0), 0, np.sin(0)) * 20
+            self.mv_vec = glm.normalize(glm.vec3(np.cos(np.pi/2), 0, np.sin(np.pi/2)) * 20 - self.prey) * 3 * core.time.Time.FIXED_DELTA_TIME
 
         elif self.type == 'h' :
-            self.prey = glm.vec3(np.cos(0), 0, np.sin(0))
+            self.prey = glm.vec3(np.cos(0), 0, np.sin(0)) * 20
 
         elif self.type == 'a' :
             self.prey = glm.vec3(15, 0, 0)
-            self.v = glm.normalize(glm.vec3(0, .01, .01)) * core.time.Time.FIXED_DELTA_TIME * 5
+            self.v = glm.normalize(glm.vec3(0, .01, .01)) * core.time.Time.FIXED_DELTA_TIME * 3
 
         self.point = glm.vec3(0)
         self.pred  = glm.vec3(0)
@@ -44,9 +44,8 @@ class Simulation:
             self.prey += self.mv_vec#glm.vec3(0, core.time.Time.FIXED_DELTA_TIME, 0)
         # Movement helicoidale 
         if self.type == 'h':
-            self.prey.x = 5 * np.cos(np.radians(self.iteration))
-            self.prey.y = self.iteration * core.time.Time.FIXED_DELTA_TIME
-            self.prey.z = 5 * np.sin(np.radians(self.iteration))
+            self.prey.x = 20 * np.cos(np.radians(self.iteration * 15 * core.time.Time.FIXED_DELTA_TIME))
+            self.prey.z = 20 * np.sin(np.radians(self.iteration * 15 * core.time.Time.FIXED_DELTA_TIME))
         # Movement Aleatoire
         if self.type == 'a' :
             self.prey += self.v
