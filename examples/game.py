@@ -99,9 +99,6 @@ class Game:
         self.imGuiApp.startSimulationFunc = self.startSimulation
         self.imGuiApp.takeScreenshotFunction = self.takeScreenshot
 
-        self.ground = cube(self.m_Application.m_ActiveScene, (25, 0, 25), (.5, .5, .5, 1), (30, 1, 100))
-        self.uproad = cube2(self.m_Application.m_ActiveScene, (25, 2.5, 25), (.6, .6, .6, 1), (30, 4, 30))
-
     def takeScreenshot(self):
 
         glfw.set_window_size(self.m_Application.m_Window, 4096, 2160)
