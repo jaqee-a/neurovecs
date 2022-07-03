@@ -162,12 +162,3 @@ class NeuroVector3D:
             __o   = abs(__o)
 
         return NeuroVector3D.fromMS((vm - self.bias) * __o)
-
-    def __normalize__(self):
-
-            vm    = self.__MS.copy()
-            max__ = vm.max() - self.bias
-            vm    = vm.__mul__(1 / max__)
-
-            return NeuroVector3D.fromMS(vm, self.bias / max__)
-        

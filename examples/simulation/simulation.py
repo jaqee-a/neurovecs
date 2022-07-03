@@ -10,6 +10,7 @@ class Simulation:
     def __init__(self, resolution: int, type_: str) -> None:
         self.resolution = resolution
         self.type  = type_
+
         
 
         if self.type == 'r' :
@@ -39,6 +40,7 @@ class Simulation:
         return glm.distance(self.prey, self.pred) < .3
 
     def updatePreyPosition(self):
+        
         # Movement rectiligne
         if self.type == 'r':
             self.prey += self.mv_vec#glm.vec3(0, core.time.Time.FIXED_DELTA_TIME, 0)

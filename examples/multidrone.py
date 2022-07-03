@@ -1,25 +1,26 @@
-
-from random import random
 import sys
 import time
-from mapeditor import loadMap
+from core.shader import Shader
+from user import User
+from drone import Drone
+from obstacle import obstacle, loadMap
+import cover
+from utils.objparser import ObjParser
 
-import numpy as np
 
 sys.path.append('py-engine')
 sys.path.append('src')
 
 from simulation.simulation import Simulation
-from simulation.uavsim import UavSimulation
 from simulation.imguiappUAV import ImGuiAppUav
 
 from PIL import Image
 from typing import List
 from OpenGL.GL import *
 
-from utils.objparser import ObjParser
+#from utils.objparser import ObjParser
 
-from core.primitives import cone, cube, line
+from core.primitives import cube, cone, line
 import core.components.transform
 import core.components.camera
 import core.components.cMesh
@@ -37,6 +38,8 @@ class GameMultiDrone:
     camouflageMode = { 0: 'uav' }
     lockCamera: bool = False
 
+    height, width = 600, 600
+
     m_Application: core.application.Application
 
     lastX: float = 0
@@ -52,34 +55,42 @@ class GameMultiDrone:
     imGuiApp: ImGuiAppUav
     simulation: Simulation = None
 
+    iteration = 0
+
+    n_users = 100
+    n_drones = 4
+    non_connected_tr = 10
+    non_connected = n_users
+    T = 2
+    
+
+    userShader: Shader = None
+
     def __init__(self) -> None:
         (core.application.Application(init=self.initGame)).run(update=self.update)
 
 
-    def makeUserMesh(self):
-        user = cube(self.m_Application.m_ActiveScene, (0, 0, 0), (.8, .3, .4, 1), (.3, 1, .3))
-
-        user.m_isActive = False
-        return user.getComponent(core.components.mesh.Mesh)
-
     def makeDroneMesh(self):
-        droneObject = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj')
+
+        droneObject = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj',[60,60,60])
 
         droneObject.m_isActive = False
-        return droneObject.getComponent(core.components.cMesh.CMesh)
+        return droneObject.getComponent(core.components.cMesh.CMesh)    
+    
+    def makeConeMesh(self):
 
-    def makeObstacleMesh(self):
-        obstacle = cube(self.m_Application.m_ActiveScene, (0, 0, 0), (.5, .3, .3, 1), (5, 30, 5))
+        Cone = cone(self.m_Application.m_ActiveScene, (25, 0, 25), 8, (0, 0, 1, .1), [5, 20, 5])
+        Cone.m_isActive = False
+
+        return Cone.getComponent(core.components.mesh.Mesh)
+
+    def makeObstacleMesh(self, s):
+        obstacle = cube(self.m_Application.m_ActiveScene, (0, 0, 0), (.6, .4, .4, 1), s)
 
         obstacle.m_isActive = False
         return obstacle.getComponent(core.components.mesh.Mesh)
 
-    def generateFromMesh(self, mesh: core.components.mesh.Mesh, position):
-        obj = self.m_Application.m_ActiveScene.makeEntity()
-        obj.linkComponent(mesh)
-        obj.addComponent(core.components.transform.Transform, *position, *([0]*3))
 
-        return obj
 
     def initGame(self, application: core.application.Application):
         self.m_Application = application
@@ -88,7 +99,7 @@ class GameMultiDrone:
         # Creating an entity
         camera_entity = self.m_Application.m_ActiveScene.makeEntity()
         # Giving the entity a transform
-        self.cameraTransform = camera_entity.addComponent(core.components.transform.Transform, 0, 0, 5, 0, -90, 0)
+        self.cameraTransform = camera_entity.addComponent(core.components.transform.Transform, -15, 10, -10, -20, 20, 20)
         # Adding a camera component
         camera_entity.addComponent(core.components.camera.Camera, 45.0, self.m_Application.WIDTH / self.m_Application.HEIGHT)
 
@@ -97,26 +108,30 @@ class GameMultiDrone:
         self.m_Application.setProcessInputFunc(self.processInput)
 
         # Loading the drone objects
-        self.ground = cube(self.m_Application.m_ActiveScene, (25, 0, 25), (.3, .3, .3, 1), (50, 1, 50))
+        self.ground = cube(self.m_Application.m_ActiveScene, (300, 0, 300), (.6, .6, .6, 1), (self.height, 1, self.width))
 
-        self.obstacleMesh = self.makeObstacleMesh()
-        self.droneMesh    = self.makeDroneMesh()
-        self.userMesh     = self.makeUserMesh()
-
+        self.droneMesh = self.makeDroneMesh()
+        self.obstacleMesh_x = self.makeObstacleMesh((12,4,12))
+        self.obstacleMesh_y = self.makeObstacleMesh((2, 20 ,2))
+        #self.coneMesh = self.makeConeMesh()
 
         lines = loadMap('file.txt')
-
+        self.obstacles = []
+        
 
         for i in range(len(lines)):
             for j in range(len(lines[i])):
-                if lines[i][j] == 'x':
-                    self.generateFromMesh(self.obstacleMesh, (2.5 + i * 5, 15, 2.5 + j * 5))
-        
-        self.droneObject = self.generateFromMesh(self.droneMesh, (25, 20, 25)).getComponent(core.components.transform.Transform)
-        self.users = [self.generateFromMesh(self.userMesh, (random() * 50, 1, random() * 50)).getComponent(core.components.transform.Transform) for _ in range(10)]
-        
-        cone(self.m_Application.m_ActiveScene, (25, 0, 25), 8, [0, 0, 1, .1], [5, 20, 5])
+                if lines[i][j] == 'x' :
+                    self.obstacles.append(obstacle(i, j, 2, self.m_Application, self.obstacleMesh_x, 'x'))
+                    
+                elif lines[i][j] == 'y' :
+                    self.obstacles.append(obstacle(i, j, 10, self.m_Application, self.obstacleMesh_y, 'y'))
+                    #self.obstacles.append(obstacle(i, j+.5, 15, self.m_Application, self.obstacleMesh_y, 'y'))
+                    
 
+        self.drones    = [Drone(self.m_Application, self.droneMesh, self.obstacles) for _ in range(self.n_drones)]
+        self.users     = [User(self.height, self.width, self.m_Application, self.obstacles, (1,1,1,1)) for _ in range(self.n_users)]
+        
         self.initApp()
 
 
@@ -146,10 +161,6 @@ class GameMultiDrone:
 
     def startSimulation(self):
         self.clearScene()
-        
-        if self.camouflageMode[self.imGuiApp.selectedCamouflageMode] == 'uav' :
-            self.simulation = UavSimulation(self.imGuiApp.RESOLUTION)
-            
         self.onStartNew()
 
     def onStartNew(self):
@@ -157,15 +168,35 @@ class GameMultiDrone:
 
 
     def update(self):
+
         self.imGuiApp.render()
 
         # imgui.show_test_window()
-        if not self.simulation:return
-        if not self.simulation.run(): return
+        
+        # self.mouseInit = False
+        # newFront = glm.normalize(glm.vec3(0) - self.cameraTransform.m_Position)
+        # self.cameraTransform.front += (newFront - self.cameraTransform.front) * core.time.Time.DELTA_TIME * 10
+        # self.cameraTransform.frontToRotation()
+        # self.cameraTransform.updateDirectionalVectors()
+        
+        self.non_connected = cover.update(self.drones, self.users, self.non_connected_tr, self.m_Application, self.T, self.droneMesh, self.obstacles)
+        
+        
+        """for user in self.users:
+            user.randomWalk(self.iteration, core.time.Time.FIXED_DELTA_TIME)"""
+    
+        """for d in self.drones :
+            if self.simulation.iteration == 1:
+                    
+                    d.lastStop = glm.vec3(*d.position)
 
-        for user in self.users:
-            user.m_Position.x += .1
-
+            if self.simulation.iteration > 1 :
+                self.lines.append(line(self.m_Application.m_ActiveScene, d.position,  d.lastStop, d.color))
+                self.lines.append(line(self.m_Application.m_ActiveScene, glm.vec3(d.lastStop.x, d.lastStop.y+0.02, d.lastStop.z), glm.vec3(d.position.x, d.position.y+0.02, d.position.z) , d.color))
+                
+                d.lastStop = glm.vec3(*d.position)
+        """
+        self.iteration += 1
 
 
     
@@ -183,7 +214,7 @@ class GameMultiDrone:
         # if 1 in ll:
         #     print(ll.index)
         
-        speed = 5 + (imgui.is_key_down(340) * 25)
+        speed = 5 + (imgui.is_key_down(340) * 100)
         objs = activeScene.m_Registry.getAllOfTypes(core.components.camera.Camera, core.components.transform.Transform)
         # move this code to core
         for entity in objs:
@@ -193,6 +224,13 @@ class GameMultiDrone:
 
             if glfw.get_key(window, glfw.KEY_A):
                 tr.setPosition(*(tr.m_Position - tr.right * core.time.Time.FIXED_DELTA_TIME * speed))
+            
+            if glfw.get_key(window, glfw.KEY_UP):
+                tr.setPosition(*(tr.m_Position + tr.up * core.time.Time.FIXED_DELTA_TIME * speed))
+
+            if glfw.get_key(window, glfw.KEY_DOWN):
+                tr.setPosition(*(tr.m_Position - tr.up * core.time.Time.FIXED_DELTA_TIME * speed))
+
 
             if glfw.get_key(window, glfw.KEY_S):
                 tr.setPosition(*(tr.m_Position - tr.front * core.time.Time.FIXED_DELTA_TIME * speed))

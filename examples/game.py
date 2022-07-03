@@ -2,18 +2,14 @@
 import sys
 import time
 
-import numpy as np
-
 sys.path.append('py-engine')
 sys.path.append('src')
 
 from simulation.simulation import Simulation
 from simulation.fixedpoint import FixedPoint
 from simulation.infinitpoint import InfinitPoint
-from simulation.checkpoints import Checkpoint
 from simulation.roadpersue import RoadPursue
 from simulation.pursue import Pursue
-from simulation.uavsim import UavSimulation
 from simulation.imguiapp import ImGuiApp
 
 from PIL import Image
@@ -22,7 +18,7 @@ from OpenGL.GL import *
 
 from utils.objparser import ObjParser
 
-from core.primitives import cube, line
+from core.primitives import cube, line, cube2
 import core.components.transform
 import core.components.camera
 import core.application
@@ -103,6 +99,9 @@ class Game:
         self.imGuiApp.startSimulationFunc = self.startSimulation
         self.imGuiApp.takeScreenshotFunction = self.takeScreenshot
 
+        self.ground = cube(self.m_Application.m_ActiveScene, (25, 0, 25), (.5, .5, .5, 1), (30, 1, 100))
+        self.uproad = cube2(self.m_Application.m_ActiveScene, (25, 2.5, 25), (.6, .6, .6, 1), (30, 4, 30))
+
     def takeScreenshot(self):
 
         glfw.set_window_size(self.m_Application.m_Window, 4096, 2160)
@@ -127,7 +126,7 @@ class Game:
 
         mode = self.movementMode[self.imGuiApp.selectedMovementMode]
         camMode = self.camouflageMode[self.imGuiApp.selectedCamouflageMode]
-        
+
         if camMode == 'f' :
             self.simulation = FixedPoint(self.imGuiApp.RESOLUTION, mode)
         elif camMode == 'i' :
@@ -135,7 +134,7 @@ class Game:
         elif camMode == 'p' :
             self.simulation = Pursue(self.imGuiApp.RESOLUTION, mode)
         elif camMode == 'rp' :
-            self.simulation = RoadPursue(self.imGuiApp.RESOLUTION, mode)
+            self.simulation = RoadPursue(self.imGuiApp.RESOLUTION, mode, self.m_Application)
         elif camMode == 'cp':
             self.simulation = Checkpoint(self.imGuiApp.RESOLUTION, mode)
         elif camMode == 'uav':
@@ -188,10 +187,10 @@ class Game:
 
 
             # Line drawing stuff!!
-            if self.simulation.iteration > 1 and self.simulation.iteration % 60 == 0:
+            if self.simulation.iteration > 1 and self.simulation.iteration % 60 == 0 :
                 self.lines.append(line(self.m_Application.m_ActiveScene, self.c_lastpos, self.simulation.prey))
                 self.lines.append(line(self.m_Application.m_ActiveScene, self.p_lastpos, self.simulation.pred, [1, 0, 0, .3]))
-                self.lines.append(cube(self.m_Application.m_ActiveScene, self.simulation.pred, global_scale=[.1]*3))
+                #self.lines.append(cube(self.m_Application.m_ActiveScene, self.simulation.pred, global_scale=[.1]*3))
 
                 self.lines.append(line(self.m_Application.m_ActiveScene, self.simulation.point, self.simulation.prey, [1, 0, 1, 1]))
 
@@ -205,6 +204,23 @@ class Game:
                 
         elif self.camouflageMode[self.selectedCamouflageMode] == 'uav':
             pass
+        
+        elif self.camouflageMode[self.selectedCamouflageMode] == 'p' or self.camouflageMode[self.selectedCamouflageMode] == 'rp':
+
+            if self.simulation.iteration == 1:
+                self.c_lastpos = glm.vec3(*self.simulation.prey)
+                self.p_lastpos = glm.vec3(*self.simulation.pred)
+
+            if self.simulation.iteration > 1 and self.simulation.iteration % 10 == 0 :
+                self.lines.append(line(self.m_Application.m_ActiveScene, self.simulation.prey, self.simulation.pred, [0, 1, 0, .5]))
+                self.lines.append(line(self.m_Application.m_ActiveScene, self.c_lastpos, self.simulation.prey, [0, 0, 1, 1]))
+                self.lines.append(line(self.m_Application.m_ActiveScene, glm.vec3(self.c_lastpos.x, self.c_lastpos.y+0.02, self.c_lastpos.z), glm.vec3(self.simulation.prey.x, self.simulation.prey.y+0.02, self.simulation.prey.z) , [0, 0, 1, 1]))
+                self.lines.append(line(self.m_Application.m_ActiveScene, self.p_lastpos, self.simulation.pred, [1, 0, 0, 1]))
+                self.lines.append(line(self.m_Application.m_ActiveScene, glm.vec3(self.p_lastpos.x, self.p_lastpos.y+0.02, self.p_lastpos.z), glm.vec3(self.simulation.pred.x, self.simulation.pred.y+0.02, self.simulation.pred.z) , [1, 0, 0, 1]))
+
+                self.c_lastpos = glm.vec3(*self.simulation.prey)
+                self.p_lastpos = glm.vec3(*self.simulation.pred)
+
         else:
             if self.simulation.iteration == 1:
                 self.c_lastpos = glm.vec3(*self.simulation.prey)
