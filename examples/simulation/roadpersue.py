@@ -63,33 +63,6 @@ class RoadPursue(Simulation):
         elif position.z > 50 :
             self.iteration = 5000000
 
-            #a = [i for i in range(len(self.speed_p))]
-            b = [i for i in range(len(self.distance))]
-            #plt.plot(a, self.speed_p, label = "Target")
-            plt.plot(b, self.distance)
-            plt.xlabel("Time (a.u.)", fontsize = "18")
-            plt.ylabel("Distance (a.u.)", fontsize = "18")
-            plt.ylim(5, 15)
-
-            plt.xticks(fontsize=12)
-            plt.yticks(fontsize=12)
-            plt.legend(fontsize = "18")
-
-            plt.show()
-    
-            """a = [i for i in range(len(self.speed_t))]
-
-            fig, axs = plt.subplots(2)
-            #fig.suptitle('Vertically stacked subplots')
-            axs[0].plot(a, self.speed_t)
-            axs[1].plot(a, self.speed, 'tab:orange')
-            axs[0].set_title("Target")
-            axs[1].set_title("Tracker")
-            
-            axs[0].set(ylabel="Speed (a.u.)", ylim = [.01, .12])
-            axs[1].set(xlabel="Time (a.u.)", ylabel="Speed (a.u.)", ylim = [.02, .12])
-
-            plt.show()"""
         else :
             position.z += self.vel
 
@@ -127,23 +100,11 @@ class RoadPursue(Simulation):
           
        
         n_rp_d = n_rp * float(1 - self.D / r_rp)
-        r_rp_d = NeuroVector3D.extractPolarParameters(n_rp_d)[2]
-
         
         dh = n_rp_d + n_h
         a = 1 / (r_hp - self.H)
  
         dt = (n_rp_d * float(1 - a)) + (dh * float(a))
-        """h1 = r_rp_d * r_hp / r_rp
-        h2 = r_hp - h1
-        h = 0
-        if h2 < self.H : h = self.H - h2 
-    
-        vh = glm.vec3(0, h, 0)
-        n_vh = NeuroVector3D.fromCartesianVector(*vh, self.resolution)
-
-        dt = n_rp_d + n_vh
-        _, _, r = NeuroVector3D.extractPolarParameters(dt)"""
         
         
         #NeuroVector3D.normalize(dt)
