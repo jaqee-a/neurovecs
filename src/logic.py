@@ -1,12 +1,17 @@
 import numpy as np
+from math import exp
 from neurovec3D import NeuroVector3D
 
+def sigmoid(x):
+    lambd = float('inf')
+    apt = .1
+    return 1./(1+exp(-lambd*(x-apt)))
 
 def reachedActionPotential(a: NeuroVector3D) -> bool:
-    return ((a.getMS() - a.bias) > 0.1).any()
+    return sigmoid(a.getMS().max() - a.bias)
 
 def inhibit(inp: NeuroVector3D, neuron: NeuroVector3D):
-    return neuron * float(not reachedActionPotential(inp))
+    return neuron * float(1. - reachedActionPotential(inp))
 
 def doAND(a, b):
     # excitatory
