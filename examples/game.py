@@ -12,6 +12,7 @@ from simulation.roadpersue import RoadPursue
 from simulation.pursue import Pursue
 from simulation.imguiapp import ImGuiApp
 
+
 from PIL import Image
 from typing import List
 from OpenGL.GL import *
@@ -31,7 +32,7 @@ import glm
 class Game:
 
     movementMode   = { 0: 'r', 1: 'h', 2: 'a' }
-    camouflageMode = { 0: 'f', 1: 'i', 2: 'p', 3: 'rp', 4: 'cp', 5: 'uav' }
+    camouflageMode = { 0: 'f', 1: 'i', 2: 'p', 3: 'rp', 4: 'uav' }
     selectedMovementMode = 0
     selectedCamouflageMode = 0
     lockCamera: bool = False
@@ -117,6 +118,13 @@ class Game:
             self.m_Application.m_ActiveScene.m_Registry.removeEntity(line)
         
         self.lines.clear()
+        try:
+            self.m_Application.m_ActiveScene.m_Registry.removeEntity(self.ground)
+            self.m_Application.m_ActiveScene.m_Registry.removeEntity(self.uproad)
+        except:
+            return
+
+    
 
     def startSimulation(self):
         self.clearScene()
@@ -131,12 +139,14 @@ class Game:
         elif camMode == 'p' :
             self.simulation = Pursue(self.imGuiApp.RESOLUTION, mode)
         elif camMode == 'rp' :
+            self.ground = cube(self.m_Application.m_ActiveScene, (25, 0, 25), (.5, .5, .5, 1), (30, 1, 100))
+            self.uproad = cube2(self.m_Application.m_ActiveScene, (25, 2.5, 25), (.6, .6, .6, 1), (30, 4, 30))
+            
+
             self.simulation = RoadPursue(self.imGuiApp.RESOLUTION, mode, self.m_Application)
-        elif camMode == 'cp':
-            self.simulation = Checkpoint(self.imGuiApp.RESOLUTION, mode)
-        elif camMode == 'uav':
+        """elif camMode == 'uav':
             self.simulation = UavSimulation(self.imGuiApp.RESOLUTION, mode)
-        
+        """
         self.preyTransform.m_Entity.m_isActive = camMode != 'cp'
 
         self.selectedCamouflageMode = self.imGuiApp.selectedCamouflageMode
@@ -193,12 +203,12 @@ class Game:
 
                 self.c_lastpos = glm.vec3(*self.simulation.prey)
                 self.p_lastpos = glm.vec3(*self.simulation.pred)
-        elif self.camouflageMode[self.selectedCamouflageMode] == 'cp':
+            """elif self.camouflageMode[self.selectedCamouflageMode] == 'cp':
             rps = self.simulation.getReferenceVectors()
 
             for _ in range(len(rps)):
                 self.imGuiApp.other_plots = self.simulation.other
-                
+            """        
         elif self.camouflageMode[self.selectedCamouflageMode] == 'uav':
             pass
         
