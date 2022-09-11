@@ -18,9 +18,6 @@ class RoadPursue(Simulation):
         self.H  = 6
         self.tresh = 0.2
 
-        self.ground = cube(self.m_Application.m_ActiveScene, (25, 0, 25), (.5, .5, .5, 1), (30, 1, 100))
-        self.uproad = cube2(self.m_Application.m_ActiveScene, (25, 2.5, 25), (.6, .6, .6, 1), (30, 4, 30))
-
         self.pred = glm.vec3(25, 7, -10.5)
         self.prey = glm.vec3(25, 0.7, -10)
 
