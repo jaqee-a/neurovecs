@@ -22,24 +22,24 @@ class Drone :
     theta               = 42.44 #degrees
     capacity            = 30
     resolution = 10
-    #obstacles = []
+    initPosition1 = [300, 40, 300]
+    initPosition2 = [0, 10, 300]
 
-    def __init__ (self, app, droneMesh, obstacles=[]) :
+    def __init__ (self, app, droneMesh,  position = [300, 40, 300]) :
 
         self.color           = Drone.colors[Drone.i % 10]
         self.n_users         = 0
         self.connected_users = []
-        self.obstacles       = obstacles
         
         
-        self.position  = glm.vec3(300, 40, 300) #meter
+        self.position  = glm.vec3(position) #meter
         self.obj       = self.generateFromMesh(droneMesh, self.position, app).getComponent(core.components.transform.Transform)
         #self.coneObj   = self.generateFromMesh(coneMesh, self.position-glm.vec3(0, self.position.y, 0), app).getComponent(core.components.transform.Transform)
         
         Drone.i += 1
 
         #cone(app.m_ActiveScene, (25, 0, 25), 8, [0, 0, 1, .1], [5, 20, 5])
-        self.lastStop = glm.vec3(0, 15, 0)
+        self.lastStop = glm.vec3(0, 15, 300)
         
 
     def generateFromMesh(self, mesh: core.components.mesh.Mesh, position, app):
@@ -51,7 +51,7 @@ class Drone :
         return obj
 
 
-    def force(self, users, drones, non_con) :
+    def force(self, users, drones, non_con, obstacles) :
 
         #Attracton force with the users 
         init = glm.vec3(0)
@@ -79,7 +79,7 @@ class Drone :
         #Repulsion force with the obstacles
         F3 = NeuroVector3D.fromCartesianVector(*init, self.resolution)
 
-        for obstacle in self.obstacles :
+        for obstacle in obstacles :
             if obstacle.type == 'y' :
                 obstacle.position.y = self.position.y
                 v   = self.position - obstacle.position
