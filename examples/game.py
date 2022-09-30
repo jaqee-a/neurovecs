@@ -144,9 +144,11 @@ class Game:
             
 
             self.simulation = RoadPursue(self.imGuiApp.RESOLUTION, mode, self.m_Application)
-        """elif camMode == 'uav':
-            self.simulation = UavSimulation(self.imGuiApp.RESOLUTION, mode)
-        """
+
+        elif camMode == 'uav':
+            exit()
+            #GameMultiDrone()
+            
         self.preyTransform.m_Entity.m_isActive = camMode != 'cp'
 
         self.selectedCamouflageMode = self.imGuiApp.selectedCamouflageMode
