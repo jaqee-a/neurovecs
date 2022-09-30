@@ -77,7 +77,7 @@ class GameMultiDrone:
 
     def makeDroneMesh(self):
 
-        droneObject = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj',[60,60,60])
+        droneObject = ObjParser.parse(self.m_Application.m_ActiveScene, 'assets/drone.obj',[30,30,30])
 
         droneObject.m_isActive = False
         return droneObject.getComponent(core.components.cMesh.CMesh)    
@@ -117,7 +117,7 @@ class GameMultiDrone:
 
         self.droneMesh = self.makeDroneMesh()
         self.obstacleMesh_x = self.makeObstacleMesh((12,4,12))
-        self.obstacleMesh_y = self.makeObstacleMesh((2, 40 ,12))
+        self.obstacleMesh_y = self.makeObstacleMesh((2, 40 ,2))
         
 
 
@@ -170,7 +170,7 @@ class GameMultiDrone:
 
             if not self.First :
                 self.drones    = [Drone(self.m_Application, self.droneMesh, Drone.initPosition2)]
-                self.users     = [User(self.height, self.width, self.m_Application, self.obstacles, (1,1,1,1), [80, 30]) for _ in range(self.n_users)]
+                self.users     = [User(self.height, self.width, self.m_Application, self.obstacles, (1,1,1,1), [200, 30]) for _ in range(self.n_users)]
                 
 
         
@@ -183,9 +183,8 @@ class GameMultiDrone:
                     self.obstacles.append(obstacle(i, j, 2, self.m_Application, self.obstacleMesh_x, 'x'))
                     
                 elif self.lines[i][j] == 'y' :
-                    
-                        self.obstacles.append(obstacle(i, j, 20, self.m_Application, self.obstacleMesh_y, 'y'))
-                    #self.obstacles.append(obstacle(i, j+.5, 15, self.m_Application, self.obstacleMesh_y, 'y'))
+                    for k in range(6):
+                        self.obstacles.append(obstacle(i, j+k/6, 20, self.m_Application, self.obstacleMesh_y, 'y'))
                     
 
         
