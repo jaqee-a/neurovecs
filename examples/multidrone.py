@@ -12,7 +12,7 @@ sys.path.append('py-engine')
 sys.path.append('src')
 
 from simulation.simulation import Simulation
-from simulation.imguiappUAV import ImGuiAppUav
+from simulation.imguiapp import ImGuiApp
 
 from PIL import Image
 from typing import List
@@ -52,16 +52,21 @@ class GameMultiDrone:
 
     cameraTransform: core.components.transform.Transform
 
-    imGuiApp: ImGuiAppUav
+    imGuiApp: ImGuiApp
     simulation: Simulation = None
 
     iteration = 0
+
+    drones : List[object] = []
+    users  : List[object] = []
+    obstacles : List[object] = []
 
     n_users = 100
     n_drones = 4
     non_connected_tr = 10
     non_connected = n_users
     T = 2
+    First = False
     
 
     userShader: Shader = None
@@ -93,6 +98,8 @@ class GameMultiDrone:
 
 
     def initGame(self, application: core.application.Application):
+
+        self.initApp()
         self.m_Application = application
         self.m_Application.m_ActiveScene = core.scene.Scene()
 
@@ -106,37 +113,16 @@ class GameMultiDrone:
         # Setting the input events
         self.m_Application.setOnMouseMove(self.onMouseMove)
         self.m_Application.setProcessInputFunc(self.processInput)
-
-        # Loading the drone objects
-        self.ground = cube(self.m_Application.m_ActiveScene, (300, 0, 300), (.6, .6, .6, 1), (self.height, 1, self.width))
+       
 
         self.droneMesh = self.makeDroneMesh()
         self.obstacleMesh_x = self.makeObstacleMesh((12,4,12))
-        self.obstacleMesh_y = self.makeObstacleMesh((2, 20 ,2))
-        #self.coneMesh = self.makeConeMesh()
-
-        lines = loadMap('file.txt')
-        self.obstacles = []
+        self.obstacleMesh_y = self.makeObstacleMesh((2, 40 ,12))
         
-
-        for i in range(len(lines)):
-            for j in range(len(lines[i])):
-                if lines[i][j] == 'x' :
-                    self.obstacles.append(obstacle(i, j, 2, self.m_Application, self.obstacleMesh_x, 'x'))
-                    
-                elif lines[i][j] == 'y' :
-                    self.obstacles.append(obstacle(i, j, 10, self.m_Application, self.obstacleMesh_y, 'y'))
-                    #self.obstacles.append(obstacle(i, j+.5, 15, self.m_Application, self.obstacleMesh_y, 'y'))
-                    
-
-        self.drones    = [Drone(self.m_Application, self.droneMesh, self.obstacles) for _ in range(self.n_drones)]
-        self.users     = [User(self.height, self.width, self.m_Application, self.obstacles, (1,1,1,1)) for _ in range(self.n_users)]
-        
-        self.initApp()
 
 
     def initApp(self):
-        self.imGuiApp = ImGuiAppUav()
+        self.imGuiApp = ImGuiApp()
         self.imGuiApp.startSimulationFunc = self.startSimulation
         self.imGuiApp.takeScreenshotFunction = self.takeScreenshot
 
@@ -154,13 +140,58 @@ class GameMultiDrone:
 
 
     def clearScene(self):
-        for line in self.lines:
-            self.m_Application.m_ActiveScene.m_Registry.removeEntity(line)
-        
-        self.lines.clear()
+        for drone in self.drones :
+            drone.position = glm.vec3(Drone.initPosition1)
+            drone.obj.m_Position = drone.position
+
+        if not self.lines :
+            for line in self.lines:
+                self.m_Application.m_ActiveScene.m_Registry.removeEntity(line)
+            
+            self.lines.clear()
+        try:
+            self.m_Application.m_ActiveScene.m_Registry.removeEntity(self.ground)
+            #self.m_Application.m_ActiveScene.m_Registry.removeEntity(self.uproad)
+        except:
+            return
 
     def startSimulation(self):
         self.clearScene()
+        print(self.imGuiApp.selectedMovementMode)
+        if self.imGuiApp.selectedMovementMode == 0 :
+            self.lines = loadMap('file.txt')
+
+            if not self.First :
+                self.drones    = [Drone(self.m_Application, self.droneMesh) for _ in range(self.n_drones)]
+                self.users     = [User(self.height, self.width, self.m_Application, self.obstacles, (1,1,1,1), [30, 30]) for _ in range(self.n_users)]
+                
+        elif self.imGuiApp.selectedMovementMode == 1 :
+            self.lines = loadMap('file2.txt')
+
+            if not self.First :
+                self.drones    = [Drone(self.m_Application, self.droneMesh, Drone.initPosition2)]
+                self.users     = [User(self.height, self.width, self.m_Application, self.obstacles, (1,1,1,1), [80, 30]) for _ in range(self.n_users)]
+                
+
+        
+        self.ground = cube(self.m_Application.m_ActiveScene, (300, 0, 300), (.6, .6, .6, 1), (self.height, 1, self.width))
+
+        
+        for i in range(len(self.lines)):
+            for j in range(len(self.lines[i])):
+                if self.lines[i][j] == 'x' :
+                    self.obstacles.append(obstacle(i, j, 2, self.m_Application, self.obstacleMesh_x, 'x'))
+                    
+                elif self.lines[i][j] == 'y' :
+                    
+                        self.obstacles.append(obstacle(i, j, 20, self.m_Application, self.obstacleMesh_y, 'y'))
+                    #self.obstacles.append(obstacle(i, j+.5, 15, self.m_Application, self.obstacleMesh_y, 'y'))
+                    
+
+        
+        self.First = True
+              
+
         self.onStartNew()
 
     def onStartNew(self):
