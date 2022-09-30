@@ -23,7 +23,7 @@ class Drone :
     capacity            = 30
     resolution = 10
     initPosition1 = [300, 40, 300]
-    initPosition2 = [0, 10, 300]
+    initPosition2 = [0, 10, 100]
 
     def __init__ (self, app, droneMesh,  position = [300, 40, 300]) :
 
@@ -84,7 +84,7 @@ class Drone :
                 obstacle.position.y = self.position.y
                 v   = self.position - obstacle.position
                 n_v = NeuroVector3D.fromCartesianVector(*v, self.resolution)
-                l   = (NeuroVector3D.extractPolarParameters(n_v)[2] - 1)
+                l   = (NeuroVector3D.extractPolarParameters(n_v)[2] - 16)
                 NeuroVector3D.normalize(n_v)
                 F3 += n_v * float(1 / (l**2))
             
