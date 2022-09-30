@@ -18,15 +18,15 @@ import core.time
 
 class User :
 
-    def __init__(self, height, width, app, obstacles, color) -> None:
+    def __init__(self, height, width, app, obstacles, color, size=[30, 30]) -> None:
         
         self.height, self.width = height, width
         self.velocity    = random.uniform(1.25, 1.5) # m/s
-        self.position    = glm.vec3(random.randint(30, self.height -30), 5, random.randint(30, self.width - 30))
+        self.position    = glm.vec3(random.randint(size[0], self.height -size[0]), 5, random.randint(size[1], self.width - size[1]))
         self.obstacles   = obstacles
         
         while self.isValid() == False :
-              self.position = glm.vec3(random.randint(13, self.height -13), 5, random.randint(13, self.width - 13))
+              self.position = glm.vec3(random.randint(size[0], self.height -size[0]), 5, random.randint(size[1], self.width - size[1]))
 
         self.userMesh    = self.makeUserMesh(app, color)
         self.obj         = self.generateFromMesh(self.userMesh, self.position, app).getComponent(core.components.transform.Transform)
