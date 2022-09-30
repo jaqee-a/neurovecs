@@ -65,7 +65,7 @@ def update(drones, users, non_con_tr, app, T, droneMesh, obstacles) :
 
     for drone in drones :
 
-        F = drone.force(users, drones, non_con)
+        F = drone.force(users, drones, non_con, obstacles)
         #print(glm.length(F))
       
         dt = glm.normalize(F) 
