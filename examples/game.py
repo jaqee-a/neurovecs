@@ -125,7 +125,7 @@ class Game:
             return
 
     
-
+ 
     def startSimulation(self):
         self.clearScene()
 
@@ -146,7 +146,8 @@ class Game:
             self.simulation = RoadPursue(self.imGuiApp.RESOLUTION, mode, self.m_Application)
 
         elif camMode == 'uav':
-            exit()
+            glfw.destroy_window(self.m_Application.m_Window)
+           
             #GameMultiDrone()
             
         self.preyTransform.m_Entity.m_isActive = camMode != 'cp'
