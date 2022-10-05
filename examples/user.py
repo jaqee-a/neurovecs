@@ -19,6 +19,8 @@ import core.time
 class User :
 
     def __init__(self, height, width, app, obstacles, color, size=[30, 30]) -> None:
+
+        self.m_app = app
         
         self.height, self.width = height, width
         self.velocity    = random.uniform(1.25, 1.5) # m/s
@@ -29,7 +31,7 @@ class User :
               self.position = glm.vec3(random.randint(size[0], self.height -size[0]), 5, random.randint(size[1], self.width - size[1]))
 
         self.userMesh    = self.makeUserMesh(app, color)
-        self.obj         = self.generateFromMesh(self.userMesh, self.position, app).getComponent(core.components.transform.Transform)
+        self.obj         = self.generateFromMesh(self.userMesh, self.position, app)
         self.isConnected = None
 
         self.theta       = 0
@@ -55,6 +57,9 @@ class User :
         obj.addComponent(core.components.transform.Transform, *position, *([0]*3))
 
         return obj
+
+    def destroy(self) :
+        self.m_app.m_ActiveScene.m_Registry.removeEntity(self.obj)
 
     def isValid(self):
 
