@@ -23,22 +23,20 @@ class Drone :
     capacity            = 30
     resolution = 10
     initPosition1 = [300, 40, 300]
-    initPosition2 = [0, 10, 100]
+    initPosition2 = [0, 10, 200]
 
     def __init__ (self, app, droneMesh,  position = [300, 40, 300]) :
+        
+        self.m_app = app
 
         self.color           = Drone.colors[Drone.i % 10]
         self.n_users         = 0
         self.connected_users = []
         
-        
         self.position  = glm.vec3(position) #meter
-        self.obj       = self.generateFromMesh(droneMesh, self.position, app).getComponent(core.components.transform.Transform)
-        #self.coneObj   = self.generateFromMesh(coneMesh, self.position-glm.vec3(0, self.position.y, 0), app).getComponent(core.components.transform.Transform)
-        
+        self.obj       = self.generateFromMesh(droneMesh, self.position, app)
+       
         Drone.i += 1
-
-        #cone(app.m_ActiveScene, (25, 0, 25), 8, [0, 0, 1, .1], [5, 20, 5])
         self.lastStop = glm.vec3(0, 15, 300)
         
 
@@ -49,6 +47,9 @@ class Drone :
         obj.addComponent(core.components.transform.Transform, *position, *([0]*3))
 
         return obj
+
+    def destroy(self):
+        self.m_app.m_ActiveScene.m_Registry.removeEntity(self.obj)
 
 
     def force(self, users, drones, non_con, obstacles) :
