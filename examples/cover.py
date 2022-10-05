@@ -2,13 +2,13 @@ import glm
 
 from core.components.mesh import Mesh
 from drone import Drone
-from user import User
-import numpy as np
 import core.time
+from simulation.imguiapp import ImGuiApp
 
 
     
 nonConnectedColor = glm.vec4(0 , 0, 0, 1.0)
+
 
 def average_SNR(users) :
 
@@ -52,37 +52,25 @@ def reArrange(users, drones, T) :
             drone.n_users += 1
             drone.connected_users.append(snr_list[i][1])
             i += 1
-            #user.obj.m_color = drone.color
-        
 
     return non_con
 
 
-def update(drones, users, non_con_tr, app, T, droneMesh, obstacles) :
+def update(drones, users, T, obstacles) :
     non_con = reArrange(users, drones, T)
-
-    stable = True
 
     for drone in drones :
 
         F = drone.force(users, drones, non_con, obstacles)
-        #print(glm.length(F))
-      
+        
         dt = glm.normalize(F) 
         drone.position += dt
-        drone.obj.m_Position = drone.position
+        drone.obj.getComponent(core.components.transform.Transform).m_Position = drone.position
         
-        #drone.coneObj.m_Position = drone.position - glm.vec3(0, 20, 0)
-    
-    """n_p = non_con * 100 / len(users)
-    if stable == True and n_p > non_con_tr :
-    
-        d = Drone(app, droneMesh, obstacles)
-        drones.insert(0, d)
-        stable = False"""
+        
     
     for user in users:
-        uMesh = user.obj.m_Entity.getComponent(Mesh)
+        uMesh = user.obj.getComponent(core.components.transform.Transform).m_Entity.getComponent(Mesh)
 
         if user.isConnected: 
             uMesh.m_BlendColor = user.isConnected.color
