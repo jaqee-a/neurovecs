@@ -1,3 +1,3 @@
 [submodule "py-engine"]
 	path = py-engine
-	url = git@github.com:MohDe31/py-engine.git
+	url = https://github.com/jaqee-a/py-engine.git
