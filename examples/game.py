@@ -279,11 +279,11 @@ class Game:
                     self.p_lastpos = glm.vec3(*self.simulation.pred)
 
                 if self.simulation.iteration > 1 and self.simulation.iteration % 10 == 0 :
-                    self.lines.append(line(self.m_Application.m_ActiveScene, self.simulation.prey, self.simulation.pred, [0, 1, 0, .5]))
+                    self.lines.append(line(self.m_Application.m_ActiveScene, self.simulation.prey, self.simulation.pred, [0, 1, 0, .3]))
                     self.lines.append(line(self.m_Application.m_ActiveScene, self.c_lastpos, self.simulation.prey, [0, 0, 1, 1]))
-                    self.lines.append(line(self.m_Application.m_ActiveScene, glm.vec3(self.c_lastpos.x, self.c_lastpos.y+0.02, self.c_lastpos.z), glm.vec3(self.simulation.prey.x, self.simulation.prey.y+0.02, self.simulation.prey.z) , [0, 0, 1, 1]))
+                    #self.lines.append(line(self.m_Application.m_ActiveScene, glm.vec3(self.c_lastpos.x, self.c_lastpos.y+0.02, self.c_lastpos.z), glm.vec3(self.simulation.prey.x, self.simulation.prey.y+0.02, self.simulation.prey.z) , [0, 0, 1, 1]))
                     self.lines.append(line(self.m_Application.m_ActiveScene, self.p_lastpos, self.simulation.pred, [1, 0, 0, 1]))
-                    self.lines.append(line(self.m_Application.m_ActiveScene, glm.vec3(self.p_lastpos.x, self.p_lastpos.y+0.02, self.p_lastpos.z), glm.vec3(self.simulation.pred.x, self.simulation.pred.y+0.02, self.simulation.pred.z) , [1, 0, 0, 1]))
+                    #self.lines.append(line(self.m_Application.m_ActiveScene, glm.vec3(self.p_lastpos.x, self.p_lastpos.y+0.02, self.p_lastpos.z), glm.vec3(self.simulation.pred.x, self.simulation.pred.y+0.02, self.simulation.pred.z) , [1, 0, 0, 1]))
 
                     self.c_lastpos = glm.vec3(*self.simulation.prey)
                     self.p_lastpos = glm.vec3(*self.simulation.pred)
