@@ -24,7 +24,7 @@ class Pursue(Simulation):
         return rp
     
     def simulationOver(self):
-        return  self.iteration > 500
+        return  self.iteration > 700
          
     def run(self):
         super().run()
